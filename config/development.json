@@ -1,0 +1,15 @@
+{
+  "appName": "ATC API Dev",
+  "frontEndUrl": "http://localhost:3000",
+  "enableLogging": "true",
+  "api": {
+    "paystack": {
+      "baseUrl": "https://api.paystack.co"
+    }
+  },
+  "modules": {
+    "sequelize": {
+      "url": "mysql://localhost:3306/atcdb"
+    }
+  }
+}
