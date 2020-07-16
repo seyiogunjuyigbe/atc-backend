@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "ATC API (Docker, NodeJs, ExpressJs, Sequelize)",
   "license": "MIT",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
     "migrate": "./node_modules/.bin/sequelize db:migrate",
     "setupdbs": "bin/bms createdb -d && bin/bms createdb -t",
@@ -12,13 +12,13 @@
     "audit": "npm-audit",
     "test": "NODE_ENV=test npm run migrate && DB_LOGGING=false LOG_ERRORS=false mocha --exit --recursive --reporter dot \"test/**/*.spec.ts\"",
     "test:verbose": "NODE_ENV=test npm run migrate && DB_LOGGING=true LOG_ERRORS=true mocha --exit --recursive --reporter dot \"test/**/*.spec.ts\"",
-    "serve": "npm run migrate && node app.js",
+    "serve": "npm run migrate && node src/app.js",
     "coverage": "nyc --include=\"src/**/*.ts\" --reporter=text --reporter=html --reporter=lcov mocha --exit --recursive \"test/**/*.spec.ts\"",
     "watch": "npm run build -- --watch",
     "watch:test": "npm run test -- --watch",
     "dev": "nodemon --exec \"node --require dotenv/config\" --watch .",
-    "prod": "npm run migrate && node app.js",
-    "stag": "node app.js"
+    "prod": "npm run migrate && node src/app.js",
+    "stag": "node src/app.js"
   },
   "dependencies": {
     "@casl/ability": "^2.5.0",
