@@ -1,0 +1,8 @@
+Hello {{firstName}},
+
+Thanks for signing up on Africa Travel Club.
+Please use the below OTP to complete your signup:
+
+<%= locals.otp %>
+
+Note: This link is valid for 1 hour from the time it was sent to you and can only be used once.

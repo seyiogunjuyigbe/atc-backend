@@ -1,0 +1,26 @@
+# User Models
+  UserRegister:
+    type: object
+    properties:
+      email:
+        type: string
+        required: true
+        description: user email
+      password:
+        type: string
+        description: user password
+        required: true
+      phone:
+        type: string
+        description: user phone number
+      firstName:
+        type: string
+        required: false
+        description: user first name
+      lastName:
+        type: string
+        required: false
+        description: user last name
+      gender:
+        type: string
+        enum: [male, female]
