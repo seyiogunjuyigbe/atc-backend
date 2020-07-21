@@ -3,7 +3,6 @@ node_modules/
 .nyc_output
 .editorconfig
 .vscode
-.env
 .tmp
 .idea/
 *.iml
@@ -12,6 +11,7 @@ lib/
 .DS_Store
 */**/.DS_Store
 *.log
+.env
 
 # To restrict the app to using only package-lock.json
 yarn.lock
