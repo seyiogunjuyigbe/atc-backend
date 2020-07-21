@@ -45,13 +45,15 @@ module.exports = {
                         data['token'] = token;
 
                         //hash password
-                        var hashedPassword = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(8), null);
+                        let hashedPassword = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(8), null);
                         data['password'] = hashedPassword;
-                        const Newuser = await models.users.create(req.body);
+                        data['isActive'] = false;
+                        const Newuser = await models.users.create(data);
                         if (Newuser) {
                          // _email.sendEmailSignUpToken(Newuser, token);
                           let  url = generalFunctions.getURL();
-                          let  resetURL = url + 'account/verifytoken/' + token;
+                          let  resetURL = url + `auth/${Newuser.id}/verify/${token}`;
+                          
 
                           let  MailTemplateName = 'account_activation.html';
                           let  MailData = {
@@ -108,7 +110,8 @@ ResendTokenEmail: (req, res) => {
       //check if token exists in the user's data
       if(!user.token) return res.status(201).send(responses.error(201, "Found no token in your account"));
 
-      
+      let  url = generalFunctions.getURL();
+      let  resetURL = url + `auth/${user.id}/verify/${user.token}`;
 
       if(email){
           
@@ -116,7 +119,8 @@ ResendTokenEmail: (req, res) => {
         let MailTemplateName = 'Resend_Token.html';
             let MailData = {
                 name: email,
-                token: user.token
+                token: user.token,
+                resetURL: resetURL
             };
             let MailRecipient = email;
             let MailSubject = `Account verification -  AfricanTravelclub account`;
@@ -131,17 +135,17 @@ ResendTokenEmail: (req, res) => {
 
 //validate Email token to activate account
 ValidateEmailToken: (req, res) => {
-  if(!req.body.email || !req.body.token){
+  if(!req.params.id || !req.params.token){
       return res.status(201).send(responses.error(201, "Please provide required fields"));
   }
 
-  var email = req.body.email;
-  var token = req.body.token;
+  let id = req.params.id;
+  let token = req.body.token;
 
   //find the user
   models.users.findOne({
       where: {
-          email: email,
+          id: id,
           token: token
       }
   }).then(async function(user){
@@ -245,108 +249,103 @@ ValidateEmailToken: (req, res) => {
     try {
       const email = req.body.email;
       const address = req.headers.host;
-      const company = await Company.findOne({
+      const user = await models.users.findOne({
         email
       });
-      const token = company._id;
-      if (!company) {
+     
+      const token = uuidv1();
+      if (!user) {
         return res
           .status(400)
-          .send(responses.error(400, `Company with ${email} doesn't exit`));
+          .send(responses.error(400, `User with ${email} doesn't exit`));
       } else {
-        company.passwordResetExpires = Date.now() + 86400000;
-        await company.save();
-        _email
-          .forgotPasswordEmailCompany(email, token, address)
-          .then(response => response)
-          .catch(error => {
-            if (error) {
-              return res
-                .status(500)
-                .send(
-                  responses.error(500, "Forgot e-mail service is not working")
-                );
-            }
-          });
-        return res
-          .status(200)
-          .send(
-            responses.success(
-              200,
-              `An e-mail has been sent to ${email} with further instructions.`,
-              company
-            )
-          );
+
+            var data = {
+              token:token ,
+              passwordResetExpires : Date.now() + 86400000
+             }
+          if(email){
+
+            var url = generalFunctions.getURL();
+            var resetURL = url + 'reset-password/' + token;
+
+            var MailTemplateName = 'forgotpassword.html';
+            var MailData = {
+                name: user.firstName + ' ' + user.lastName,
+                token: token,
+                resetURL: resetURL
+            };
+            var MailRecipient = email;
+            var MailSubject = `Action required: Reset your password`;
+
+            _email.sendTemplatedMail(MailTemplateName, MailData, MailRecipient, MailSubject)
+            .then(response => response)
+            .catch(error => {
+              if (error) {
+                return res
+                  .status(500)
+                  .send(
+                    responses.error(500, "Forgot e-mail service is not working")
+                  );
+              }
+            });
+
+        }
+        models.users.update(data, {where: {id: user.id}}).then(function(updatedUser){    
+          return res.status(200).send(responses.success(200,`An e-mail has been sent to ${email} with further instructions.`,user));
+        });
+       
       }
     } catch (error) {
       return res
         .status(500)
-        .send(responses.error(500, `Error getting a company ${error.message}`));
+        .send(responses.error(500, `Error getting a user ${error.message}`));
     }
   },
 
   postReset: async (req, res) => {
-    const { companyId } = req.params;
-    const company = await Company.findOne({
-      _id: companyId,
+    const { userId } = req.params;
+    const user =  models.user.findOne({
+      id: userId,
       passwordResetExpires: {
-        $gt: Date.now()
+        $gte: Date.now()
       }
     });
 
-    if (!company) {
-      return res
-        .status(400)
-        .send(
-          responses.error(
-            400,
-            "Company not found or Password reset has expired."
-          )
-        );
+    if (!user) {
+      return res.status(400).send(responses.error(400,"User not found or Password reset has expired."));
     } else {
       const hashPwd = bcrypt.hashSync(
         req.body.password,
         bcrypt.genSaltSync(8),
         null
       );
-      company.password = hashPwd;
-      company.passwordResetExpires = undefined;
-      await company.save();
-      return res
-        .status(200)
-        .send(
-          responses.success(
-            200,
-            "You have successfully reset your password",
-            company
-          )
-        );
+      const data = {
+        password:hashPwd ,
+        passwordResetExpires :  undefined
+       }
+       
+       models.users.update(data, {where: {id: user.id}}).then(function(updatedUser){    
+        
+        return res.status(200).send(responses.success(200,"You have successfully reset your password",updatedUser));
+      });
+      
+      
     }
   },
 
   getReset: async (req, res, next) => {
-    const { companyId } = req.params;
-    const company = await Company.findOne({
-      _id: companyId,
+    const { userId } = req.params;
+    const user =  models.user.findOne({
+      id: userId,
       passwordResetExpires: {
-        $gt: Date.now()
+        $gte: Date.now()
       }
     });
-    if (!company) {
-      return res
-        .status(400)
-        .send(
-          responses.error(
-            400,
-            "Company not found or Password reset has expired."
-          )
-        );
+    if (!user) {
+      return res.status(400).send(responses.error(400,"user not found or Password reset has expired."));
     } else {
-      return res
-        .status(200)
-        .send(
-          responses.success(200, "Reset Password link is still valid", company)
-        );
+      return res.status(200).send(responses.success(200, "Reset Password link is still valid", user));
     }
   }
 };

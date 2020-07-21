@@ -32,6 +32,9 @@ module.exports = {
       roleID: {
         type: Sequelize.INTEGER
       },
+      passwordResetExpires: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

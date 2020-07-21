@@ -8,7 +8,8 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     token: DataTypes.STRING,
     isActive: DataTypes.BOOLEAN,
-    roleID:DataTypes.INTEGER
+    roleID: DataTypes.INTEGER,
+    passwordResetExpires: DataTypes.STRING
   }, {});
   users.associate = function(models) {
     // associations can be defined here
