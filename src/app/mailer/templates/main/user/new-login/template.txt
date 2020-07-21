@@ -1,0 +1,11 @@
+Hello <%= locals.firstName %>,
+
+We detected a new login from either a new device or a new location.
+
+Device: <%= locals.device %>
+Location <%= locals.city %> <%= locals.country %>
+
+Your safety is important to us and you’re getting this email to make sure it was you.
+
+
+If this was not you, please contact us at hello@africweddings.com immediately.

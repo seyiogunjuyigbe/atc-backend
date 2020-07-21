@@ -1,0 +1,14 @@
+{
+  "appName": "ATC API Staging",
+  "frontEndUrl": "FRONTEND_URL",
+  "modules": {
+    "sequelize": {
+      "url": "DATABASE_URL"
+    }
+  },
+  "api": {
+    "flutterwave": {
+      "baseUrl": "https://ravesandboxapi.flutterwave.com"
+    }
+  }
+}
