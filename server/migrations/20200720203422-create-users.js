@@ -29,8 +29,11 @@ module.exports = {
       isActive: {
         type: Sequelize.BOOLEAN
       },
-      roleID: {
-        type: Sequelize.INTEGER
+      role: {
+        type: Sequelize.STRING
+      },
+      passwordResetExpires: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

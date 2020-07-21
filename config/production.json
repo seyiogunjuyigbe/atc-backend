@@ -1,7 +1,0 @@
-{
-  "api": {
-    "paystack": {
-      "baseUrl": "https://api.paystack.co"
-    }
-  }
-}

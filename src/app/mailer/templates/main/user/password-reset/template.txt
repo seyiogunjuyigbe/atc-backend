@@ -1,9 +1,0 @@
-Hello {{firstName}},
-
-You initiated a password reset.
-
-Please use the below OTP to complete the process:
-
-<%= locals.otp %>
-
-Note: This link is valid for 1 hour from the time it was sent to you and can only be used once.

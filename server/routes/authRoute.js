@@ -2,15 +2,19 @@ const express = require("express");
 const authCrl = require("../controllers/AuthController");
 const authRoute = express.Router();
 
-authRoute.post("/auth/signup", AuthControllers.createUser);
-authRoute.post("/auth/login", AuthControllers.login);
+authRoute.post("/auth/signup", authCrl.createUser);
+authRoute.post("/auth/login", authCrl.login);
 authRoute.post(
   "/auth/forgot-password",
-  AuthControllers.forgotPassword
+  authCrl.forgotPassword
 );
-authRoute.get("/auth/reset/:userdId", AuthControllers.getReset);
-authRoute.put("/auth/reset/:userId", AuthControllers.postReset);
-authRoute.get("/auth/:userId", AuthControllers.viewCompany);
+authRoute.get("/auth/reset/:userdId", authCrl.getReset);
+authRoute.put("/auth/reset/:userId", authCrl.postReset);
+authRoute.get("/auth/:userId", authCrl.viewUser);
+authRouter.put(
+  "/auth/:id/verify/:token",
+  authCrl.ValidateEmailToken
+);
 
 
 
