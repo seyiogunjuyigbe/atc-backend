@@ -1,9 +1,0 @@
-Hello <%= locals.firstName %>,
-
-Your phone number has been successfully changed.
-
-Your safety is important to us and you’re getting this email to make sure it was you.
-
-
-
-If you did not initiate this request, please contact us at hello@africweddings.com

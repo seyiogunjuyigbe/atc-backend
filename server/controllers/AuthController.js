@@ -160,26 +160,26 @@ ValidateEmailToken: (req, res) => {
       
       if(user.email){
         //_email.sendEmailWelcome(user, token);
-        let MailTemplateName = 'customerWelcomeMessage.html';
-            let MailData = {
+        var  MailTemplateName = 'customerWelcomeMessage.html';
+            var  MailData = {
                 name: user.firstName,
             };
-            let MailRecipient = email;
-            let MailSubject = `Welcome to African Trade Invest`;
-            let notifyCustomer = _email.sendTemplatedMail(MailTemplateName, MailData, MailRecipient, MailSubject); 
+            var MailRecipient = email;
+            var MailSubject = "Welcome to African Trade Invest";
+             _email.sendTemplatedMail(MailTemplateName, MailData, MailRecipient, MailSubject); 
 
       }
       models.users.update(data, {where: {id: user.id}}).then(function(updatedUser){
           return res.status(200).send(responses.success(200, "Your account was successfully activated.", user));
 
-      })
-  })
+      });
+  });
 
 },
 
-  viewUser: async (req, res) => {
+  viewUser:  (req, res) => {
     try {
-      const user = await models.users.findByPk(req.params.userId);
+      const user =  models.users.findByPk(req.params.userId);
       if (!user) {
         return res.status(400).send(responses.error(400, "User not found"));
       } else {
