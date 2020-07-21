@@ -1,0 +1,32 @@
+const bcrypt = require("bcryptjs");
+const uuidv1 = require("uuid/v1");
+
+let utilities = {
+  get_password: () => {
+    const password = Math.random()
+      .toString(36)
+      .replace(/[^a-z]+/g, "")
+      .substr(0, 8);
+    const hashed_password = bcrypt.hashSync(
+      password,
+      bcrypt.genSaltSync(8),
+      null
+    );
+
+    return {
+      password,
+      hashed_password
+    };
+  },
+
+
+ getURL: () => {
+    if(env == "development"){
+        return "http://localhost:8080/";
+    } else {
+        return "http://africantravelclub.com/";
+    }
+}
+};
+
+module.exports = utilities;
