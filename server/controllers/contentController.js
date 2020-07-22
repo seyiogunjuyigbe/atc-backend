@@ -4,8 +4,10 @@ const { multerUploads, dataUri }  = require ('../middlewares/multer');
 const {uploader} = require('../config/cloudinary')
 module.exports = {
     async createContent(req,res){
-        try {
-            if(req.file) {
+        console.log('got here')
+                if(req.file) {
+                    console.log('found file')
+
                 const file = dataUri(req).content;
                 return uploader.upload(file).then((result) => {
                     const image = result.url;
@@ -23,10 +25,10 @@ module.exports = {
                      }
                     }))
                 }
-        const newUpload = await models.contents.create({...req.body});
-        if(newUpload) return success(200,'Content created successfully')
-        } catch (err) {
-           return error(500,err.message)
-        }
+                else{
+                    console.log('no file')
+                     return res.status(422).json({error:true, message:"No file uploaded"})
+                }
+
     }
 }
