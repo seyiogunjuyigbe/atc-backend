@@ -1,9 +1,11 @@
 const router = require("express").Router();;
-const {createContent} = require("../controllers/contentController");
+const {createImageContent,createVideoContent} = require("../controllers/contentController");
 const {check} = require('express-validator');
-const {multerUploads} = require('../middlewares/multer');
+const {multerImageUploads} = require('../middlewares/multer');
 const getJWT = require('../middlewares/authentication')
 const validate = require('../middlewares/validate');
 
-router.post('/new', multerUploads,createContent)
+router.post('/image/new', multerImageUploads,createImageContent)
+router.post('/video/new', multerImageUploads,createVideoContent)
+
 module.exports = router;
