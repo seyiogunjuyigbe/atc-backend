@@ -21,7 +21,8 @@ app.use(function (req, res, next) {
   next();
 });
 //log every request to the database
-app.use(morgan('dev'))
+app.use(morgan('dev'));
+
 
 app.get("/", (req, res) => {
   res.status(200).send({
