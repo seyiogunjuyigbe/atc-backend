@@ -7,8 +7,17 @@ module.exports = (sequelize, DataTypes) => {
     phoneNo: DataTypes.STRING,
     password: DataTypes.STRING,
     token: DataTypes.STRING,
-    isActive: DataTypes.BOOLEAN,
-    roleID: DataTypes.INTEGER,
+    address: DataTypes.STRING,
+    city: DataTypes.STRING,
+    country: DataTypes.STRING,
+    isActive:{
+     type: DataTypes.BOOLEAN,
+      defaultValue: false
+  },
+    role:  {
+        type:DataTypes.ENUM,
+        values: ('admin','vendor','customer')
+      },
     passwordResetExpires: DataTypes.STRING
   }, {});
   users.associate = function(models) {

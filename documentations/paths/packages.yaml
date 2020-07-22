@@ -1,0 +1,154 @@
+# Package Paths
+
+  /packages:
+    post:
+      summary: Create new package
+      description: Create a new package
+      operationId: createPackage
+      tags:
+      - Packages
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Package details
+          required: true
+          schema:
+            $ref: "#/definitions/Package"
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Package created successfully.
+    get:
+      summary: View all packages
+      description: Display all packages
+      operationId: listPackages
+      tags:
+      - Packages
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Package"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /packages/{packageId}:
+    delete:
+      summary: Deletes a package
+      description: Delete a package
+      operationId: deletePackage
+      tags:
+      - Packages
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: packageId
+          description: Package id to delete
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Package successfully deleted.
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    get:
+      summary: Get a single package
+      operationId: viewPackage
+      tags:
+      - Packages
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: packageId
+          description: Package Id to fetch
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Package"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    put:
+      summary: Update Package
+      description: Update a particular package
+      operationId: updatePackage
+      tags:
+      - Packages
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: packageId
+          description: Package id to update
+          required: true
+        - in: body
+          name: payload
+          description: Package data to update
+          schema:
+            $ref: "#/definitions/Package"
+
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Package data successfully updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

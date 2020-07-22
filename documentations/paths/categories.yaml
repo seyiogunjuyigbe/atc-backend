@@ -1,0 +1,191 @@
+# Category Paths
+
+  /categories:
+    post:
+      summary: Create new category
+      description: Create a new category
+      operationId: createCategory
+      tags:
+      - Categories
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Category details
+          required: true
+          schema:
+            $ref: "#/definitions/Category"
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Category created successfully.
+    get:
+      summary: View all categories
+      description: Display all categories
+      operationId: listCategories
+      tags:
+      - Categories
+      parameters:
+        $ref: "#/definitions/GetAuthQuery"
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Category"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /categories/{categoryId}:
+    delete:
+      summary: Deletes a category
+      description: Delete a category
+      operationId: deleteCategory
+      tags:
+      - Categories
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: categoryId
+          description: Category id to delete
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Category successfully deleted.
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    get:
+      summary: Get a single category
+      operationId: viewCategory
+      tags:
+      - Categories
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: categoryId
+          description: Category Id to fetch
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Category"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    put:
+      summary: Update Category
+      description: Update a particular category
+      operationId: updateCategory
+      tags:
+      - Categories
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: categoryId
+          description: Category id to update
+          required: true
+        - in: body
+          name: payload
+          description: Category data to update
+          schema:
+            $ref: "#/definitions/Category"
+
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Category data successfully updated
+        400:
+          description: Bad category
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+
+  /categories/{categoryId}/upload-image:
+    post:
+      summary: Upload category image
+      operationId: uploadCategoryImage
+      tags:
+      - Categories
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: categoryId
+          description: Category Id to upload image for
+          required: true
+        - in: body
+          name: image
+          description: Image to upload using formData
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Image successfully uploaded.
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

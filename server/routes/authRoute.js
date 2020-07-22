@@ -11,7 +11,7 @@ authRoute.post(
 authRoute.get("/auth/reset/:userdId", authCrl.getReset);
 authRoute.put("/auth/reset/:userId", authCrl.postReset);
 authRoute.get("/auth/:userId", authCrl.viewUser);
-authRouter.put(
+authRoute.put(
   "/auth/:id/verify/:token",
   authCrl.ValidateEmailToken
 );
