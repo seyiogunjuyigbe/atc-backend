@@ -28,6 +28,7 @@
     "geolib": "^3.0.4",
     "handlebars": "^4.7.6",
     "hashids": "^1.2.2",
+    "js-yaml": "^3.14.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.24.0",
     "mongodb": "^3.3.4",
@@ -38,6 +39,7 @@
     "nodemailer-sendgrid-transport": "^0.2.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
+    "sequelize": "^6.3.3",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -51,5 +53,4 @@
     "node": ">=8.0.0 <14.0.0",
     "yarn": "^1.16.0"
   }
-
 }

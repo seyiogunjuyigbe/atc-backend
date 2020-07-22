@@ -1,7 +1,7 @@
 const path = require('path');
 const { readFileSync, readdirSync } = require('fs');
 
-export const loadPaths = () => {
+exports.loadPaths = () => {
   let yamls = '';
   const basePath = path.join(__dirname, 'paths');
   readdirSync(basePath).forEach((file) => {
@@ -10,7 +10,7 @@ export const loadPaths = () => {
   return yamls;
 };
 
-export const loadDefinitions = () => {
+exports.loadDefinitions = () => {
   let yamls = '';
   const basePath = path.join(__dirname, 'definitions');
   readdirSync(basePath).forEach((file) => {
