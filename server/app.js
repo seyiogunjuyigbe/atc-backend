@@ -28,10 +28,10 @@ const swaggerOptions = {
   swaggerDefinition: {
     info: {
       version: "1.0.0",
-      title: "Customer API",
+      title: "African Travel Club API",
       description: "Customer API Information",
       contact: {
-        name: "Amazing Developer"
+        name: "Afeez Awotundun"
       },
       servers: ["http://localhost:5000"]
     }
