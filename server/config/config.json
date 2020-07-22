@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "olamdie",
+    "password": "olamide",
     "database": "ATC",
     "host": "127.0.0.1",
     "dialect": "mysql"
