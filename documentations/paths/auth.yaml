@@ -11,7 +11,7 @@
           description: User credentials to use for authentication
           required: true
           schema:
-            $ref: "#/models/UserLogin"
+            $ref: "#/definitions/UserLogin"
       responses:
         200:
           description: Success

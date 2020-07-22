@@ -48,7 +48,7 @@
   /users/{userId}:
     get:
       summary: Retrieve User
-      description: Retrive User on Afric Weddings
+      description: Retrive User on African Travel Club
       operationId: retrieveUser
       tags:
       - Users
@@ -205,7 +205,7 @@
   /users/search:
     get:
       summary: Search User
-      description: Search User on Afric Weddings
+      description: Search User on African Travel Club
       operationId: searchUsers
       tags:
       - Users
