@@ -1,5 +1,5 @@
 const path = require('path');
-const config = require('./config');
+const config = require('./server/config');
 const dbKey = config.get('env') === 'test' ? 'testDbUrl' : 'modules.sequelize.url';
 
 module.exports = {

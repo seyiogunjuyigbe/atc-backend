@@ -1,0 +1,15 @@
+# Package Definitions
+  Package:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+        description: Name of the package
+      price:
+        type: number
+        description: Price the package, should be 0 if free
+      features:
+        type: array
+        description: Array of feature contents that the package offers
+        

@@ -1,0 +1,58 @@
+# User Definitions
+  User:
+    type: object
+    properties:
+      firstName:
+        type: string
+        required: true
+      lastName:
+        type: string
+        required: true
+      companyName:
+        type: string
+        description: Company name if vendor
+      companyDescription:
+        type: string
+        description: Company description if vendor
+      website:
+        type: string
+        description: Vendor's website or social media page
+      email:
+        type: string
+        example: user@example.com
+      role:
+        type: string
+        enum: [customer, vendor]
+        example: customer
+        description: Please specify role if vendor as it defaults to customer
+      gender:
+        type: string
+        enum: [male, female]
+      phone:
+        type: string
+        description: user phone number
+      password:
+        type: string
+        minLength: 6
+      address:
+        type: string
+      bio:
+        type: string
+      country:
+        type: string
+        description: ObjectID of country the user is in
+      states:
+        type: array
+        description: An array of State ObjectIDs
+        items:
+          type: string
+      categories:
+        type: array
+        description: An array of Category ObjectIDs
+        items:
+          type: string
+      links:
+        type: array
+        description: An array of user social media links
+        items:
+          type: string

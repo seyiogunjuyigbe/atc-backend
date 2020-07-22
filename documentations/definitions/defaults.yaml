@@ -1,0 +1,22 @@
+# Default definitionss
+  GetAuthQuery:
+    - in: header
+      name: Authorization
+      description: Authentication token
+      required: true
+    - in: query
+      name: $limit
+      required: false
+    - in: query
+      name: $offset
+      required: false
+    - in: query
+      name: $order
+      required: false
+    - in: query
+      name: $orderBy
+      required: false
+    - in: query
+      name: $or
+      required: false
+      description: OR query e.g "GET /cars?$or=color:red,brand:toyota" to get cars that are either red in color or made by toyota

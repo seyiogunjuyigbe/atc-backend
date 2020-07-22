@@ -1,0 +1,14 @@
+# BankAccount Definitions
+  BankAccount:
+    type: object
+    properties:
+      number:
+        type: string
+        description: account number
+      bankCode:
+        type: string
+        description: bank code of the user's bank (gotten from list-banks)
+      bankId:
+        type: string
+        description: bank id of the user's bank (gotten from list-banks)
+        
