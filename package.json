@@ -38,6 +38,10 @@
     "nodemailer-sendgrid-transport": "^0.2.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
+    "sequelize": "^6.3.3",
+    "sequelize-cli": "^6.2.0",
+    "swagger-jsdoc": "^4.0.0",
+    "swagger-ui-express": "^4.1.4",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -51,5 +55,4 @@
     "node": ">=8.0.0 <14.0.0",
     "yarn": "^1.16.0"
   }
-
 }
