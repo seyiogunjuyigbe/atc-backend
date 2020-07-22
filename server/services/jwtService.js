@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken"),
-  credential = require("../config/local");
+credential = require("../config/config");
 
 module.exports = {
   generateToken: payload => {

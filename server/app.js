@@ -3,6 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const cron = require("node-cron");
 const morgan = require('morgan');
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUi = require('swagger-ui-express');
+
 
 
 const app = express();
@@ -19,7 +22,27 @@ app.use(function(req, res, next) {
   next();
 });
 //log every request to the database
-app.use(morgan('dev'))
+app.use(morgan('dev'));
+// Extended: https://swagger.io/specification/#infoObject
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      version: "1.0.0",
+      title: "Customer API",
+      description: "Customer API Information",
+      contact: {
+        name: "Amazing Developer"
+      },
+      servers: ["http://localhost:5000"]
+    }
+  },
+  // ["app.js"]
+  apis: ['.routes/*.js']
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 
 app.get("/", (req, res) => {
   res.status(200).send({
