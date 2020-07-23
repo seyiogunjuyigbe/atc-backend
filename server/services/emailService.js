@@ -2,6 +2,7 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 const sgTransport = require('nodemailer-sendgrid-transport');
 const handlebars = require('handlebars');
+const path = require('path');
 const fs = require('fs');
 const DEFAULT_EMAIL_SENDER = process.env.DEFAULT_EMAIL_SENDER;
 const SMTP_USERNAME = process.env.SENDGRID_USER;
@@ -9,8 +10,8 @@ const SMTP_PASSWORD = process.env.SENDGRID_PASSWORD;
 
 let MailController = {};
 
-let readHTMLFile = function (path, callback) {
-  fs.readFile(path, { encoding: 'utf-8' }, function (err, html) {
+let readHTMLFile = function (argPath, callback) {
+  fs.readFile(path.join(__dirname, argPath), { encoding: 'utf-8' }, function (err, html) {
     if (err) {
       throw err;
       callback(err);
@@ -33,16 +34,16 @@ MailController.sendTemplatedMail = async function (
     },
   };
 
-  readHTMLFile('public/emailtemplates/header.html', function (err, headerHtml) {
+  readHTMLFile('../public/emailtemplates/header.html', function (err, headerHtml) {
     let header = headerHtml;
 
-    readHTMLFile('public/emailtemplates/footer.html', function (
+    readHTMLFile('../public/emailtemplates/footer.html', function (
       err,
       footerHtml,
     ) {
       let footer = footerHtml;
 
-      readHTMLFile(`public/emailtemplates/${templateName}`, async function (
+      readHTMLFile(`../public/emailtemplates/${templateName}`, async function (
         err,
         html,
       ) {
