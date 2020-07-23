@@ -4,7 +4,7 @@ info:
   title: African Travel Club API
 # during dev, should point to your local machine
 # host: localhost
-basePath: /api
+basePath: /api/v1
 #
 schemes:
 # tip: remove http to make production-grade
