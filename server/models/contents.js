@@ -19,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       values: ('video','image','gif')
     },
-    forId: DataTypes.INTEGER
+    forId: DataTypes.INTEGER,
+    url:DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'contents',

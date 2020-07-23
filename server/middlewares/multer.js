@@ -8,7 +8,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'content',
-    public_id: (req, file) => req.files.forEach(file=>{return file.originalname}),
+    public_id: (req, file) => {return file.originalname},
   },
 });
  
