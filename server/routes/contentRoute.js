@@ -4,10 +4,6 @@ const {
     fetchContent,
     deleteContent,
     fetchAllContent,
-    fetchAllGifs,
-    fetchAllImages,
-    fetchAllVideos,
-    fetchContentForThisType
 } = require("../controllers/contentController");
 const {
     check
@@ -22,9 +18,6 @@ router.post('/new', parser.single('content'), [
 ], validate, createContent)
 router.get('/fetch/:contentId', fetchContent)
 router.get('/delete/:contentId', deleteContent)
-router.get('/fetch-all/video', fetchAllVideos)
-router.get('/fetch-all/image', fetchAllImages)
-router.get('/fetch-all/gif', fetchAllGifs)
 router.get('/fetch-all', fetchAllContent)
 
 

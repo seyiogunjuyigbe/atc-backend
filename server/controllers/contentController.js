@@ -1,4 +1,7 @@
 const models = require('../models');
+const {
+    Op
+} = require("sequelize");
 module.exports = {
     async createContent(req, res) {
         /* 
@@ -97,14 +100,21 @@ module.exports = {
     async fetchAllContent(req, res) {
         /*
 method:GET
+params(query): type,forType,forId (optional)
 */
         const {
             type,
-            forType
+            forType,
+            forId
         } = req.query
         try {
-
-            let content = await models.Content.findAll();
+            var whereStatement = {};
+            if (type) whereStatement.type = type;
+            if (forType) whereStatement.forType = forType;
+            if (forId) whereStatement.forId = forId;
+            let content = await models.Content.findAll({
+                where: whereStatement
+            });
             if (!content || content.length == 0) return res.status(204).json({
                 success: true,
                 message: 'No content found'
@@ -120,110 +130,5 @@ method:GET
             })
         }
     },
-    async fetchAllImages(req, res) {
-        /*
-method:GET
-*/
-        try {
-            let content = await models.Content.findAll({
-                where: {
-                    type: 'image'
-                }
-            })
-            if (!content || content.length == 0) return res.status(204).json({
-                success: true,
-                message: 'No images found'
-            })
-            else return res.status(200).json({
-                success: true,
-                content
-            })
-        } catch (err) {
-            return res.status(500).json({
-                error: true,
-                message: err.message
-            })
-        }
-    },
-    async fetchAllVideos(req, res) {
-        /*
-method:GET
-*/
-        try {
-            let content = await models.Content.findAll({
-                where: {
-                    type: 'video'
-                }
-            })
-            if (!content || content.length == 0) return res.status(204).json({
-                success: true,
-                message: 'No videos found'
-            })
-            else return res.status(200).json({
-                success: true,
-                content
-            })
-        } catch (err) {
-            return res.status(500).json({
-                error: true,
-                message: err.message
-            })
-        }
-    },
 
-    async fetchAllGifs(req, res) {
-        /*
-method:GET
-*/
-        try {
-            let content = await models.Content.findAll({
-                where: {
-                    type: 'gif'
-                }
-            })
-            if (!content || content.length == 0) return res.status(204).json({
-                success: true,
-                message: 'No videos found'
-            })
-            else return res.status(200).json({
-                success: true,
-                content
-            })
-        } catch (err) {
-            return res.status(500).json({
-                error: true,
-                message: err.message
-            })
-        }
-    },
-    async fetchContentForThisType(req, res) {
-        /*
-method:GET
-*/
-        const {
-            type,
-            forId
-        } = req.query
-        try {
-            let content = await models.Content.findAll({
-                where: {
-                    type,
-                    forId
-                }
-            })
-            if (!content || content.length == 0) return res.status(204).json({
-                success: true,
-                message: 'No videos found'
-            })
-            else return res.status(200).json({
-                success: true,
-                content
-            })
-        } catch (err) {
-            return res.status(500).json({
-                error: true,
-                message: err.message
-            })
-        }
-    }
 }
