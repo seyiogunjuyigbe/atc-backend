@@ -51,29 +51,9 @@ module.exports = {
         }
     },
     viewMembership: async(res,req) => {
-      try {
-        const membership =  models.membership.findByPk(req.params.membershipId);
-        if (!membership ) {
-          return res.status(400).send(responses.error(400, "Membership not found"));
-        } else {
-          return res
-            .status(200)
-            .send(
-              responses.success(
-                200,
-                "Record was retreived successfully",
-                membership 
-              )
-            );
-        }
-      } catch (error) {
-        return res
-          .status(500)
-          .send(responses.error(500, `Error viewing a user ${error.message}`));
-      }
 
     },
-    listMembership: (res,req) => {
+    list: (res,req) => {
       var whereConditions = {};    
       var offset = (req.query.offset) ? req.query.offset : 0;
       var limit = (req.query.limit) ? req.query.limit : 20;
@@ -85,14 +65,14 @@ module.exports = {
   
    
       
-      models.memberships.findAndCountAll({
+      models.users.findAndCountAll({
           offset: parseInt(offset), 
           limit: parseInt(limit),
           order: ordering,
          
-      }).then(function(membership){
+      }).then(function(user){
         
-          return res.status(200).send(responses.success(200,"Record was retreived successfully",membership));
+          return res.status(200).send(responses.success(200,"Record was retreived successfully",user));
       })
 
 
@@ -100,23 +80,7 @@ module.exports = {
     
 
     },
-    updateMembership:async (res,req) => {
-     
-      try {
-        const result = await models.memberships.update(
-          req.body,
-          { where: { _id: req.params.id} }
-        );
-      
-        return res
-          .status(200)
-          .send(responses.success(200, "Membership was updated successfully", result));
-      } catch (err) {
-        return res
-        .status(500)
-        .send(responses.error(500, `Error updating an record ${err.message}`));
-      }
-    }
+  
 
 
 };

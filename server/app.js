@@ -3,20 +3,11 @@ const express = require("express");
 const cors = require("cors");
 const cron = require("node-cron");
 const morgan = require('morgan');
-<<<<<<< HEAD
-
-const pathToSwaggerUi = require('swagger-ui-dist').absolutePath();
-
-
-
-
-=======
 const { safeLoad } = require('js-yaml');
 const { readFileSync } = require('fs');
 const bodyParser = require('body-parser');
 const path = require('path');
 const ejs = require('ejs');
->>>>>>> 4f86bb52e9a66d29c13944c5fb4fed23c6c6db33
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,19 +27,9 @@ app.use(function (req, res, next) {
 });
 //log every request to the database
 app.use(morgan('dev'));
-<<<<<<< HEAD
-app.use(express.static(pathToSwaggerUi));
-
-app.get("/", (req, res) => {
-  res.status(200).send({
-    message: `API is alive and kickin - check.`
-  });
-});
-=======
 
 app.set('views', path.join(__dirname, '../public'));
 app.set('view engine', 'pug');
->>>>>>> 4f86bb52e9a66d29c13944c5fb4fed23c6c6db33
 
 app.use("/api/v1/", require("./routes/index"));
 

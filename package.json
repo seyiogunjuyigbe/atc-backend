@@ -44,12 +44,6 @@
     "request-promise": "^4.2.4",
     "sequelize": "^6.3.3",
     "sequelize-cli": "^6.2.0",
-<<<<<<< HEAD
-    "swagger-jsdoc": "^4.0.0",
-    "swagger-ui-dist": "^3.30.1",
-    "swagger-ui-express": "^4.1.4",
-=======
->>>>>>> 4f86bb52e9a66d29c13944c5fb4fed23c6c6db33
     "uuid": "^3.3.2"
   },
   "devDependencies": {

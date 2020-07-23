@@ -1,6 +1,5 @@
 const bcrypt = require("bcryptjs");
 const env = process.env.NODE_ENV || "development";
-
 const uuidv1 = require("uuid/v1");
 
 let utilities = {

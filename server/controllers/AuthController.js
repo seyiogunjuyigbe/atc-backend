@@ -4,9 +4,11 @@ const _email = require("../services/emailService");
 const responses = require("../helper/responses");
 const hash = require("hashids");
 const getJWT = require("../services/jwtService");
+const jwt = require('jsonwebtoken');
 const uuidv1 = require("uuid/v1");
 const { check, validationResult } = require('express-validator');
 const generalFunctions = require('../helper/util');
+const credential = require("../config/local");
 
 module.exports = {
  
@@ -199,28 +201,24 @@ ValidateEmailToken: (req, res) => {
 
   login: async (req, res) => {
     try {
-  
-      const user = await models.users.findOne({ email: req.body.email });
-      console.log(user);
-      
+      const user = await models.users.findOne({where: { email: req.body.email }});
       const userObj = { id: user.id, firstName: user.firstName,lastName: user.lastName,email: user.email };
- 
       if (user) {
- 
-
         if (bcrypt.compareSync(req.body.password, user.password)) {
-          //generate a token
-          const token = getJWT.generateToken({ userObj });
-          //decode the token
-          getJWT.decodeToken(token, (err, decoded) => {
-            if (err) {
-              return res
-                .status(500)
-                .send(responses.error(500, `Unable to decode token ${err}`));
-            } else {
-              return res.status(200).send(responses.success(200, "Logged in successfully", {user,token,expiry: decoded.exp }));
-            }
-          });
+          //generate a token  
+      let token = jwt.sign({ 
+        id: user.id, 
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      }, credential.jwtSecret, {
+        expiresIn: 604800 // expires in 7 days
+      });
+
+      user.token = token;
+      return res.status(200).send(responses.success(200, "Logged in successfully", {user,token, expiresIn: 604800  }));
+
+     // return res.json({ success: true, message: "Authentication successful!", authToken: token, responseType:'successful', user: user });
         } else {
           return res
             .status(401)
@@ -241,9 +239,7 @@ ValidateEmailToken: (req, res) => {
     try {
       const email = req.body.email;
       const address = req.headers.host;
-      const user = await models.users.findOne({
-        email
-      });
+      const user = await models.users.findOne({where: { email:email }});
      
       const token = uuidv1();
       if (!user) {
@@ -297,12 +293,12 @@ ValidateEmailToken: (req, res) => {
 
   postReset: async (req, res) => {
     const { userId } = req.params;
-    const user =  models.user.findOne({
+    const user =  models.user.findOne({ where: {
       id: userId,
       passwordResetExpires: {
         $gte: Date.now()
       }
-    });
+    }});
 
     if (!user) {
       return res.status(400).send(responses.error(400,"User not found or Password reset has expired."));
@@ -328,12 +324,12 @@ ValidateEmailToken: (req, res) => {
 
   getReset: async (req, res, next) => {
     const { userId } = req.params;
-    const user =  models.user.findOne({
+    const user =  models.user.findOne({where: {
       id: userId,
       passwordResetExpires: {
         $gte: Date.now()
       }
-    });
+    }});
     if (!user) {
       return res.status(400).send(responses.error(400,"user not found or Password reset has expired."));
     } else {
