@@ -1,0 +1,53 @@
+{
+    
+    "paths": {
+      "/member/create": {
+        "post": {
+          "tags": [
+            "Membership"
+          ],
+          "summary": "creates a new membership",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "create membership",
+              "description": "",
+              "required": false,
+              "schema": {
+                "$ref": "#/member/create"
+              }
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "An object with membership details"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "signUp": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "username": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "password": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }

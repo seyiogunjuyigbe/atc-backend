@@ -6,7 +6,19 @@ const fs = require('fs');
 const DEFAULT_EMAIL_SENDER = process.env.DEFAULT_EMAIL_SENDER;
 const SMTP_USERNAME = process.env.SENDGRID_USER;
 const  SMTP_PASSWORD = process.env.SENDGRID_PASSWORD;
+
 module.exports = {
+   readHTMLFile: (path, callback)=> {
+    fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
+        if (err) {
+            throw err;
+            callback(err);
+        }
+        else {
+            callback(null, html);
+        }
+    });
+  },
   sendEmailToCompany: async (user, token) => {
     const options = {
       auth: {
@@ -75,3 +87,4 @@ sendTemplatedMail: async (templateName = null, data = {}, recipient = null,subje
 
 
 };
+

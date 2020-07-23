@@ -6,6 +6,7 @@ const hash = require("hashids");
 const getJWT = require("../services/jwtService");
 const uuidv1 = require("uuid/v1");
 const { check, validationResult } = require('express-validator');
+const generalFunctions = require('../helper/util');
 
 module.exports = {
  
@@ -16,6 +17,7 @@ module.exports = {
       check(req.body.password).isLength({ min: 8 })
     const result = validationResult(req);
     const hasErrors = !result.isEmpty();
+  
 
     if (hasErrors) {
       return res.status(400).send({
@@ -26,12 +28,7 @@ module.exports = {
     }
 
     try {
-      models.user.findByPk(req.body.roleID).then(function(role){
-         if(role == null){
-            return res.status(201)
-            .send(
-              responses.error(201,'The user role specified does not exist. Contact support team'));
-         } else {
+     
             //find the user by email
             models.users.findOne({where: {email: req.body.email }})
             .then(async function(user){
@@ -45,7 +42,7 @@ module.exports = {
                         data['token'] = token;
 
                         //hash password
-                        let hashedPassword = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(8), null);
+                        let hashedPassword = bcrypt.hashSync(req.body.password, 8);
                         data['password'] = hashedPassword;
                         data['isActive'] = false;
                         const Newuser = await models.users.create(data);
@@ -74,8 +71,8 @@ module.exports = {
 
                 }
               });
-        }
-      });
+        
+      
     } catch (error) {
       return res
         .status(500)
@@ -204,6 +201,8 @@ ValidateEmailToken: (req, res) => {
     try {
   
       const user = await models.users.findOne({ email: req.body.email });
+      console.log(user);
+      
       const userObj = { id: user.id, firstName: user.firstName,lastName: user.lastName,email: user.email };
  
       if (user) {
@@ -219,14 +218,7 @@ ValidateEmailToken: (req, res) => {
                 .status(500)
                 .send(responses.error(500, `Unable to decode token ${err}`));
             } else {
-              return res.status(200).send(
-                responses.success(200, "Logged in successfully", {
-                  user,
-                  token,
-                  expiry: decoded.exp,
-                  
-                })
-              );
+              return res.status(200).send(responses.success(200, "Logged in successfully", {user,token,expiry: decoded.exp }));
             }
           });
         } else {
