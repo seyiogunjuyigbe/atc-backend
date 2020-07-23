@@ -1,0 +1,182 @@
+# BankAccount Paths
+
+  /bank-accounts:
+    post:
+      summary: Create new bank account
+      description: Create a new bank account
+      operationId: createBankAccount
+      tags:
+      - BankAccounts
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: BankAccount details
+          required: true
+          schema:
+            $ref: "#/definitions/BankAccount"
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: BankAccount created successfully.
+    get:
+      summary: View all bank accounts
+      description: Display all bank accounts
+      operationId: listBankAccounts
+      tags:
+      - BankAccounts
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/BankAccount"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /bank-accounts/{bankAccountId}:
+    delete:
+      summary: Deletes a bank account
+      description: Delete a bank account
+      operationId: deleteBankAccount
+      tags:
+      - BankAccounts
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: bankAccountId
+          description: BankAccount id to delete
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: BankAccount successfully deleted.
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    get:
+      summary: Get a single bank account
+      operationId: viewBankAccount
+      tags:
+      - BankAccounts
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: bankAccountId
+          description: BankAccount Id to fetch
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/BankAccount"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    put:
+      summary: Update Bank Account
+      description: Update a particular bank account
+      operationId: updateBankAccount
+      tags:
+      - BankAccounts
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: bankAccountId
+          description: BankAccount id to update
+          required: true
+        - in: body
+          name: payload
+          description: BankAccount data to update
+          schema:
+            $ref: "#/definitions/BankAccount"
+
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: BankAccount data successfully updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+
+  /bank-accounts/list-banks:
+    get:
+      summary: List all supported banks
+      operationId: listBanks
+      tags:
+      - BankAccounts
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Banks fetched successfully
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

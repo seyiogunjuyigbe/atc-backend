@@ -1,0 +1,64 @@
+
+# States and LGAs Paths
+  /states:
+    get:
+      summary: List all states
+      description: Display all states
+      operationId: listStates
+      tags:
+      - States
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                capital:
+                  type: string
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+
+
+  /countries:
+    get:
+      summary: List all countries
+      description: Display all countries
+      operationId: listCountries
+      tags:
+      - Countries
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                state:
+                  type: string
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

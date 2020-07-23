@@ -12,8 +12,18 @@
                           <div style="cursor:auto;color:#5d7079;font-family:'Open Sans',sans-serif;font-size:16px;line-height:24px;letter-spacing:0.4px;text-align:left;">
                             <p>Hello {{name}},</p>
                             <p class="hero">It’s time to verify your account.</p>
-                            <p>Have we got the right email address to reach you on? To confirm that you can get
+                            <p>Have we got the right email address to reach you on? To confirm that
+                               you can get
                               our emails, use the code below to complete your registration.</p>
+                              <a
+                              target="_blank"
+                              href={{resetURL}}
+                              ><button
+                                style="display: inline-block; color: #ffffff; background-color: #3498db; border: solid 1px #3498db; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize; border-color: #3498db;"
+                              >
+                                Confirm Account
+                              </button></a
+                            >
                             <p class="center" style="min-height: 36px;padding: 12px 24px;margin: 0 0 24px;font-size: 26px;font-weight: 600;line-height: 24px;
                             text-align: center;
                             white-space: nowrap;
@@ -29,7 +39,7 @@
                             transition: all .15s ease-in-out;
                             letter-spacing: 20px;
                             text-align: center;">
-                              <a href="#" class="btn"  style="color:#FFF">{{token}}</a>
+                              
                             </p>
                             <p>If you don’t know why you got this email, please tell us straight away so we can
                               fix this for you.</p>

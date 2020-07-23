@@ -26,11 +26,24 @@ module.exports = {
       token: {
         type: Sequelize.STRING
       },
+      address: {
+        type: Sequelize.TEXT
+      },
+      city: {
+        type: Sequelize.STRING
+      },
+      country: {
+        type: Sequelize.STRING
+      },
       isActive: {
         type: Sequelize.BOOLEAN
       },
-      roleID: {
-        type: Sequelize.INTEGER
+      role: {
+        type: Sequelize.ENUM,
+        values: ['admin','vendor','customer']
+      },
+      passwordResetExpires: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

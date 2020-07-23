@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('roles', {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('memberships', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,11 +11,15 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
-      display_name: {
-        type: Sequelize.STRING
+      type: {
+        type: Sequelize.ENUM,
+        values: ['one-off','annual']
+      },
+      createdBy: {
+        type: Sequelize.INTEGER
       },
       description: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,
@@ -27,7 +31,7 @@ module.exports = {
       }
     });
   },
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('roles');
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('memberships');
   }
 };

@@ -1,1 +1,25 @@
-node_modules
+coverage/
+node_modules/
+.nyc_output
+.editorconfig
+.vscode
+.tmp
+.idea/
+*.iml
+lib/
+*/.DS_Store
+.DS_Store
+*/**/.DS_Store
+*.log
+.env
+
+# To restrict the app to using only package-lock.json
+yarn.lock
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+deploy.zip
+docker-compose.yml
+swagger-copy.yaml

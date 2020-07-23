@@ -1,0 +1,30 @@
+# Auth Definitions
+  AuthResponse:
+    type: object
+    properties:
+      token:
+        type: string
+      issue:
+        type: number
+      expires:
+        type: number
+# Auth Models
+  UserLogin:
+    type: object
+    properties:
+      email:
+        type: string
+        description: user email
+      password:
+        type: string
+        description: user password
+      shortTokenExpiry:
+        type: boolean
+        description: flag for login token length (default is false)
+    example:
+      email: user@example.com
+      password: Pas$W0rd
+      shortTokenExpiry: true
+    required:
+      - email
+      - password

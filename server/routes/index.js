@@ -1,27 +1,14 @@
 const express = require("express");
 const indexRoute = express.Router();
-const companyRoute = require("./authRoute");
-const shipperRoute = require("./shipperRoute");
-const truckRoute = require("./truckRoute");
-const transporterRoute = require("./transporterRouter");
-const orderRoute = require("./orderRouter");
-const formRoute = require("./formRouter");
-const settingRoute = require("./settingRoute");
-const dashboardRoute = require("./dashboardRouter");
-const shipperSettingRoute = require("./shipperSettingRouter");
-const shipperDashboardRoute = require("./shipperDashboardRouter");
-const trackerRoute = require("./trackerRouter");
+const authRoute = require("./authRoute");
+const subRoute = require("./subscriptionRoute");
+const membershipRoute =  require('./membershipRoute');
+const productRoute = require('./productRoute');
 
-indexRoute.use("/", companyRoute);
-indexRoute.use("/", shipperRoute);
-indexRoute.use("/", truckRoute);
-indexRoute.use("/", formRoute);
-indexRoute.use("/", orderRoute);
-indexRoute.use("/", transporterRoute);
-indexRoute.use("/", dashboardRoute);
-indexRoute.use("/", shipperSettingRoute);
-indexRoute.use("/", shipperDashboardRoute);
-indexRoute.use("/", settingRoute);
-indexRoute.use("/", trackerRoute);
+indexRoute.use("/", authRoute);
+indexRoute.use("/",membershipRoute);
+indexRoute.use("/",subRoute);
+indexRoute.use("/",productRoute);
+
 
 module.exports = indexRoute;
