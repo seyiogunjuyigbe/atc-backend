@@ -8,7 +8,6 @@ const { readFileSync } = require('fs');
 const bodyParser = require('body-parser');
 const path = require('path');
 const ejs = require('ejs');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -46,11 +45,15 @@ app.get('/swagger.json', (req, res) => {
 });
 
 app.get('/', (req, res) => res.render('index'));
-
+app.all('*', (req,res)=>{ 
+  return res.status(404).json({
+    error:true,
+    message: "Requested route not found"})
+})
 //error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something went wrong!");
+  console.error(err.stack || err.message || err);
+  res.status(500).json({error:"Something went wrong!",message:err.stack || err.message || err});
 });
 
 app.listen(PORT, () => console.log(`API listening on port ${PORT}`));

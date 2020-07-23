@@ -1,55 +1,21 @@
 const models = require('../models');
-const { multerUploads, dataUri }  = require ('../middlewares/multer');
 const {uploader} = require('../config/cloudinary')
 module.exports = {
     async createImageContent(req,res){
-                if(req.file) {
-                    console.log(req.file)
-                const file = dataUri(req).content;
-                return uploader.upload(file).then((result) => {
-                    const image = result.url;
-                    return res.status(200).json({
-                    messge: 'Your image has been uploded successfully',
-                    data: {
-                         image,result
-                        }
-                    })
-                })
-                .catch((err) => res.status(400).json({
-                     messge: 'someting went wrong while processing your request',
-                     data: {
-                        err
-                     }
-                    }))
+        const {contentFor,contentForId,url} = req.body;
+        try {
+                  if(req.files.length > 0) {
+                  let newContent = await models.contents.create({forType:contentFor,forId:contentForId,url});
+                  if(!newContent) return res.status(400).json({error:true,message:'Error creating content'})
+                  else return res.status(200).json({success:true,message:'Content created successfully'})
                 }
                 else{
                      return res.status(422).json({error:true, message:"No file uploaded"})
-                }
+                }          
+        } catch (err) {
+            return res.status(500).json({error:true, message:err.message})
+        }
 
     },
-    async createVideoContent(req,res){
-        if(req.file) {
-            console.log(req.file)
-        const file = dataUri(req).content;
-        return uploader.upload(file).then((result) => {
-            const image = result.url;
-            return res.status(200).json({
-            messge: 'Your image has been uploded successfully',
-            data: {
-                 image,result
-                }
-            })
-        })
-        .catch((err) => res.status(400).json({
-             messge: 'someting went wrong while processing your request',
-             data: {
-                err
-             }
-            }))
-        }
-        else{
-             return res.status(422).json({error:true, message:"No file uploaded"})
-        }
 
-}
 }
