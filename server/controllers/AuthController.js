@@ -33,7 +33,7 @@ module.exports = {
         .findOne({ where: { email: req.body.email } })
         .then(async function (user) {
           if (user !== null) {
-            return res.status(201).send(responses.error( 201,'An account with similar credentials already exists'));
+            return res.status(400).send(responses.error( 400,'An account with similar credentials already exists'));
           } else {
             //create the new user account
             let data = req.body;
@@ -91,7 +91,7 @@ module.exports = {
 
   ResendTokenEmail: (req, res) => {
     if (!req.params.email) {
-      return res.status(201).send(responses.error(201, 'Please provide Email'));
+      return res.status(400).send(responses.error(400, 'Please provide Email'));
     }
 
     var email = req.params.email;
@@ -104,16 +104,16 @@ module.exports = {
       .then(async function (user) {
         if (!user)
           return res
-            .status(201)
-            .send(responses.error(201, 'Found no user with these credentials'));
+            .status(400)
+            .send(responses.error(400, 'Found no user with these credentials'));
 
         //check if user is already active
         if (user.isActive === true)
           return res
-            .status(201)
+            .status(400)
             .send(
               responses.error(
-                201,
+                400,
                 'Your account is already active. Token cannot be resent.',
               ),
             );
@@ -121,8 +121,8 @@ module.exports = {
         //check if token exists in the user's data
         if (!user.token)
           return res
-            .status(201)
-            .send(responses.error(201, 'Found no token in your account'));
+            .status(400)
+            .send(responses.error(400, 'Found no token in your account'));
 
         let url = generalFunctions.getURL();
         let resetURL = url + `auth/${user.id}/verify/${user.token}`;
@@ -274,7 +274,7 @@ module.exports = {
           // return res.json({ success: true, message: "Authentication successful!", authToken: token, responseType:'successful', user: user });
         } else {
           return res
-            .status(401)
+            .status(400)
             .send(responses.error(401, 'Wrong email and password'));
         }
       } else {
@@ -306,7 +306,7 @@ module.exports = {
         };
         if (email) {
           var url = generalFunctions.getURL();
-          var resetURL = url + 'reset-password/' + token;
+          var resetURL = url + '/auth/reset-password' + token;
 
           var MailTemplateName = 'forgotpassword.html';
           var MailData = {
