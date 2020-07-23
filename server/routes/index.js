@@ -10,7 +10,7 @@ indexRoute.use("/", authRoute);
 indexRoute.use("/",membershipRoute);
 indexRoute.use("/",subRoute);
 indexRoute.use("/",productRoute);
-indexRoute.use('/content', contentRoutes)
+indexRoute.use('/content', contentRoutes);
 
 
 module.exports = indexRoute;
