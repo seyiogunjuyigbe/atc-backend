@@ -1,7 +1,7 @@
 require('dotenv').config();
-const express = require("express");
-const cors = require("cors");
-const cron = require("node-cron");
+const express = require('express');
+const cors = require('cors');
+const cron = require('node-cron');
 const morgan = require('morgan');
 const {
   safeLoad
@@ -14,13 +14,10 @@ const path = require('path');
 const ejs = require('ejs');
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-
 const {
   loadDefinitions,
   loadPaths
 } = require('../documentations');
-
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, '../public')));
@@ -33,8 +30,11 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept',
+  );
   next();
 });
 //log every request to the database
@@ -43,14 +43,17 @@ app.use(morgan('dev'));
 app.set('views', path.join(__dirname, '../public'));
 app.set('view engine', 'pug');
 
-app.use("/api/v1/", require("./routes/index"));
+app.use('/api/v1/', require('./routes/index'));
 
 app.get('/swagger.json', (req, res) => {
   const data = {
     paths: loadPaths() || '',
     definitions: loadDefinitions() || '',
   };
-  const swaggerTemplate = readFileSync(path.join(__dirname, '../documentations/swagger.yaml'), 'utf8');
+  const swaggerTemplate = readFileSync(
+    path.join(__dirname, '../documentations/swagger.yaml'),
+    'utf8',
+  );
   const swaggerSchema = ejs.render(swaggerTemplate, data);
 
   res.setHeader('Content-Type', 'application/json');
