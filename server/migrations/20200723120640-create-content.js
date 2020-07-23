@@ -1,25 +1,25 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('memberships', {
+    await queryInterface.createTable('contents', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
-        type: Sequelize.STRING
-      },
       type: {
         type: Sequelize.ENUM,
-        values: ['one-off','annual']
+        values: ['video', 'image', 'gif']
       },
-      createdBy: {
+      forType: {
+        type: Sequelize.STRING
+      },
+      forId: {
         type: Sequelize.INTEGER
       },
-      description: {
-        type: Sequelize.TEXT
+      url: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
@@ -32,6 +32,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('memberships');
+    await queryInterface.dropTable('contents');
   }
 };
