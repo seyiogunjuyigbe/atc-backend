@@ -3,7 +3,7 @@ const models = require('../models');
 const _email = require("../services/emailService");
 const responses = require("../helper/responses");
 const { check, validationResult } = require('express-validator');
-const { viewUser } = require('./AuthController');
+
 
 
 module.exports = {
@@ -52,7 +52,7 @@ module.exports = {
     },
     viewMembership: async(res,req) => {
       try {
-        const membership =  models.membership.findByPk(req.params.membershipId);
+        const membership =  models.membership.findByPk(req.params.id);
         if (!membership ) {
           return res.status(400).send(responses.error(400, "Membership not found"));
         } else {
@@ -74,7 +74,7 @@ module.exports = {
 
     },
     listMembership: (res,req) => {
-      var whereConditions = {};    
+        
       var offset = (req.query.offset) ? req.query.offset : 0;
       var limit = (req.query.limit) ? req.query.limit : 20;
       var orderBy = (req.query.orderBy) ? req.query.orderBy : 'id';

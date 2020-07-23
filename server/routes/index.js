@@ -5,6 +5,7 @@ const membershipRoute = require("./membershipRoute");
 
 
 indexRoute.use("/", authRoute);
+indexRoute.use("/",membershipRoute);
 
 
 module.exports = indexRoute;
