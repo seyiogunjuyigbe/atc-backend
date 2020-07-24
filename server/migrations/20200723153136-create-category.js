@@ -5,6 +5,8 @@ module.exports = {
       id: {
         allowNull: false,
         autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
       },
       parentId: {
         type: Sequelize.INTEGER,
@@ -14,10 +16,7 @@ module.exports = {
           key: 'id'
         },
         onUpdate: 'cascade',
-        onDelete: 'set null'
-      },
-      name: {
-        type: Sequelize.STRING,
+        onDelete: 'cascade'
       },
       description: {
         type: Sequelize.TEXT
