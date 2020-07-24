@@ -1,0 +1,27 @@
+# Subscription Definitions
+Subscription:
+    type: object
+    properties:
+     name:
+        type: string
+        description: subscription name
+     frequency:
+        type: string
+        description: 
+     type:
+        type: string
+        description: one-off,annual
+     createdBy:
+        type: string
+        description: user id of the user
+     subscribableType: 
+        type: string
+        description: product,membership
+     subscribableId:
+        type: integer 
+        description: id
+     description:
+        type: string
+        description: membership description
+
+
