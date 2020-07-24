@@ -24,7 +24,7 @@
           schema:
             example:
               message: Product created successfully.
-  /product/one/{id}:
+/product/{productId}:
     get:
       summary: Get a single product
       operationId: viewProduct
@@ -57,7 +57,6 @@
           schema:
             example:
               message: An unexpected error occured
-  /product/update/{id}:
     put:
       summary: Update product
       description: Update a particular product
@@ -78,7 +77,6 @@
           description: product data to update
           schema:
             $ref: '#/definitions/Product'
-  
       responses:
         200:
           description: Success

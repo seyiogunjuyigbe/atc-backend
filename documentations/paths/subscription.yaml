@@ -24,7 +24,7 @@
           schema:
             example:
               message: Subscription created successfully.
-/sub/one/{id}:
+/sub/{subId}:
     get:
       summary: Get a single subscription
       operationId: viewSubscription
@@ -57,7 +57,6 @@
           schema:
             example:
               message: An unexpected error occured
-/sub/update/{id}:
     put:
       summary: Update subscription
       description: Update a particular subscription'

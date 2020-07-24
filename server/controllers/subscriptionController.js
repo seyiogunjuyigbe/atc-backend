@@ -1,4 +1,4 @@
-const models = require('../models');
+const { Subscription } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { check, validationResult } = require('express-validator');
@@ -15,7 +15,7 @@ module.exports = {
     }
 
     try {
-      const Subscription = await models.subscriptions.create(req.body);
+      const Subscription = await  Subscriptions.create(req.body);
       if (Subscription) {
         return res
           .status(200)
@@ -44,8 +44,8 @@ module.exports = {
   },
   viewSubscription: async (res, req) => {
     try {
-      const Subscription = models.subscriptions.findByPk(req.params.id);
-      if (!Subscription) {
+      const subscription =  Subscription.findByPk(req.params.subId);
+      if (!subscription) {
         return res
           .status(400)
           .send(responses.error(400, 'Subscription not found'));
@@ -56,7 +56,7 @@ module.exports = {
             responses.success(
               200,
               'Record was retreived successfully',
-              Subscription,
+              subscription,
             ),
           );
       }
@@ -75,7 +75,7 @@ module.exports = {
     var order = req.query.order ? req.query.order : 'ASC';
     var ordering = [[orderBy, order]];
 
-    models.subscriptions
+     Subscription
       .findAndCountAll({
         offset: parseInt(offset),
         limit: parseInt(limit),
@@ -95,14 +95,14 @@ module.exports = {
   },
   updateSubscription: async (res, req) => {
     try {
-      const result = await models.subscriptions.update(req.body, {
-        where: { _id: req.params.id },
+      const result = await  Subscription.update(req.body, {
+        where: { id: req.params.subId },
       });
 
       return res
         .status(200)
         .send(
-          responses.success(200, 'Membership was updated successfully', result),
+          responses.success(200, 'Subscription was updated successfully', result),
         );
     } catch (err) {
       return res
@@ -110,4 +110,29 @@ module.exports = {
         .send(responses.error(500, `Error updating an record ${err.message}`));
     }
   },
+  deleteSubscription: async (res, req) => {
+    try {
+        const subscription = await  Subscription.destroy({
+            where: {
+                id: req.params.subId
+            }
+        });
+        if (!subscription) 
+        return res
+        .status(400)
+        .send(
+          responses.error(400, 'subscription not found'));
+        
+        else 
+
+      return res
+      .status(200)
+      .send(
+        responses.success(200, 'Subscription was deleted successfully', subscription)
+      );
+        
+    } catch (err) {
+        return error(res, 500, err.message)
+    }
+}
 };

@@ -8,8 +8,9 @@ productRoute.post("/product/create",  productCrl.create);
 
 
 productRoute.get("/product/list",  productCrl.listProduct);
-productRoute.put("/product/update/:id",  productCrl.updateProduct);
-productRoute.get("/product/one/:id",  productCrl.viewProduct);
+productRoute.put("/product/:productId",  productCrl.updateProduct);
+productRoute.get("/product/:productId",  productCrl.viewProduct);
+//productRoute.delete("/product/:productId",  productCrl.deleteProduct);
 
 
 

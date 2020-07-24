@@ -8,8 +8,9 @@ membershipRoute.post("/member/create", membershipCrl.create);
 
 
 membershipRoute.get("/member/list", membershipCrl.listMembership);
-membershipRoute.put("/member/update/:id", membershipCrl.updateMembership);
-membershipRoute.get("/member/one/:id", membershipCrl.viewMembership);
+membershipRoute.put("/member/:membershipId", membershipCrl.updateMembership);
+membershipRoute.get("/member/:membershipId", membershipCrl.viewMembership);
+membershipRoute.delete("/member/:membershipId", membershipCrl.deleteMembership);
 
 
 
