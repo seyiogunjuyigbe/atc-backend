@@ -30,8 +30,8 @@
       operationId: listCategories
       tags:
       - Categories
-      # parameters:
-        # $ref: "#/definitions/GetAuthQuery"
+      parameters:
+        $ref: "#/definitions/GetAuthQuery"
       responses:
         200:
           description: success
@@ -39,7 +39,6 @@
             type: array
             items:
               $ref: "#/definitions/Category"
-
         403:
           description: Not authorized
           schema:
@@ -58,10 +57,10 @@
       tags:
       - Categories
       parameters:
-        # - in: header
-        #   name: Authorization
-        #   description: Authentication token
-        #   required: true
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
         - in: path
           name: categoryId
           description: Category id to delete
@@ -88,10 +87,10 @@
       tags:
       - Categories
       parameters:
-        # - in: header
-        #   name: Authorization
-        #   description: Authentication token
-        #   required: true
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
         - in: path
           name: categoryId
           description: Category Id to fetch
@@ -119,10 +118,10 @@
       tags:
       - Categories
       parameters:
-        # - in: header
-        #   name: Authorization
-        #   description: Authentication token
-        #   required: true
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
         - in: path
           name: categoryId
           description: Category id to update
@@ -132,7 +131,6 @@
           description: Category data to update
           schema:
             $ref: "#/definitions/Category"
-
       responses:
         200:
           description: Success
@@ -154,7 +152,6 @@
           schema:
             example:
               message: An unexpected error occured
-
   # /categories/{categoryId}/upload-image:
   #   post:
   #     summary: Upload category image

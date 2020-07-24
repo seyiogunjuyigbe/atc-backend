@@ -9,20 +9,19 @@ const {
 const {
     check
 } = require('express-validator');
-const parser = require('../middlewares/multer');
-const getJWT = require('../middlewares/authentication')
+const authenticate = require('../middlewares/authentication')
 const validate = require('../middlewares/validate');
 
-router.post('/', [
+router.post('/', authenticate, [
     check('name').not().isEmpty().withMessage('Category name required'),
     check('description').not().isEmpty().withMessage('Category description required')
 ], validate, createCategory);
-router.put('/:categoryId', [
+router.put('/:categoryId', authenticate, [
     check('name').not().isEmpty().withMessage('Category name required'),
     check('description').not().isEmpty().withMessage('Category description required')
 ], validate, updateCategory);
 router.get('/:categoryId', fetchThisCategory);
 router.get('/', fetchAllCategories);
-router.delete('/:categoryId', deleteCategory);
+router.delete('/:categoryId', authenticate, deleteCategory);
 
 module.exports = router;
