@@ -25,25 +25,7 @@
           schema:
             example:
               message: An unexpected error occured
-    post:
-      summary: Create new user with email
-      description: Create a new account for user using email and password
-      operationId: createUser
-      tags:
-      - Users
-      parameters:
-        - in: body
-          name: payload
-          description: User credentials to use for registration
-          required: true
-          schema:
-            $ref: "#/definitions/User"
-      responses:
-        200:
-          description: Success
-          schema:
-            example:
-              message: A code has been sent to your email for verification.
+   
   
   /users/{userId}:
     get:
