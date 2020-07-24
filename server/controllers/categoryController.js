@@ -44,7 +44,13 @@ module.exports = {
         params: categoryId
         */
         try {
-            let category = await models.Category.findByPk(req.params.categoryId);
+            let category = await models.Category.update({
+                ...req.body
+            }, {
+                where: {
+                    id: req.params.categoryId
+                }
+            });
             if (!category) return success(res, 204, 'Category not found');
             else {
                 return success(res, 200, category)
