@@ -14,17 +14,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Category.init({
-    name: {
-      type: DataTypes.STRING,
-      get() {
-        return this.getDataValue('name').toLowerCase()
-      },
-      set(val) {
-        this.setDataValue('name', val.toUpperCase());
-      },
-    },
     parentId: DataTypes.INTEGER,
-    description: DataTypes.TEXT
+    description: DataTypes.TEXT,
+    name: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Category',

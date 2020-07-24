@@ -8,10 +8,10 @@
       tags:
       - Categories
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
+        # - in: header
+        #   name: Authorization
+        #   description: Authentication token
+        #   required: true
         - in: body
           name: payload
           description: Category details
@@ -30,8 +30,8 @@
       operationId: listCategories
       tags:
       - Categories
-      parameters:
-        $ref: "#/definitions/GetAuthQuery"
+      # parameters:
+        # $ref: "#/definitions/GetAuthQuery"
       responses:
         200:
           description: success
@@ -58,10 +58,10 @@
       tags:
       - Categories
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
+        # - in: header
+        #   name: Authorization
+        #   description: Authentication token
+        #   required: true
         - in: path
           name: categoryId
           description: Category id to delete
@@ -88,10 +88,10 @@
       tags:
       - Categories
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
+        # - in: header
+        #   name: Authorization
+        #   description: Authentication token
+        #   required: true
         - in: path
           name: categoryId
           description: Category Id to fetch
@@ -119,10 +119,10 @@
       tags:
       - Categories
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
+        # - in: header
+        #   name: Authorization
+        #   description: Authentication token
+        #   required: true
         - in: path
           name: categoryId
           description: Category id to update
@@ -162,10 +162,10 @@
       tags:
       - Categories
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
+        # - in: header
+        #   name: Authorization
+        #   description: Authentication token
+        #   required: true
         - in: path
           name: categoryId
           description: Category Id to upload image for

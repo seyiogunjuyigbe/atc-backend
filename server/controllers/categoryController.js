@@ -77,8 +77,12 @@ module.exports = {
         params: categoryId
         */
         try {
-            let category = await models.Category.findByPk(req.params.categoryId);
-            if (!category) return success(res, 204, 'Category not found');
+            let category = await models.Category.findOne({
+                where: {
+                    id: req.params.categoryId
+                }
+            });
+            if (!category) return success(res, 404, 'Category not found');
             else return success(res, 200, category)
         } catch (err) {
             return error(res, 500, err.message)
