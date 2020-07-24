@@ -5,12 +5,6 @@ module.exports = {
       id: {
         allowNull: false,
         autoIncrement: true,
-        get() {
-          return this.getDataValue('name').toLowerCase()
-        },
-        set(val) {
-          this.setDataValue('name', val.toUpperCase());
-        },
       },
       parentId: {
         type: Sequelize.INTEGER,
@@ -21,6 +15,9 @@ module.exports = {
         },
         onUpdate: 'cascade',
         onDelete: 'set null'
+      },
+      name: {
+        type: Sequelize.STRING,
       },
       description: {
         type: Sequelize.TEXT
