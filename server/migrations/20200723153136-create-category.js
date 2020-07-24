@@ -18,12 +18,6 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING,
-        get() {
-          return this.getDataValue('name').toLowerCase()
-        },
-        set(val) {
-          this.setDataValue('name', val.toUpperCase());
-        },
       },
       description: {
         type: Sequelize.TEXT

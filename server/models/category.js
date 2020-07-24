@@ -14,7 +14,15 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Category.init({
-    name: DataTypes.STRING,
+    name: {
+      type: DataTypes.STRING,
+      get() {
+        return this.getDataValue('name').toLowerCase()
+      },
+      set(val) {
+        this.setDataValue('name', val.toUpperCase());
+      },
+    },
     parentId: DataTypes.INTEGER,
     description: DataTypes.TEXT
   }, {
