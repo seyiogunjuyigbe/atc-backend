@@ -1,4 +1,5 @@
-const stripe = require("stripe")("sk_test_4ed24rkbnvcb3987dd23rc");
+require('dotenv').config();
+const stripe = require("stripe")(process.env.Stripe_key);
 
 (async () => {
     const charge = await stripe.charges.create({
