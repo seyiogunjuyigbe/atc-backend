@@ -17,7 +17,7 @@ module.exports = {
 
     try {
       //check if it exist
-     const membership =  Membership.findOne({ where: { name: req.body.name } });
+     const membership =  await Membership.findOne({ where: { name: req.body.name } });
           if (membership) {
             const Memberships = await Membership.create(req.body);
             if (Memberships) {
@@ -53,7 +53,7 @@ module.exports = {
   },
   viewMembership: async (res, req) => {
     try {
-      const membership = Membership.findByPk(req.params.membershipId);
+      const membership = await Membership.findByPk(req.params.membershipId);
       if (!membership) {
         return res
           .status(400)

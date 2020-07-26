@@ -15,7 +15,7 @@ module.exports = {
     }
 
     try {
-      const Subscription = await  Subscriptions.create(req.body);
+      const Subscription = await Subscriptions.create(req.body);
       if (Subscription) {
         return res
           .status(200)
@@ -44,7 +44,7 @@ module.exports = {
   },
   viewSubscription: async (res, req) => {
     try {
-      const subscription =  Subscription.findByPk(req.params.subId);
+      const subscription = await Subscription.findByPk(req.params.subId);
       if (!subscription) {
         return res
           .status(400)
@@ -95,7 +95,7 @@ module.exports = {
   },
   updateSubscription: async (res, req) => {
     try {
-      const result = await  Subscription.update(req.body, {
+      const result = await Subscription.update(req.body, {
         where: { id: req.params.subId },
       });
 
@@ -112,7 +112,7 @@ module.exports = {
   },
   deleteSubscription: async (res, req) => {
     try {
-        const subscription = await  Subscription.destroy({
+        const subscription = await Subscription.destroy({
             where: {
                 id: req.params.subId
             }

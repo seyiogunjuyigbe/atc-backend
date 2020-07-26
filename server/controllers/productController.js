@@ -15,7 +15,7 @@ module.exports = {
     }
 
     try {
-      const product = await  Product.create(req.body);
+      const product = await Product.create(req.body);
       if (product) {
         return res
           .status(200)
@@ -41,7 +41,7 @@ module.exports = {
   },
   viewProduct: async (res, req) => {
     try {
-      const product =  Product.findByPk(req.params.productId );
+      const product = await Product.findByPk(req.params.productId );
       if (!product) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       } else {
@@ -88,7 +88,7 @@ module.exports = {
   },
   updateProduct: async (res, req) => {
     try {
-      const result = await  Product.update(req.body, {
+      const result = await Product.update(req.body, {
         where: { id: req.params.productId },
       });
 
@@ -105,7 +105,7 @@ module.exports = {
   },
   deleteProduct: async (res, req) => {
     try {
-        const product = await  Product.destroy({
+        const product = await Product.destroy({
             where: {
                 id: req.params.productId
             }
