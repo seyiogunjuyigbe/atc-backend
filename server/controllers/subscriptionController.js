@@ -15,15 +15,15 @@ module.exports = {
     }
 
     try {
-      const Subscription = await Subscriptions.create(req.body);
-      if (Subscription) {
+      const subscription = await Subscription.create(req.body);
+      if (subscription) {
         return res
           .status(200)
           .send(
             responses.success(
               200,
               'Your Subscription was successfully created.',
-              Subscription,
+              subscription,
             ),
           );
       } else {

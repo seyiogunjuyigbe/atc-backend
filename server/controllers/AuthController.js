@@ -45,11 +45,11 @@ module.exports = {
             let hashedPassword = bcrypt.hashSync(req.body.password, 8);
             data['password'] = hashedPassword;
             data['isActive'] = false;
-            const Newuser = await User.create(data);
-            if (Newuser) {
+            const newUser = await User.create(data);
+            if (newUser) {
               // _email.sendEmailSignUpToken(Newuser, token);
               let url = generalFunctions.getURL();
-              let resetURL = url + `auth/${Newuser.id}/verify/${token}`;
+              let resetURL = url + `auth/${newUser.id}/verify/${token}`;
 
               let MailTemplateName = 'account_activation.html';
               let MailData = {
@@ -289,7 +289,7 @@ module.exports = {
   },
   forgotPassword: async (req, res) => {
     try {
-      const email = req.body.email;
+      const email = req.query.email;
       const address = req.headers.host;
       const user = await User.findOne({ where: { email: email } });
 

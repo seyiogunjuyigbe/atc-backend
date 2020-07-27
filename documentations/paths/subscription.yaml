@@ -1,6 +1,6 @@
 # Subscription Paths
 
-/sub/create:
+/subscriptions/:
     post:
       summary: Create new Subscription
       description: Create a new Subscription
@@ -24,7 +24,7 @@
           schema:
             example:
               message: Subscription created successfully.
-/sub/{subId}:
+/subscriptions/{subId}:
     get:
       summary: Get a single subscription
       operationId: viewSubscription
@@ -99,7 +99,7 @@
           schema:
             example:
               message: An unexpected error occured
-  /member/list:
+  /subscriptions/:
     get:
       summary: View all Subscription
       description: Display all Subscription

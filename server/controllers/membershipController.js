@@ -19,15 +19,15 @@ module.exports = {
       //check if it exist
      const membership =  await Membership.findOne({ where: { name: req.body.name } });
           if (membership) {
-            const Memberships = await Membership.create(req.body);
-            if (Memberships) {
+            const memberships = await Membership.create(req.body);
+            if (memberhips) {
               return res
                 .status(200)
                 .send(
                   responses.success(
                     200,
                     'Your Membership was successfully created.',
-                    Memberships,
+                    memberships,
                   ),
                 );
               } else {

@@ -4,12 +4,12 @@ const productRoute = express.Router();
 
 
 
-productRoute.post("/product/create",  productCrl.create);
+productRoute.post("/",  productCrl.create);
 
 
-productRoute.get("/product/list",  productCrl.listProduct);
-productRoute.put("/product/:productId",  productCrl.updateProduct);
-productRoute.get("/product/:productId",  productCrl.viewProduct);
+productRoute.get("/",  productCrl.listProduct);
+productRoute.put("/:productId",  productCrl.updateProduct);
+productRoute.get("/:productId",  productCrl.viewProduct);
 //productRoute.delete("/product/:productId",  productCrl.deleteProduct);
 
 

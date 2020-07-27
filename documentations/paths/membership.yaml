@@ -1,5 +1,5 @@
 # Membership Paths
-/member/create:
+/memberships/:
   post:
     summary: Create new Membership
     description: Create a new Membership
@@ -23,7 +23,7 @@
         schema:
           example:
             message: Membership created successfully.
-/member/{membershipId}:
+/memberships/{membershipId}:
   get:
     summary: Get a single memberships
     operationId: viewMembership
@@ -98,7 +98,7 @@
         schema:
           example:
             message: An unexpected error occured
-/member/list:
+/memberships/:
   get:
     summary: View all memberships
     description: Display all memberships

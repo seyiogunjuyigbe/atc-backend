@@ -4,13 +4,13 @@ const membershipRoute = express.Router();
 
 
 
-membershipRoute.post("/member/create", membershipCrl.create);
+membershipRoute.post("/", membershipCrl.create);
 
 
-membershipRoute.get("/member/list", membershipCrl.listMembership);
-membershipRoute.put("/member/:membershipId", membershipCrl.updateMembership);
-membershipRoute.get("/member/:membershipId", membershipCrl.viewMembership);
-membershipRoute.delete("/member/:membershipId", membershipCrl.deleteMembership);
+membershipRoute.get("/", membershipCrl.listMembership);
+membershipRoute.put("/:membershipId", membershipCrl.updateMembership);
+membershipRoute.get("/:membershipId", membershipCrl.viewMembership);
+membershipRoute.delete("/:membershipId", membershipCrl.deleteMembership);
 
 
 

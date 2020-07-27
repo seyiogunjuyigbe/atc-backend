@@ -1,6 +1,6 @@
 # Product Paths
 
-/product/create:
+/products/:
     post:
       summary: Create new product
       description: Create a new product
@@ -24,7 +24,7 @@
           schema:
             example:
               message: Product created successfully.
-/product/{productId}:
+/products/{productId}:
     get:
       summary: Get a single product
       operationId: viewProduct
@@ -98,7 +98,7 @@
           schema:
             example:
               message: An unexpected error occured
-  /product/list:
+  /products/:
     get:
       summary: View all products
       description: Display all products
