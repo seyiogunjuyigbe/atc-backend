@@ -86,7 +86,6 @@ module.exports = {
         try {
             let package = await Package.findByPk(req.params.packageId)
             if (!package) return success(res, 204, 'Package not found');
-            else if (package.createdBy !== userId) return error(res, 401, 'You are not authorized to do this')
             else return success(res, 200, package)
 
         } catch (err) {
