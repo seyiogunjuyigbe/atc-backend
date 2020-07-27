@@ -1,6 +1,6 @@
 # Subscription Paths
 
-/subscriptions/:
+  /subscriptions/:
     post:
       summary: Create new Subscription
       description: Create a new Subscription
@@ -24,7 +24,35 @@
           schema:
             example:
               message: Subscription created successfully.
-/subscriptions/{subId}:
+    get:
+      summary: View all Subscription
+      description: Display all Subscription
+      operationId: listSubscriptions
+      tags:
+        - Subscriptions
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Subscriptions fetched successfully
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  
+  /subscriptions/{subId}:
     get:
       summary: Get a single subscription
       operationId: viewSubscription
@@ -99,32 +127,3 @@
           schema:
             example:
               message: An unexpected error occured
-  /subscriptions/:
-    get:
-      summary: View all Subscription
-      description: Display all Subscription
-      operationId: listSubscriptions
-      tags:
-        - Subscriptions
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-      responses:
-        200:
-          description: Success
-          schema:
-            example:
-              message: Subscriptions fetched successfully
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to access this resource
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured
-  

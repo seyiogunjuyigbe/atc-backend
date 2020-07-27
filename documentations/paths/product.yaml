@@ -1,6 +1,6 @@
 # Product Paths
 
-/products/:
+  /products:
     post:
       summary: Create new product
       description: Create a new product
@@ -24,7 +24,34 @@
           schema:
             example:
               message: Product created successfully.
-/products/{productId}:
+    get:
+      summary: View all products
+      description: Display all products
+      operationId: listProducts
+      tags:
+        - Products
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Products  fetched successfully
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /products/{productId}:
     get:
       summary: Get a single product
       operationId: viewProduct
@@ -98,32 +125,5 @@
           schema:
             example:
               message: An unexpected error occured
-  /products/:
-    get:
-      summary: View all products
-      description: Display all products
-      operationId: listProducts
-      tags:
-        - Products
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-      responses:
-        200:
-          description: Success
-          schema:
-            example:
-              message: Products  fetched successfully
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to access this resource
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured
+
   

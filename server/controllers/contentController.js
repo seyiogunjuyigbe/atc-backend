@@ -1,4 +1,6 @@
-const models = require('../models');
+const {
+    Content
+} = require('../models');
 const {
     Op
 } = require("sequelize");
@@ -20,7 +22,7 @@ module.exports = {
                 } = req.file;
                 var type = mimetype.substring(0, mimetype.indexOf('/'));
                 if (type == "image" && mimetype.substring(mimetype.indexOf('/') + 1, mimetype.length) == "gif") type = "gif"
-                let newContent = await models.Content.create({
+                let newContent = await Content.create({
                     forType: contentFor,
                     forId: contentForId,
                     url,
@@ -55,7 +57,7 @@ module.exports = {
         params: contentId
         */
         try {
-            let content = await models.Content.findByPk(req.params.contentId);
+            let content = await Content.findByPk(req.params.contentId);
             if (!content) return res.status(404).json({
                 error: true,
                 message: 'Content not found'
@@ -77,7 +79,7 @@ module.exports = {
         params: contentId
         */
         try {
-            let content = await models.Content.destroy({
+            let content = await Content.destroy({
                 where: {
                     id: req.params.contentId
                 }
@@ -112,7 +114,7 @@ params(query): type,forType,forId (optional)
             if (type) whereStatement.type = type;
             if (forType) whereStatement.forType = forType;
             if (forId) whereStatement.forId = forId;
-            let content = await models.Content.findAll({
+            let content = await Content.findAll({
                 where: whereStatement
             });
             if (!content || content.length == 0) return res.status(204).json({

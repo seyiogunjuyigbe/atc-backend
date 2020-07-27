@@ -1,5 +1,5 @@
 # Product Definitions
-Product:
+  Product:
     type: object
     properties:
       name:
@@ -14,7 +14,7 @@ Product:
       owner:
         type: integer
         description: user id of the user
-     description:
-        type: string
-        description: product description
+      description:
+          type: string
+          description: product description
 

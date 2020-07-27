@@ -6,12 +6,15 @@ const membershipRoute = require('./membershipRoute');
 const productRoute = require('./productRoute');
 const contentRoutes = require('./contentRoute')
 const packageRoutes = require('./packageRoutes')
+const categoryRoutes = require('./categoryRoutes')
+
 indexRoute.use("/auth", authRoute);
 indexRoute.use("/memeberships", membershipRoute);
 indexRoute.use("/subscriptions", subRoute);
 indexRoute.use("/products", productRoute);
-indexRoute.use('/content', contentRoutes);
 indexRoute.use('/packages', packageRoutes)
+indexRoute.use('/contents', contentRoutes);
+indexRoute.use('/categories', categoryRoutes)
 
 
 module.exports = indexRoute;
