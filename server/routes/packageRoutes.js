@@ -27,6 +27,7 @@ router.put('/:packageId', authenticate, [
     check('features').isArray({
         min: 1
     }).withMessage('features array required'),
+    check('userId').not().isEmpty().withMessage('User ID required'),
     check('price').not().isEmpty().withMessage('Package price required')
 ], validate, updatePackage);
 router.get('/', fetchAllPackages)

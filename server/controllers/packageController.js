@@ -48,24 +48,30 @@ module.exports = {
             name,
             description,
             features,
+            userId,
             price
         } = req.body;
         try {
+            let thisPackage = await Package.findByPk(req.params.packageId);
+            if (!thisPackage) return error(res, 404, 'Package not found')
+            else if (package.createdBy !== userId) return error(res, 401, 'You are not authorized to do')
+            else {
+                let updatedPackage = await Package.update({
+                    name,
+                    description,
+                    features,
+                    price
+                }, {
+                    where: {
+                        id: req.params.packageId
+                    }
+                });
+                if (!updatedPackage) return error(res, 404, 'Package not found')
+                if (updatedPackage) return success(res, 200, {
+                    message: 'Package updated successfully',
+                })
+            }
 
-            let updatedPackage = await Package.update({
-                name,
-                description,
-                features,
-                price
-            }, {
-                where: {
-                    id: req.params.packageId
-                }
-            });
-            if (!updatedPackage) return error(res, 404, 'Package not found')
-            if (updatedPackage) return success(res, 200, {
-                message: 'Package updated successfully',
-            })
 
         } catch (err) {
             return error(res, 500, err.message)
@@ -85,6 +91,7 @@ module.exports = {
         try {
             let package = await Package.findByPk(req.params.packageId)
             if (!package) return success(res, 204, 'Package not found');
+            else if (package.createdBy !== userId) return error(res, 401, 'You are not authorized to do this')
             else return success(res, 200, package)
 
         } catch (err) {
@@ -92,7 +99,14 @@ module.exports = {
         }
     },
     async deletePackage(req, res) {
+        let {
+            userId
+        } = req.query
+        if (!userId) return error(res, 403, 'User ID required')
         try {
+            let thisPackage = await Package.findByPk(req.params.packageId);
+            if (!thisPackage) return error(res, 404, 'Package not found')
+            else if (package.createdBy !== userId) return error(res, 401, 'You are not authorized to do')
             let package = await Package.destroy({
                 where: {
                     id: req.params.packageId
