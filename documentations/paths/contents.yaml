@@ -1,6 +1,6 @@
 # Content Paths
 
-  /content/new:
+  /contents:
     post:
       summary: Create new content
       description: Create a new content
