@@ -1,0 +1,156 @@
+# Content Paths
+
+  /contents:
+    post:
+      summary: Create new content
+      description: Create a new content
+      operationId: createContent
+      tags:
+      - Contents
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Content details
+          required: true
+          schema:
+            $ref: "#/definitions/Content"
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Content created successfully.
+    get:
+      summary: View all contents
+      description: Display all contents
+      operationId: listContents
+      tags:
+      - Contents
+      parameters:
+        $ref: "#/definitions/GetAuthQuery"
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Content"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /contents/{contentId}:
+    delete:
+      summary: Deletes a content
+      description: Delete a content
+      operationId: deleteContent
+      tags:
+      - Contents
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: contentId
+          description: Content id to delete
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Content successfully deleted.
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    get:
+      summary: Get a single content
+      operationId: viewContent
+      tags:
+      - Contents
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: contentId
+          description: Content Id to fetch
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Content"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    put:
+      summary: Update Content
+      description: Update a particular content
+      operationId: updateContent
+      tags:
+      - Contents
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: contentId
+          description: Content id to update
+          required: true
+        - in: body
+          name: payload
+          description: Content data to update
+          schema:
+            $ref: "#/definitions/Content"
+
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Content data successfully updated
+        400:
+          description: Bad content
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
