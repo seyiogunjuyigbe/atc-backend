@@ -1,6 +1,19 @@
 'use strict';
+const {
+  Model
+} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  const users = sequelize.define('users', {
+  class User extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+    }
+  };
+  User.init({
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     email: DataTypes.STRING,
@@ -20,23 +33,18 @@ module.exports = (sequelize, DataTypes) => {
       },
     passwordResetExpires: DataTypes.STRING
   }, {
-    getterMethods: {
-      fullName(){
-        return [this.firstName, this.lastName].join(' ');
-      }
-    }
+    sequelize,
+    modelName: 'User',
+    tableName: 'users',
   });
-  users.associate = function(models) {
-    // associations can be defined here
-  };
 
-   //exclude password
-    users.prototype.toJSON =  function () {
+    //exclude password
+    User.prototype.toJSON =  function () {
       var values = Object.assign({}, this.get());
     
       delete values.password;
       
       return values;
     }
-  return users;
+  return User;
 };
