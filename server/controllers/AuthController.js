@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
-const models = require('../models');
+// const models = require('../models');
+const { User } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const hash = require('hashids');
@@ -29,8 +30,8 @@ module.exports = {
 
     try {
       //find the user by email
-      models.users
-        .findOne({ where: { email: req.body.email } })
+      //models.users
+        User.findOne({ where: { email: req.body.email } })
         .then(async function (user) {
           if (user !== null) {
             return res.status(400).send(responses.error( 400,'An account with similar credentials already exists'));
@@ -44,11 +45,11 @@ module.exports = {
             let hashedPassword = bcrypt.hashSync(req.body.password, 8);
             data['password'] = hashedPassword;
             data['isActive'] = false;
-            const Newuser = await models.users.create(data);
-            if (Newuser) {
+            const newUser = await User.create(data);
+            if (newUser) {
               // _email.sendEmailSignUpToken(Newuser, token);
               let url = generalFunctions.getURL();
-              let resetURL = url + `auth/${Newuser.id}/verify/${token}`;
+              let resetURL = url + `auth/${newUser.id}/verify/${token}`;
 
               let MailTemplateName = 'account_activation.html';
               let MailData = {
@@ -95,8 +96,7 @@ module.exports = {
     }
 
     var email = req.params.email;
-    models.users
-      .findOne({
+    User.findOne({
         where: {
           email: email,
         },
@@ -153,18 +153,17 @@ module.exports = {
 
   //validate Email token to activate account
   ValidateEmailToken: (req, res) => {
-    if (!req.params.id || !req.params.token) {
+    if (!req.params.userId || !req.params.token) {
       return res
         .status(201)
         .send(responses.error(201, 'Please provide required fields'));
     }
 
-    let id = req.params.id;
+    let id = req.params.userId;
     let token = req.body.token;
 
     //find the user
-    models.users
-      .findOne({
+    User.findOne({
         where: {
           id: id,
           token: token,
@@ -198,7 +197,7 @@ module.exports = {
             MailSubject,
           );
         }
-        models.users
+        User
           .update(data, { where: { id: user.id } })
           .then(function (updatedUser) {
             return res
@@ -216,7 +215,7 @@ module.exports = {
 
   viewUser: (req, res) => {
     try {
-      const user = models.users.findByPk(req.params.userId);
+      const user = User.findByPk(req.params.userId);
       if (!user) {
         return res.status(400).send(responses.error(400, 'User not found'));
       } else {
@@ -235,7 +234,7 @@ module.exports = {
 
   login: async (req, res) => {
     try {
-      const user = await models.users.findOne({
+      const user = await User.findOne({
         where: { email: req.body.email },
       });
       const userObj = {
@@ -290,9 +289,9 @@ module.exports = {
   },
   forgotPassword: async (req, res) => {
     try {
-      const email = req.body.email;
+      const email = req.query.email;
       const address = req.headers.host;
-      const user = await models.users.findOne({ where: { email: email } });
+      const user = await User.findOne({ where: { email: email } });
 
       const token = uuidv1();
       if (!user) {
@@ -338,8 +337,7 @@ module.exports = {
               }
             });
         }
-        models.users
-          .update(data, { where: { id: user.id } })
+          User.update(data, { where: { id: user.id } })
           .then(function (updatedUser) {
             return res
               .status(200)
@@ -361,7 +359,7 @@ module.exports = {
 
   postReset: async (req, res) => {
     const { userId } = req.params;
-    const user = models.user.findOne({
+    const user = User.findOne({
       where: {
         id: userId,
         passwordResetExpires: {
@@ -387,8 +385,7 @@ module.exports = {
         passwordResetExpires: undefined,
       };
 
-      models.users
-        .update(data, { where: { id: user.id } })
+      User.update(data, { where: { id: user.id } })
         .then(function (updatedUser) {
           return res
             .status(200)
@@ -405,7 +402,7 @@ module.exports = {
 
   getReset: async (req, res, next) => {
     const { userId } = req.params;
-    const user = models.user.findOne({
+    const user = User.findOne({
       where: {
         id: userId,
         passwordResetExpires: {

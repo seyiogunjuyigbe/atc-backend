@@ -1,4 +1,4 @@
-const models = require('../models');
+const {Product} = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { check, validationResult } = require('express-validator');
@@ -15,15 +15,15 @@ module.exports = {
     }
 
     try {
-      const Product = await models.products.create(req.body);
-      if (Product) {
+      const product = await Product.create(req.body);
+      if (product) {
         return res
           .status(200)
           .send(
             responses.success(
               200,
               'Your Product was successfully created.',
-              Product,
+              product,
             ),
           );
       } else {
@@ -41,8 +41,8 @@ module.exports = {
   },
   viewProduct: async (res, req) => {
     try {
-      const Product = models.products.findByPk(req.params.id);
-      if (!Product) {
+      const product = await Product.findByPk(req.params.productId );
+      if (!product) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       } else {
         return res
@@ -51,7 +51,7 @@ module.exports = {
             responses.success(
               200,
               'Record was retreived successfully',
-              Product,
+              product,
             ),
           );
       }
@@ -68,7 +68,7 @@ module.exports = {
     var order = req.query.order ? req.query.order : 'ASC';
     var ordering = [[orderBy, order]];
 
-    models.products
+     Product
       .findAndCountAll({
         offset: parseInt(offset),
         limit: parseInt(limit),
@@ -88,8 +88,8 @@ module.exports = {
   },
   updateProduct: async (res, req) => {
     try {
-      const result = await models.products.update(req.body, {
-        where: { _id: req.params.id },
+      const result = await Product.update(req.body, {
+        where: { id: req.params.productId },
       });
 
       return res
@@ -103,4 +103,29 @@ module.exports = {
         .send(responses.error(500, `Error updating an record ${err.message}`));
     }
   },
+  deleteProduct: async (res, req) => {
+    try {
+        const product = await Product.destroy({
+            where: {
+                id: req.params.productId
+            }
+        });
+        if (!product) 
+        return res
+        .status(400)
+        .send(
+          responses.error(400, 'product not found'));
+        
+        else 
+
+      return res
+      .status(200)
+      .send(
+        responses.success(200, 'Product was deleted successfully', product)
+      );
+        
+    } catch (err) {
+        return error(res, 500, err.message)
+    }
+}
 };
