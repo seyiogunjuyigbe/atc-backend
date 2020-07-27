@@ -5,8 +5,9 @@
       name:
         type: string
         required: true
-      image:
-        type: file
+      parentId:
+        type: integer
+        description: Hold the category parent id
       description:
         type: string
         description: Details explaining the category
