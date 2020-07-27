@@ -23,6 +23,33 @@
           schema:
             example:
               message: Membership created successfully.
+    get:
+      summary: View all memberships
+      description: Display all memberships
+      operationId: listMemberships
+      tags:
+        - Memberships
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Memberships fetched successfully
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
   /memberships/{membershipId}:
     get:
       summary: Get a single memberships
@@ -98,31 +125,4 @@
           schema:
             example:
               message: An unexpected error occured
-  /memberships/:
-    get:
-      summary: View all memberships
-      description: Display all memberships
-      operationId: listMemberships
-      tags:
-        - Memberships
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-      responses:
-        200:
-          description: Success
-          schema:
-            example:
-              message: Memberships fetched successfully
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to access this resource
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured
+
