@@ -1,128 +1,128 @@
 # Membership Paths
-/memberships/:
-  post:
-    summary: Create new Membership
-    description: Create a new Membership
-    operationId: createMembership
-    tags:
-      - Memberships
-    parameters:
-      - in: header
-        name: Authorization
-        description: Authentication token
-        required: true
-      - in: body
-        name: payload
-        description: Membership details
-        required: true
-        schema:
-          $ref: '#/definitions/Membership'
-    responses:
-      200:
-        description: Success
-        schema:
-          example:
-            message: Membership created successfully.
-/memberships/{membershipId}:
-  get:
-    summary: Get a single memberships
-    operationId: viewMembership
-    tags:
-      - Memberships
-    parameters:
-      - in: header
-        name: Authorization
-        description: Authentication token
-        required: true
-      - in: path
-        name: id
-        description: get data
-        required: true
-    responses:
-      200:
-        description: success
-        schema:
-          type: array
-          items:
+  /memberships/:
+    post:
+      summary: Create new Membership
+      description: Create a new Membership
+      operationId: createMembership
+      tags:
+        - Memberships
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Membership details
+          required: true
+          schema:
+            $ref: '#/definitions/Membership'
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Membership created successfully.
+  /memberships/{membershipId}:
+    get:
+      summary: Get a single memberships
+      operationId: viewMembership
+      tags:
+        - Memberships
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: id
+          description: get data
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Membership'
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    put:
+      summary: Update Membership
+      description: Update a particular membership
+      operationId: updateMembership
+      tags:
+        - Memberships
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: id
+          description: Membership id to update
+          required: true
+        - in: body
+          name: payload
+          description: Membership data to update
+          schema:
             $ref: '#/definitions/Membership'
 
-      403:
-        description: Not authorized
-        schema:
-          example:
-            message: You are not authorized to access this resource
-      500:
-        description: Unexpected server error
-        schema:
-          example:
-            message: An unexpected error occured
-  put:
-    summary: Update Membership
-    description: Update a particular membership
-    operationId: updateMembership
-    tags:
-      - Memberships
-    parameters:
-      - in: header
-        name: Authorization
-        description: Authentication token
-        required: true
-      - in: path
-        name: id
-        description: Membership id to update
-        required: true
-      - in: body
-        name: payload
-        description: Membership data to update
-        schema:
-          $ref: '#/definitions/Membership'
-
-    responses:
-      200:
-        description: Success
-        schema:
-          example:
-            message: Membership data successfully updated
-      400:
-        description: Bad request
-        schema:
-          example:
-            message: Missing required parameters
-      403:
-        description: Not authorized
-        schema:
-          example:
-            message: You are not authorized to perform this action
-      500:
-        description: Unexpected server error
-        schema:
-          example:
-            message: An unexpected error occured
-/memberships/:
-  get:
-    summary: View all memberships
-    description: Display all memberships
-    operationId: listMemberships
-    tags:
-      - Memberships
-    parameters:
-      - in: header
-        name: Authorization
-        description: Authentication token
-        required: true
-    responses:
-      200:
-        description: Success
-        schema:
-          example:
-            message: Memberships fetched successfully
-      403:
-        description: Not authorized
-        schema:
-          example:
-            message: You are not authorized to access this resource
-      500:
-        description: Unexpected server error
-        schema:
-          example:
-            message: An unexpected error occured
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Membership data successfully updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /memberships/:
+    get:
+      summary: View all memberships
+      description: Display all memberships
+      operationId: listMemberships
+      tags:
+        - Memberships
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Memberships fetched successfully
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

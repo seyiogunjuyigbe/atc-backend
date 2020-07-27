@@ -1,103 +1,103 @@
 # Product Paths
 
-/products/:
-    post:
-      summary: Create new product
-      description: Create a new product
-      operationId: createMembership
-      tags:
-        - Products
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-        - in: body
-          name: payload
-          description: Product details
-          required: true
-          schema:
-            $ref: '#/definitions/Product'
-      responses:
-        200:
-          description: Success
-          schema:
-            example:
-              message: Product created successfully.
-/products/{productId}:
-    get:
-      summary: Get a single product
-      operationId: viewProduct
-      tags:
-        - Products
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-        - in: path
-          name: id
-          description: get data
-          required: true
-      responses:
-        200:
-          description: success
-          schema:
-            type: array
-            items:
+  /products/:
+      post:
+        summary: Create new product
+        description: Create a new product
+        operationId: createMembership
+        tags:
+          - Products
+        parameters:
+          - in: header
+            name: Authorization
+            description: Authentication token
+            required: true
+          - in: body
+            name: payload
+            description: Product details
+            required: true
+            schema:
               $ref: '#/definitions/Product'
-  
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to access this resource
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured
-    put:
-      summary: Update product
-      description: Update a particular product
-      operationId: updateProduct
-      tags:
-        - Products
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-        - in: path
-          name: id
-          description: product id to update
-          required: true
-        - in: body
-          name: payload
-          description: product data to update
-          schema:
-            $ref: '#/definitions/Product'
-      responses:
-        200:
-          description: Success
-          schema:
-            example:
-              message: Membership data successfully updated
-        400:
-          description: Bad request
-          schema:
-            example:
-              message: Missing required parameters
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to perform this action
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured
+        responses:
+          200:
+            description: Success
+            schema:
+              example:
+                message: Product created successfully.
+  /products/{productId}:
+      get:
+        summary: Get a single product
+        operationId: viewProduct
+        tags:
+          - Products
+        parameters:
+          - in: header
+            name: Authorization
+            description: Authentication token
+            required: true
+          - in: path
+            name: id
+            description: get data
+            required: true
+        responses:
+          200:
+            description: success
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Product'
+    
+          403:
+            description: Not authorized
+            schema:
+              example:
+                message: You are not authorized to access this resource
+          500:
+            description: Unexpected server error
+            schema:
+              example:
+                message: An unexpected error occured
+      put:
+        summary: Update product
+        description: Update a particular product
+        operationId: updateProduct
+        tags:
+          - Products
+        parameters:
+          - in: header
+            name: Authorization
+            description: Authentication token
+            required: true
+          - in: path
+            name: id
+            description: product id to update
+            required: true
+          - in: body
+            name: payload
+            description: product data to update
+            schema:
+              $ref: '#/definitions/Product'
+        responses:
+          200:
+            description: Success
+            schema:
+              example:
+                message: Membership data successfully updated
+          400:
+            description: Bad request
+            schema:
+              example:
+                message: Missing required parameters
+          403:
+            description: Not authorized
+            schema:
+              example:
+                message: You are not authorized to perform this action
+          500:
+            description: Unexpected server error
+            schema:
+              example:
+                message: An unexpected error occured
   /products/:
     get:
       summary: View all products

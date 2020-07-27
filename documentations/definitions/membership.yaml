@@ -1,16 +1,16 @@
 # Membership Definitions
-Membership:
-    type: object
-    properties:
-     name:
-        type: string
-        description: membership name
-     type:
-        type: string
-        description: one-off,annual
-     createdBy:
-        type: string
-        description: user id of the user
-     description:
-        type: string
-        description: membership description
+   Membership:
+      type: object
+      properties:
+      name:
+         type: string
+         description: membership name
+      type:
+         type: string
+         description: one-off,annual
+      createdBy:
+         type: string
+         description: user id of the user
+      description:
+         type: string
+         description: membership description
