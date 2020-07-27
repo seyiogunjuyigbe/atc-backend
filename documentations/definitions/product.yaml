@@ -1,19 +1,19 @@
 # Product Definitions
   Product:
-      type: object
-      properties:
-        name:
-          type: string
-          description: product name
-        imageUrl:
-          type: string
-          description: imageUrl
-        shortName:
-          type: string  
-          description: user id of the user
-        owner:
-          type: integer
-          description: user id of the user
+    type: object
+    properties:
+      name:
+        type: string
+        description: product name
+      imageUrl:
+        type: string
+        description: imageUrl
+      shortName:
+        type: string  
+        description: user id of the user
+      owner:
+        type: integer
+        description: user id of the user
       description:
           type: string
           description: product description
