@@ -17,14 +17,6 @@
           required: true
           schema:
             $ref: "#/definitions/Activity"
-        - in: body
-          name: attachments
-          description: Pictures for this activity
-          content:
-            multipart/form-data:
-              encoding:
-                attachments:
-                  contentType: image/png, image/jpeg
       responses:
         200:
           description: Success
