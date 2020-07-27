@@ -1,4 +1,6 @@
-const models = require('../models');
+const {
+    Category
+} = require('../models');
 const {
     success,
     error
@@ -16,14 +18,14 @@ module.exports = {
             description
         } = req.body;
         try {
-            let existingCateg = await models.Category.findOne({
+            let existingCateg = await Category.findOne({
                 where: {
                     name: name.toLowerCase()
                 }
             })
             if (existingCateg) return error(res, 409, 'Category ( ' + name + ") already exists");
             else {
-                let category = await models.Category.create({
+                let category = await Category.create({
                     name,
                     parentId,
                     description
@@ -44,7 +46,7 @@ module.exports = {
         params: categoryId
         */
         try {
-            let category = await models.Category.update({
+            let category = await Category.update({
                 ...req.body
             }, {
                 where: {
@@ -64,7 +66,7 @@ module.exports = {
         method: GET
         */
         try {
-            let categories = await models.Category.findAll();
+            let categories = await Category.findAll();
             if (!categories || categories.length == 0) return success(res, 204, 'No categories found');
             else return success(res, 200, categories)
         } catch (err) {
@@ -77,8 +79,12 @@ module.exports = {
         params: categoryId
         */
         try {
-            let category = await models.Category.findByPk(req.params.categoryId);
-            if (!category) return success(res, 204, 'Category not found');
+            let category = await Category.findOne({
+                where: {
+                    id: req.params.categoryId
+                }
+            });
+            if (!category) return success(res, 404, 'Category not found');
             else return success(res, 200, category)
         } catch (err) {
             return error(res, 500, err.message)
@@ -90,7 +96,7 @@ module.exports = {
         params: categoryId
         */
         try {
-            let category = await models.Category.destroy({
+            let category = await Category.destroy({
                 where: {
                     id: req.params.categoryId
                 }

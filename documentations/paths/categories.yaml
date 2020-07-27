@@ -39,7 +39,6 @@
             type: array
             items:
               $ref: "#/definitions/Category"
-
         403:
           description: Not authorized
           schema:
@@ -132,7 +131,6 @@
           description: Category data to update
           schema:
             $ref: "#/definitions/Category"
-
       responses:
         200:
           description: Success
@@ -154,38 +152,37 @@
           schema:
             example:
               message: An unexpected error occured
-
-  /categories/{categoryId}/upload-image:
-    post:
-      summary: Upload category image
-      operationId: uploadCategoryImage
-      tags:
-      - Categories
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-        - in: path
-          name: categoryId
-          description: Category Id to upload image for
-          required: true
-        - in: body
-          name: image
-          description: Image to upload using formData
-      responses:
-        200:
-          description: Success
-          schema:
-            example:
-              message: Image successfully uploaded.
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to access this resource
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured
+  # /categories/{categoryId}/upload-image:
+  #   post:
+  #     summary: Upload category image
+  #     operationId: uploadCategoryImage
+  #     tags:
+  #     - Categories
+  #     parameters:
+  #       # - in: header
+  #       #   name: Authorization
+  #       #   description: Authentication token
+  #       #   required: true
+  #       - in: path
+  #         name: categoryId
+  #         description: Category Id to upload image for
+  #         required: true
+  #       - in: body
+  #         name: image
+  #         description: Image to upload using formData
+  #     responses:
+  #       200:
+  #         description: Success
+  #         schema:
+  #           example:
+  #             message: Image successfully uploaded.
+  #       403:
+  #         description: Not authorized
+  #         schema:
+  #           example:
+  #             message: You are not authorized to access this resource
+  #       500:
+  #         description: Unexpected server error
+  #         schema:
+  #           example:
+  #             message: An unexpected error occured
