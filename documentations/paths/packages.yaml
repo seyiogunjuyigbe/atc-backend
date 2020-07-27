@@ -1,5 +1,4 @@
 # Package Paths
-
   /packages:
     post:
       summary: Create new package
@@ -37,7 +36,6 @@
             type: array
             items:
               $ref: "#/definitions/Package"
-
         403:
           description: Not authorized
           schema:
@@ -128,9 +126,9 @@
         - in: body
           name: payload
           description: Package data to update
+          required: true
           schema:
             $ref: "#/definitions/Package"
-
       responses:
         200:
           description: Success
