@@ -1,6 +1,5 @@
 const {
     Package,
-    users
 } = require('../models');
 const {
     success,
@@ -12,7 +11,6 @@ module.exports = {
         const {
             name,
             description,
-            createdBy,
             features,
             price
         } = req.body;
@@ -22,14 +20,12 @@ module.exports = {
                     name
                 }
             });
-            let thisUser = await users.findByPk(createdBy);
             if (existingPack) return error(res, 409, 'Duplicate name: Package "' + name + '" already exists');
-            if (!thisUser) return error(res, 400, 'Invalid user selected')
             else {
                 let newPackage = await Package.create({
                     name,
                     description,
-                    createdBy: thisUser.id,
+                    createdBy: req.user.id,
                     features,
                     price
                 });
@@ -48,13 +44,12 @@ module.exports = {
             name,
             description,
             features,
-            userId,
             price
         } = req.body;
         try {
             let thisPackage = await Package.findByPk(req.params.packageId);
             if (!thisPackage) return error(res, 404, 'Package not found')
-            else if (package.createdBy !== userId) return error(res, 401, 'You are not authorized to do')
+            else if (package.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
             else {
                 let updatedPackage = await Package.update({
                     name,
@@ -99,14 +94,10 @@ module.exports = {
         }
     },
     async deletePackage(req, res) {
-        let {
-            userId
-        } = req.query
-        if (!userId) return error(res, 403, 'User ID required')
         try {
             let thisPackage = await Package.findByPk(req.params.packageId);
             if (!thisPackage) return error(res, 404, 'Package not found')
-            else if (package.createdBy !== userId) return error(res, 401, 'You are not authorized to do')
+            else if (package.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
             let package = await Package.destroy({
                 where: {
                     id: req.params.packageId
