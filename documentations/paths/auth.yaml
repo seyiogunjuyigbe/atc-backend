@@ -194,7 +194,7 @@
       description: Create a new account for user using email and password
       operationId: createUser
       tags:
-      - Users
+      - Authentication
       parameters:
         - in: body
           name: payload
