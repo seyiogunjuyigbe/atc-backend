@@ -1,7 +1,8 @@
-const getJWT =  require('../services/jwtService');
+const getJWT = require('../services/jwtService');
+const { User } = require('../models');
 
-module.exports = function(req, res, next) {
-    
+module.exports = function (req, res, next) {
+
     if (req.headers && req.headers.authorization) {
         const parts = req.headers.authorization.split(' ');
         if (parts.length == 2) {
@@ -10,26 +11,32 @@ module.exports = function(req, res, next) {
             const credentials = parts[1];
             if (/^Bearer$/i.test(scheme)) {
                 token = credentials;
-                getJWT.decodeToken(token, function (err, decoded){
+                getJWT.decodeToken(token, async function (err, decoded) {
                     if (err) {
                         //return res.json(401, {response: {message: err.message}});
-                        return res.status(401).json({response: {message: err.message}});
+                        return res.status(401).json({ response: { message: err.message } });
                     }
-                    req.user = decoded;
+
+                    req.user = await User.findById(decoded.id);
+
+                    if (!req.user) {
+                        return res.status(401).json({ response: { message: 'Invalid token' } });
+                    }
+
                     next();
                 });
             } else {
-               // return res.json(401, {response: {message: 'Format is Authorization: Bearer [token]'}});
-                return res.status(401).json({response: {message: 'Format is Authorization: Bearer [token]'}});
-                
+                // return res.json(401, {response: {message: 'Format is Authorization: Bearer [token]'}});
+                return res.status(401).json({ response: { message: 'Format is Authorization: Bearer [token]' } });
+
             }
         } else {
-           // return res.json(401, {response: {message: 'Format is Authorization: Bearer [token]'}});
-            return res.status(401).json({response: {message: 'Format is Authorization: Bearer [token]'}});
+            // return res.json(401, {response: {message: 'Format is Authorization: Bearer [token]'}});
+            return res.status(401).json({ response: { message: 'Format is Authorization: Bearer [token]' } });
         }
     }
     else {
-       //return res.json(401, {response: {message: 'No Authorization header was found'}});
-        return res.status(401).json({response: {message: 'No Authorization header was found'}});
+        //return res.json(401, {response: {message: 'No Authorization header was found'}});
+        return res.status(401).json({ response: { message: 'No Authorization header was found' } });
     }
 };
