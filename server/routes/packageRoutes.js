@@ -4,7 +4,8 @@ const {
     updatePackage,
     fetchAllPackages,
     fetchPackage,
-    deletePackage
+    deletePackage,
+    addProductToPackage
 } = require("../controllers/packageController");
 const {
     check
@@ -23,6 +24,9 @@ router.put('/:packageId', authenticate, [
     check('length_value').not().isEmpty().withMessage('Package length required'),
     check('frequency').not().isEmpty().withMessage('Package frequency required'),
 ], validate, updatePackage);
+router.put('/:packageId/add', authenticate, [
+    check('productId').not().isEmpty().withMessage('Product ID required'),
+], validate, addProductToPackage);
 router.get('/', fetchAllPackages)
 router.get('/:packageId', fetchPackage)
 router.delete('/:packaageId', authenticate, deletePackage)

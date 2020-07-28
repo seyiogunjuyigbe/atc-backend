@@ -150,3 +150,46 @@
           schema:
             example:
               message: An unexpected error occured
+  /packages/{packageId}:
+      summary: Add Product to package
+      description: Add product to a particular package
+      operationId: addProductToPackage
+      tags:
+      - Packages
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: packageId
+          description: Package id to update
+          required: true
+        - in: body
+          name: payload
+          description: Package data to update
+          required: true
+          schema:
+            $ref: "#/definitions/Package"
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product added to package successfully
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+
