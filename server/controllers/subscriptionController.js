@@ -1,7 +1,12 @@
-const { Subscription } = require('../models');
+const {
+  Subscription
+} = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
-const { check, validationResult } = require('express-validator');
+const {
+  check,
+  validationResult
+} = require('express-validator');
 
 module.exports = {
   create: async (res, req) => {
@@ -11,12 +16,17 @@ module.exports = {
     if (hasErrors) {
       return res
         .status(400)
-        .send({ error: true, status_code: 400, message: result.array() });
+        .send({
+          error: true,
+          status_code: 400,
+          message: result.array()
+        });
     }
 
     try {
       const subscription = await Subscription.create(req.body);
       if (subscription) {
+        subscription.save()
         return res
           .status(200)
           .send(
@@ -44,7 +54,7 @@ module.exports = {
   },
   viewSubscription: async (res, req) => {
     try {
-      const subscription = await Subscription.findByPk(req.params.subId);
+      const subscription = await Subscription.findById(req.params.subId);
       if (!subscription) {
         return res
           .status(400)
@@ -73,32 +83,35 @@ module.exports = {
     var limit = req.query.limit ? req.query.limit : 20;
     var orderBy = req.query.orderBy ? req.query.orderBy : 'id';
     var order = req.query.order ? req.query.order : 'ASC';
-    var ordering = [[orderBy, order]];
+    var ordering = [
+      [orderBy, order]
+    ];
 
-     Subscription
-      .findAndCountAll({
-        offset: parseInt(offset),
-        limit: parseInt(limit),
-        order: ordering,
+    Subscription
+      .find({})
+      .limit(limit)
+      .skip(offset)
+      .sort({
+        ordering
       })
       .then(function (subscription) {
-        return res
-          .status(200)
-          .send(
-            responses.success(
-              200,
-              'Record was retreived successfully',
-              subscription,
-            ),
-          );
-      });
+        Subscription.countDocuments().exec((err, subscriptions) => {
+          return res
+            .status(200)
+            .send(
+              responses.success(
+                200,
+                'Record was retreived successfully',
+                subscriptions,
+              ),
+            );
+        });
+      })
   },
   updateSubscription: async (res, req) => {
     try {
-      const result = await Subscription.update(req.body, {
-        where: { id: req.params.subId },
-      });
-
+      const result = await Subscription.findByIdAndUpdate(req.params.subId, req.body);
+      result.save()
       return res
         .status(200)
         .send(
@@ -112,27 +125,23 @@ module.exports = {
   },
   deleteSubscription: async (res, req) => {
     try {
-        const subscription = await Subscription.destroy({
-            where: {
-                id: req.params.subId
-            }
-        });
-        if (!subscription) 
+      const subscription = await Subscription.findByIdAndDelete(req.params.subId);
+      if (!subscription)
         return res
-        .status(400)
-        .send(
-          responses.error(400, 'subscription not found'));
-        
-        else 
+          .status(400)
+          .send(
+            responses.error(400, 'subscription not found'));
 
-      return res
-      .status(200)
-      .send(
-        responses.success(200, 'Subscription was deleted successfully', subscription)
-      );
-        
+      else
+
+        return res
+          .status(200)
+          .send(
+            responses.success(200, 'Subscription was deleted successfully', subscription)
+          );
+
     } catch (err) {
-        return error(res, 500, err.message)
+      return error(res, 500, err.message)
     }
-}
+  }
 };

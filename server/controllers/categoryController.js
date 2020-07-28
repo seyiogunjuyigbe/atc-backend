@@ -19,9 +19,8 @@ module.exports = {
         } = req.body;
         try {
             let existingCateg = await Category.findOne({
-                where: {
-                    name: name.toLowerCase()
-                }
+
+                name: name.toLowerCase()
             })
             if (existingCateg) return error(res, 409, 'Category ( ' + name + ") already exists");
             else {
@@ -30,10 +29,13 @@ module.exports = {
                     parentId,
                     description
                 });
-                return success(res, 200, {
-                    success: true,
-                    category
+                category.save((err, newCategory) => {
+                    return success(res, 200, {
+                        success: true,
+                        category: newCategory
+                    })
                 })
+
             }
         } catch (err) {
             return error(res, 500, err.message)
@@ -46,15 +48,12 @@ module.exports = {
         params: categoryId
         */
         try {
-            let category = await Category.update({
+            let category = await Category.findByIdAndUpdate(req.params.categoryId, {
                 ...req.body
-            }, {
-                where: {
-                    id: req.params.categoryId
-                }
             });
             if (!category) return success(res, 204, 'Category not found');
             else {
+                category.save()
                 return success(res, 200, category)
             }
         } catch (err) {
@@ -66,7 +65,7 @@ module.exports = {
         method: GET
         */
         try {
-            let categories = await Category.findAll();
+            let categories = await Category.find({});
             if (!categories || categories.length == 0) return success(res, 204, 'No categories found');
             else return success(res, 200, categories)
         } catch (err) {
@@ -79,11 +78,7 @@ module.exports = {
         params: categoryId
         */
         try {
-            let category = await Category.findOne({
-                where: {
-                    id: req.params.categoryId
-                }
-            });
+            let category = await Category.findById(req.params.categoryId);
             if (!category) return success(res, 404, 'Category not found');
             else return success(res, 200, category)
         } catch (err) {
@@ -96,11 +91,7 @@ module.exports = {
         params: categoryId
         */
         try {
-            let category = await Category.destroy({
-                where: {
-                    id: req.params.categoryId
-                }
-            });
+            let category = await Category.findByIdAndRemove(req.params.categoryId);
             if (!category) return success(res, 204, 'Category not found');
             else return success(res, 200, category)
         } catch (err) {

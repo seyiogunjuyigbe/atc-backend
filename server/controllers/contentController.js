@@ -32,11 +32,16 @@ module.exports = {
                     error: true,
                     message: 'Error creating content'
                 })
-                else return res.status(200).json({
-                    success: true,
-                    message: 'Content created successfully',
-                    content: newContent
-                })
+                else {
+                    newContent.save((err, content) => {
+                        return res.status(200).json({
+                            success: true,
+                            message: 'Content created successfully',
+                            content
+                        })
+                    })
+
+                }
             } else {
                 return res.status(422).json({
                     error: true,
@@ -57,7 +62,7 @@ module.exports = {
         params: contentId
         */
         try {
-            let content = await Content.findByPk(req.params.contentId);
+            let content = await Content.findById(req.params.contentId);
             if (!content) return res.status(404).json({
                 error: true,
                 message: 'Content not found'
@@ -79,11 +84,7 @@ module.exports = {
         params: contentId
         */
         try {
-            let content = await Content.destroy({
-                where: {
-                    id: req.params.contentId
-                }
-            });
+            let content = await Content.findByIdAndDelete(req.params.contentId);
             if (!content) return res.status(404).json({
                 error: true,
                 message: 'Content not found'
@@ -114,8 +115,10 @@ params(query): type,forType,forId (optional)
             if (type) whereStatement.type = type;
             if (forType) whereStatement.forType = forType;
             if (forId) whereStatement.forId = forId;
-            let content = await Content.findAll({
-                where: whereStatement
+            let content = await Content.find({
+                $or: {
+                    whereStatement
+                }
             });
             if (!content || content.length == 0) return res.status(204).json({
                 success: true,
