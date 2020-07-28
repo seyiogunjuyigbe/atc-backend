@@ -1,17 +1,17 @@
-const category = require( './category' )
-const content = require( './content' )
-const membership = require( './membership' )
+const Category = require( './category' )
+const Content = require( './content' )
+const Membership = require( './membership' )
 const Package = require( './package' )
-const product = require( './product' )
-const subscription = require( './subscription' )
-const user = require( './user' )
+const Product = require( './product' )
+const Subscription = require( './subscription' )
+const User = require( './user' )
 
 module.exports = {
-  category,
-  content,
-  membership,
+  Category,
+  Content,
+  Membership,
   Package,
-  product,
-  subscription,
-  user
+  Product,
+  Subscription,
+  User
 };
