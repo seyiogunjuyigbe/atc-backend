@@ -12,13 +12,26 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'content',
-    public_id: (req, file) => {
-      return file.originalname
-    },
   },
 });
 
+const multiStorage = new CloudinaryStorage({
+  cloudinary,
+
+  params: {
+    folder: "activities",
+
+    // allowed_formats: ['png', 'jpg', 'gif', 'mp4', '3gp', 'avi', 'webm', 'mpeg', 'flv']
+  },
+
+})
 const parser = multer({
   storage: storage
 });
-module.exports = parser;
+const multiParser = multer({
+  storage: multiStorage,
+})
+module.exports = {
+  parser,
+  multiParser
+};

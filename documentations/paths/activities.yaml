@@ -1,0 +1,153 @@
+# Activity Paths
+  /activities:
+    post:
+      summary: Create new activity
+      description: Create a new activity
+      operationId: createActivity
+      tags:
+      - Activities
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Activity details
+          required: true
+          schema:
+            $ref: "#/definitions/Activity"
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Activity created successfully.
+    get:
+      summary: View all activities
+      description: Display all activities
+      operationId: listActivities
+      tags:
+      - Activities
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Activity"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /activities/{activityId}:
+    delete:
+      summary: Deletes an activity
+      description: Delete an activity
+      operationId: deleteActivity
+      tags:
+      - Activities
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: activityId
+          description: Activity id to delete
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Activity successfully deleted.
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    get:
+      summary: Get a single activity
+      operationId: viewActivity
+      tags:
+      - Activities
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: activityId
+          description: Activity Id to fetch
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Activity"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    put:
+      summary: Update Activity
+      description: Update a particular activity
+      operationId: updateActivity
+      tags:
+      - Activities
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: activityId
+          description: Activity id to update
+          required: true
+        - in: body
+          name: payload
+          description: Activity data to update
+          schema:
+            $ref: "#/definitions/Activity"
+
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Activity data successfully updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

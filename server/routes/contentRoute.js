@@ -9,7 +9,9 @@ const authenticate = require('../middlewares/authentication')
 const {
     check
 } = require('express-validator');
-const parser = require('../middlewares/multer');
+const {
+    parser
+} = require('../middlewares/multer');
 const getJWT = require('../middlewares/authentication')
 const validate = require('../middlewares/validate');
 

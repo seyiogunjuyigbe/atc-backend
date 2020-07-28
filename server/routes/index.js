@@ -4,7 +4,8 @@ const authRoute = require("./authRoute");
 const subRoute = require("./subscriptionRoute");
 const membershipRoute = require('./membershipRoute');
 const productRoute = require('./productRoute');
-const contentRoutes = require('./contentRoute')
+const contentRoutes = require('./contentRoute');
+const activityRoute = require('./activityRoute');
 const packageRoutes = require('./packageRoutes')
 const categoryRoutes = require('./categoryRoutes')
 
@@ -15,6 +16,6 @@ indexRoute.use("/products", productRoute);
 indexRoute.use('/packages', packageRoutes)
 indexRoute.use('/contents', contentRoutes);
 indexRoute.use('/categories', categoryRoutes)
-
+indexRoute.use('/activities', activityRoute)
 
 module.exports = indexRoute;
