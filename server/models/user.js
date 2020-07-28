@@ -1,50 +1,69 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-  };
-  User.init({
-    firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING,
-    email: DataTypes.STRING,
-    phoneNo: DataTypes.STRING,
-    password: DataTypes.STRING,
-    token: DataTypes.STRING,
-    address: DataTypes.STRING,
-    city: DataTypes.STRING,
-    country: DataTypes.STRING,
-    isActive:{
-     type: DataTypes.BOOLEAN,
-      defaultValue: false
-  },
-    role:  {
-        type:DataTypes.ENUM,
-        values: ('admin','vendor','customer')
-      },
-    passwordResetExpires: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'User',
-    tableName: 'users',
-  });
+const mongoose = require( 'mongoose' );
+const bcrypt = require( 'bcryptjs' );
+//= ============================================================================
+/**
+ * user Schema
+ */
+//= ============================================================================
+const userSchema = mongoose.Schema( {
+    firstName: {
+      type: String
+    },
+    lastName: {
+      type: String
+    },
+    email: {
+      type: String
+    },
+    phoneNo: {
+      type: String
+    },
+    token: {
+      type: String
+    },
+    city: {
+      type: String
+    },
+    country: {
+      type: String
+    },
+    isActive: {
+      type: String
+    },
+    role: {
+      type: String,
+      enum : ('admin','vendor','customer')
+    },
+    passwordResetExpires: {
+      type: String
+    },
+  } ,
+  {
+    timestamps : true ,
+  } );
 
-    //exclude password
-    User.prototype.toJSON =  function () {
-      var values = Object.assign({}, this.get());
-    
-      delete values.password;
-      
-      return values;
-    }
-  return User;
-};
+userSchema.statics.comparePassword = async ( password , userPassword ) => await bcrypt.compare( password , userPassword );
+
+//= ============================================================================
+userSchema.pre( 'save' , function saveHook( next ) {
+  const user = this;
+  if ( !user.isModified( 'password' ) ) return next();
+  const saltRounds = 10;
+  const salt = bcrypt.genSaltSync( saltRounds );
+  const hash = bcrypt.hashSync( user.password , salt );
+  user.password = hash;
+  return next();
+} );
+/**
+ * Compile to Model
+ */
+//= ============================================================================
+const userModel = mongoose.model( 'User' , userSchema );
+
+//= ============================================================================
+/**
+ * Export userModel
+ */
+//= ============================================================================
+module.exports = userModel;
+//= ============================================================================
