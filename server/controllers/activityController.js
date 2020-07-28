@@ -8,9 +8,6 @@ const {
 
 module.exports = {
     async createActivity(req, res) {
-        console.log({
-            files: req.files
-        })
         const {
             dayNumber,
             title,
@@ -58,9 +55,8 @@ module.exports = {
         }
         try {
             let existingPack = await Activity.findOne({
-
                 title,
-                vendorId: req.user.id
+                vendorId: req.user._id
 
             });
             if (existingPack) return error(res, 409, 'Duplicate name: Activity "' + title + '" already exists');
@@ -81,8 +77,10 @@ module.exports = {
                     countries,
                     adventureCategories,
                     sightCategories,
-                    mainDestinationCity,
-                    mainDestinationCountry,
+                    mainDestination: {
+                        city: mainDestinationCity,
+                        country: mainDestinationCountry
+                    },
                     route,
                     stops,
                     pictures,
@@ -124,7 +122,7 @@ module.exports = {
             sightCategories,
             mainDestinationCity,
             mainDestinationCountry,
-
+            stops,
             videos,
             route,
         } = req.body;
@@ -148,8 +146,11 @@ module.exports = {
                     countries,
                     adventureCategories,
                     sightCategories,
-                    mainDestinationCity,
-                    mainDestinationCountry,
+                    mainDestination: {
+                        city: mainDestinationCity,
+                        country: mainDestinationCountry
+                    },
+                    stops,
                     pictures,
                     videos,
                     route,

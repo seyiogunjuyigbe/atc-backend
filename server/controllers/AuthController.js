@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 // const models = require('../models');
 const {
   User
-} = require('../models');
+} = require('../models/index');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const hash = require('hashids');
@@ -82,7 +82,7 @@ module.exports = {
                   responses.success(
                     200,
                     'Your account was successfully created. Please check your mail-box for verification steps',
-                    Newuser,
+                    newUser,
                   ),
                 );
             } else {
