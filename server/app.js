@@ -14,7 +14,6 @@ const path = require('path');
 const ejs = require('ejs');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const startDb = require('./config/db')()
 const {
   loadDefinitions,
   loadPaths
