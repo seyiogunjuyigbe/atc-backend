@@ -1,36 +1,44 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class Subscription extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-  };
-  Subscription.init({
-    name: DataTypes.STRING,
-    frequency: DataTypes.STRING,
+const mongoose = require( 'mongoose' );
+
+const Schema = mongoose.Schema;
+
+const SubscriptionSchema = new Schema( {
+    name: {
+      type: String
+    },
+    frequency: {
+      type: String
+    },
     type: {
-      type:DataTypes.ENUM,
-      values: ('one-off','annual')
+      type: String,
+      enum: ['one-off','annual']
     },
-    createdBy: DataTypes.INTEGER,
+    subscribableId: {
+      type: mongoose.Schema.Types.ObjectId
+    },
     subscribableType: {
-      type:DataTypes.ENUM,
-      values: ('product','membership')
+      type: String,
+      enum: ['Subscription','membership']
     },
-    subscribableId: DataTypes.INTEGER,
-    description: DataTypes.TEXT
-  }, {
-    sequelize,
-    modelName: 'Subscription',
-    tableName: 'subscriptions',
-  });
-  return Subscription;
-};
+    shortName: {
+      type: String
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId
+    },
+    description: {
+      type: String
+    }
+  } ,
+  {
+    timestamps : true
+  }
+);
+const Subscription = mongoose.model( 'Subscription' , SubscriptionSchema );
+
+module.exports = Subscription;
+
+// const
+
+
