@@ -13,12 +13,15 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const ejs = require('ejs');
 const app = express();
+const db = require('./db/index')
 const PORT = process.env.PORT || 3000;
+const {MONGO_URL} = process.env
 const {
   loadDefinitions,
   loadPaths
 } = require('../documentations');
 
+new db( ).connect( MONGO_URL );
 app.use(cors());
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(bodyParser.json({
