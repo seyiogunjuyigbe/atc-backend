@@ -15,16 +15,33 @@
         required: true
         description: Number of days for this activity
       bestVisitTime: 
-        type: array
+        field:
+          type: array
+          items:
+            type: string
         description: Best visit times for this activity
       bestVisitSeason: 
-        type: array
+        field:
+          type: array
+          items:
+            type: string
         description: Best visit season for this activity
       bestVisitWeather: 
-        type: array
+        field:
+          type: array
+          items:
+            type: string
         description: Best visit times for this activity
       calendarStatus: 
-        type: array
+        field:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              status:
+                type: string
         description: Best visit times for this activity
       hasAccomodation: 
         type: boolean
@@ -39,13 +56,22 @@
         type: string
         description: End date for this activity
       countries:
-        type: array
+        field:
+          type: array
+          items:
+            type: string
         description: Countries related to the activity
       adventureCategories:
-        type: array
+        field:
+          type: array
+          items:
+            type: string
         description: Adventure categories for the activity
       sightCategories:
-        type: array
+        field:
+          type: array
+          items:
+            type: string
         description: Sight categories for the activity
       mainDestinationCity:
         type: string
@@ -54,12 +80,22 @@
         type: string
         description: Main destination country
       attachments:
-        type: array
+        field:
+          type: array
+          items:
+            type: string
         description: attachments for activity
       route:
         type: string
         description: activity route
-        values: ['start', 'end', 'day']
       stops: 
-        type: array
+        field:
+          type: array
+          items:
+            type: object
+            properties:
+              stop:
+                type: string
+              meal:
+                type: string
         description: stops and meals for this activity
