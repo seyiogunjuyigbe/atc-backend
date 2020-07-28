@@ -85,7 +85,7 @@ module.exports = {
     async fetchPackage(req, res) {
         try {
             let package = await Package.findByPk(req.params.packageId)
-            if (!package) return success(res, 204, 'Package not found');
+            if (!package) return success(res, 404, 'Package not found');
             else return success(res, 200, package)
 
         } catch (err) {

@@ -57,6 +57,6 @@ router.put('/:activityId', authenticate, multiParser.array("attachments", 10), [
 ], validate, updateActivity);
 router.get('/', fetchAllActivities)
 router.get('/:activityId', fetchActivity)
-router.delete('/:packaageId', authenticate, deleteActivity)
+router.delete('/:activityId', authenticate, deleteActivity)
 
 module.exports = router;
