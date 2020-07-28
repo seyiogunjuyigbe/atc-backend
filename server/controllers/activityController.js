@@ -58,10 +58,10 @@ module.exports = {
         }
         try {
             let existingPack = await Activity.findOne({
-                where: {
-                    title,
-                    vendorId: req.user.id
-                }
+
+                title,
+                vendorId: req.user.id
+
             });
             if (existingPack) return error(res, 409, 'Duplicate name: Activity "' + title + '" already exists');
             else {
@@ -88,10 +88,18 @@ module.exports = {
                     pictures,
                     videos
                 });
-                if (newActivity) return success(res, 200, {
-                    message: 'Activity created successfully',
-                    package: newActivity
-                })
+                if (newActivity) {
+                    newActivity.save((err, activity) => {
+                        if (err) return error(res, 400, err.message)
+                        else {
+                            return success(res, 200, {
+                                message: 'Activity created successfully',
+                                activity
+                            })
+                        }
+                    })
+
+                }
             }
         } catch (err) {
             return error(res, 500, err.message)
@@ -121,11 +129,11 @@ module.exports = {
             route,
         } = req.body;
         try {
-            let thisActivity = await Activity.findByPk(req.params.activityId);
+            let thisActivity = await Activity.findById(req.params.activityId);
             if (!thisActivity) return error(res, 404, 'Activity not found')
-            else if (package.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
+            else if (thisActivity.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
             else {
-                let updatedActivity = await Activity.update({
+                thisActivity.set({
                     dayNumber,
                     title,
                     description,
@@ -145,14 +153,15 @@ module.exports = {
                     pictures,
                     videos,
                     route,
-                }, {
-                    where: {
-                        id: req.params.activityId
-                    }
                 });
-                if (!updatedActivity) return error(res, 404, 'Activity not found')
-                if (updatedActivity) return success(res, 200, {
-                    message: 'Activity updated successfully',
+                thisActivity.save((err, activity) => {
+                    if (err) return error(res, 400, err.message)
+                    else {
+                        return success(res, 200, {
+                            message: 'Activity updated successfully',
+                            activity
+                        })
+                    }
                 })
             }
 
@@ -163,8 +172,8 @@ module.exports = {
     },
     async fetchAllActivities(req, res) {
         try {
-            let packages = await Activity.findAll()
-            if (!packages || packages.length == 0) return success(res, 204, 'No packages created yet');
+            let packages = await Activity.find({})
+            if (!packages || packages.length == 0) return success(res, 200, 'No packages created yet');
             else return success(res, 200, packages)
 
         } catch (err) {
@@ -173,7 +182,7 @@ module.exports = {
     },
     async fetchActivity(req, res) {
         try {
-            let package = await Activity.findByPk(req.params.activityId)
+            let package = await Activity.findById(req.params.activityId)
             if (!package) return success(res, 204, 'Activity not found');
             else return success(res, 200, package)
 
@@ -183,14 +192,10 @@ module.exports = {
     },
     async deleteActivity(req, res) {
         try {
-            let thisActivity = await Activity.findByPk(req.params.activityId);
+            let thisActivity = await Activity.findById(req.params.activityId);
             if (!thisActivity) return error(res, 404, 'Activity not found')
             else if (package.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
-            let package = await Activity.destroy({
-                where: {
-                    id: req.params.activityId
-                }
-            })
+            let package = await Activity.findByIdAndRemove(req.params.activityId)
             if (!package) return success(res, 204, 'Activity not found');
             else return success(res, 200, "Activity deleted")
 

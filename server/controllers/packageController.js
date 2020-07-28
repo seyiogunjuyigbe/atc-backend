@@ -16,9 +16,7 @@ module.exports = {
         } = req.body;
         try {
             let existingPack = await Package.findOne({
-                where: {
-                    name
-                }
+                name
             });
             if (existingPack) return error(res, 409, 'Duplicate name: Package "' + name + '" already exists');
             else {
@@ -29,10 +27,17 @@ module.exports = {
                     features,
                     price
                 });
-                if (newPackage) return success(res, 200, {
-                    message: 'Package created successfully',
-                    package: newPackage
-                })
+                if (newPackage) {
+                    newPackage.save((err, package) => {
+                        if (err) return error(res, 400, err.message)
+                        else {
+                            return success(res, 200, {
+                                message: 'Package created successfully',
+                                package: newPackage
+                            })
+                        }
+                    })
+                }
             }
         } catch (err) {
             return error(res, 500, err.message)
@@ -47,34 +52,33 @@ module.exports = {
             price
         } = req.body;
         try {
-            let thisPackage = await Package.findByPk(req.params.packageId);
+            let thisPackage = await Package.findById(req.params.packageId);
             if (!thisPackage) return error(res, 404, 'Package not found')
-            else if (package.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
+            else if (thisPackage.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
             else {
-                let updatedPackage = await Package.update({
+                thisPackage.set({
                     name,
                     description,
                     features,
                     price
-                }, {
-                    where: {
-                        id: req.params.packageId
-                    }
                 });
-                if (!updatedPackage) return error(res, 404, 'Package not found')
-                if (updatedPackage) return success(res, 200, {
-                    message: 'Package updated successfully',
+                thisPackage.save((err, package) => {
+                    if (err) return error(res, 400, err.message);
+                    else {
+                        return success(res, 200, {
+                            message: 'Package updated successfully',
+                        })
+                    }
                 })
+
             }
-
-
         } catch (err) {
             return error(res, 500, err.message)
         }
     },
     async fetchAllPackages(req, res) {
         try {
-            let packages = await Package.findAll()
+            let packages = await Package.find({})
             if (!packages || packages.length == 0) return success(res, 204, 'No packages created yet');
             else return success(res, 200, packages)
 
@@ -84,7 +88,7 @@ module.exports = {
     },
     async fetchPackage(req, res) {
         try {
-            let package = await Package.findByPk(req.params.packageId)
+            let package = await Package.findById(req.params.packageId)
             if (!package) return success(res, 204, 'Package not found');
             else return success(res, 200, package)
 
@@ -94,14 +98,10 @@ module.exports = {
     },
     async deletePackage(req, res) {
         try {
-            let thisPackage = await Package.findByPk(req.params.packageId);
+            let thisPackage = await Package.findById(req.params.packageId);
             if (!thisPackage) return error(res, 404, 'Package not found')
             else if (package.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
-            let package = await Package.destroy({
-                where: {
-                    id: req.params.packageId
-                }
-            })
+            let package = await Package.findByIdAndDelete(req.params.packageId)
             if (!package) return success(res, 204, 'Package not found');
             else return success(res, 200, "Package deleted")
 

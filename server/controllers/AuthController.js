@@ -1,13 +1,18 @@
 const bcrypt = require('bcryptjs');
 // const models = require('../models');
-const { User } = require('../models');
+const {
+  User
+} = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const hash = require('hashids');
 const getJWT = require('../services/jwtService');
 const jwt = require('jsonwebtoken');
 const uuidv1 = require('uuid/v1');
-const { check, validationResult } = require('express-validator');
+const {
+  check,
+  validationResult
+} = require('express-validator');
 const generalFunctions = require('../helper/util');
 const credential = require('../config/local');
 
@@ -16,7 +21,9 @@ module.exports = {
     // username must be an email
     check(req.body.email).isEmail(),
       // password must be at least 8 chars long
-      check(req.body.password).isLength({ min: 8 });
+      check(req.body.password).isLength({
+        min: 8
+      });
     const result = validationResult(req);
     const hasErrors = !result.isEmpty();
 
@@ -31,10 +38,12 @@ module.exports = {
     try {
       //find the user by email
       //models.users
-        User.findOne({ where: { email: req.body.email } })
+      User.findOne({
+          email: req.body.email
+        })
         .then(async function (user) {
           if (user !== null) {
-            return res.status(400).send(responses.error( 400,'An account with similar credentials already exists'));
+            return res.status(400).send(responses.error(400, 'An account with similar credentials already exists'));
           } else {
             //create the new user account
             let data = req.body;
@@ -48,6 +57,7 @@ module.exports = {
             const newUser = await User.create(data);
             if (newUser) {
               // _email.sendEmailSignUpToken(Newuser, token);
+              newUser.save()
               let url = generalFunctions.getURL();
               let resetURL = url + `auth/${newUser.id}/verify/${token}`;
 
@@ -97,9 +107,7 @@ module.exports = {
 
     var email = req.params.email;
     User.findOne({
-        where: {
-          email: email,
-        },
+        email
       })
       .then(async function (user) {
         if (!user)
@@ -164,10 +172,8 @@ module.exports = {
 
     //find the user
     User.findOne({
-        where: {
-          id: id,
-          token: token,
-        },
+        id,
+        token
       })
       .then(async function (user) {
         if (!user)
@@ -198,7 +204,9 @@ module.exports = {
           );
         }
         User
-          .update(data, { where: { id: user.id } })
+          .findByIdAndUpdate(user.id, {
+            ...data
+          })
           .then(function (updatedUser) {
             return res
               .status(200)
@@ -215,7 +223,7 @@ module.exports = {
 
   viewUser: (req, res) => {
     try {
-      const user = User.findByPk(req.params.userId);
+      const user = User.findById(req.params.userId);
       if (!user) {
         return res.status(400).send(responses.error(400, 'User not found'));
       } else {
@@ -235,7 +243,7 @@ module.exports = {
   login: async (req, res) => {
     try {
       const user = await User.findOne({
-        where: { email: req.body.email },
+        email: req.body.email
       });
       const userObj = {
         id: user.id,
@@ -246,15 +254,13 @@ module.exports = {
       if (user) {
         if (bcrypt.compareSync(req.body.password, user.password)) {
           //generate a token
-          let token = jwt.sign(
-            {
+          let token = jwt.sign({
               id: user.id,
               firstName: user.firstName,
               lastName: user.lastName,
               email: user.email,
             },
-            credential.jwtSecret,
-            {
+            credential.jwtSecret, {
               expiresIn: 604800, // expires in 7 days
             },
           );
@@ -291,7 +297,9 @@ module.exports = {
     try {
       const email = req.query.email;
       const address = req.headers.host;
-      const user = await User.findOne({ where: { email: email } });
+      const user = await User.findOne({
+        email
+      });
 
       const token = uuidv1();
       if (!user) {
@@ -337,7 +345,9 @@ module.exports = {
               }
             });
         }
-          User.update(data, { where: { id: user.id } })
+        User.findByIdAndUpdate(user.id, {
+            ...data
+          })
           .then(function (updatedUser) {
             return res
               .status(200)
@@ -358,13 +368,13 @@ module.exports = {
   },
 
   postReset: async (req, res) => {
-    const { userId } = req.params;
+    const {
+      userId
+    } = req.params;
     const user = User.findOne({
-      where: {
-        id: userId,
-        passwordResetExpires: {
-          $gte: Date.now(),
-        },
+      _id: userId,
+      passwordResetExpires: {
+        $gte: Date.now(),
       },
     });
 
@@ -385,7 +395,9 @@ module.exports = {
         passwordResetExpires: undefined,
       };
 
-      User.update(data, { where: { id: user.id } })
+      User.findByIdAndUpdate(user.id, {
+          ...data
+        })
         .then(function (updatedUser) {
           return res
             .status(200)
@@ -401,13 +413,13 @@ module.exports = {
   },
 
   getReset: async (req, res, next) => {
-    const { userId } = req.params;
+    const {
+      userId
+    } = req.params;
     const user = User.findOne({
-      where: {
-        id: userId,
-        passwordResetExpires: {
-          $gte: Date.now(),
-        },
+      id: userId,
+      passwordResetExpires: {
+        $gte: Date.now(),
       },
     });
     if (!user) {
