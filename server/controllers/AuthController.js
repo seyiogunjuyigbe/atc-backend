@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 // const models = require('../models');
 const {
   User
-} = require('../models/index');
+} = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const hash = require('hashids');

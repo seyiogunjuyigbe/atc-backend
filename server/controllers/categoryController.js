@@ -1,6 +1,6 @@
 const {
     Category
-} = require('../models/index');
+} = require('../models');
 const {
     success,
     error

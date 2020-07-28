@@ -1,6 +1,6 @@
 const {
     Activity,
-} = require('../models/index');
+} = require('../models');
 const {
     success,
     error

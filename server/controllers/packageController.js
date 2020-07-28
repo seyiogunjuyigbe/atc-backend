@@ -1,7 +1,7 @@
 const {
     Package,
     Product
-} = require('../models/index');
+} = require('../models');
 const {
     success,
     error
@@ -25,7 +25,7 @@ module.exports = {
                     name,
                     length_value,
                     frequency,
-                    createdBy: req.user._id,
+                    createdBy: req.user.id,
                 });
                 if (newPackage) {
                     newPackage.save((err, package) => {
@@ -53,7 +53,7 @@ module.exports = {
         try {
             let thisPackage = await Package.findById(req.params.packageId);
             if (!thisPackage) return error(res, 404, 'Package not found')
-            else if (thisPackage.createdBy !== req.user._id) return error(res, 401, 'You are not authorized to do this')
+            else if (thisPackage.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
             else {
                 thisPackage.set({
                     name,
@@ -124,7 +124,7 @@ module.exports = {
         try {
             let thisPackage = await Package.findById(req.params.packageId);
             if (!thisPackage) return error(res, 404, 'Package not found')
-            else if (package.createdBy !== req.user._id) return error(res, 401, 'You are not authorized to do this');
+            else if (package.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this');
             if (package.products.length > 0) {
                 // delete all products in this package
                 package.products.forEach(product => {
