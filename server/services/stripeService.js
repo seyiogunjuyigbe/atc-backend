@@ -2,7 +2,6 @@ const {
   STRIPE_SECRET_KEY
 } = process.env
 const stripe = require("stripe")(STRIPE_SECRET_KEY);
-
 module.exports = {
   async createPaymentIntent(amount, description, customer) {
     try {

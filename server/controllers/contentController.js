@@ -1,6 +1,6 @@
 const {
     Content
-} = require('../models');
+} = require('../models/index');
 const {
     Op
 } = require("sequelize");
