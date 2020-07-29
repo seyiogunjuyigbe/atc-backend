@@ -24,7 +24,7 @@ module.exports = {
                 if (type == "image" && mimetype.substring(mimetype.indexOf('/') + 1, mimetype.length) == "gif") type = "gif"
                 let newContent = await Content.create({
                     forType: contentFor,
-                    forId: contentForId,
+                    contentFor: contentForId,
                     url,
                     type
                 });
@@ -103,18 +103,18 @@ module.exports = {
     async fetchAllContent(req, res) {
         /*
 method:GET
-params(query): type,forType,forId (optional)
+params(query): type,forType,contentFor (optional)
 */
         const {
             type,
             forType,
-            forId
+            contentFor
         } = req.query
         try {
             var whereStatement = {};
             if (type) whereStatement.type = type;
             if (forType) whereStatement.forType = forType;
-            if (forId) whereStatement.forId = forId;
+            if (contentFor) whereStatement.contentFor = contentFor;
             let content = await Content.find({
                 $or: {
                     whereStatement
