@@ -1,11 +1,30 @@
-require('dotenv').config();
-const stripe = require("stripe")(process.env.Stripe_key);
+const {
+  STRIPE_SECRET_KEY
+} = process.env
+const stripe = require("stripe")(STRIPE_SECRET_KEY);
 
-(async () => {
-    const charge = await stripe.charges.create({
-      amount: 999,
-      currency: 'usd',
-      source: 'tok_visa',
-      receipt_email: 'jenny.rosen@example.com',
-    });
-  })();
+module.exports = {
+  async createPaymentIntent(amount, description, customer) {
+    try {
+      let intent = await stripe.paymentIntents.create({
+        amount,
+        currency: "usd",
+        description,
+        customer
+      })
+      if (intent) return intent
+    } catch (err) {
+      return err
+    }
+  },
+  async refundPayment(charge) {
+    try {
+      let refund = await stripe.refunds.create({
+        charge
+      })
+      if (refund) return refund
+    } catch (err) {
+      return err
+    }
+  }
+}
