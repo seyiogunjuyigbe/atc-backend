@@ -4,7 +4,8 @@ const {
     updatePackage,
     fetchAllPackages,
     fetchPackage,
-    deletePackage
+    deletePackage,
+    addProductToPackage
 } = require("../controllers/packageController");
 const {
     check
@@ -14,22 +15,17 @@ const validate = require('../middlewares/validate');
 
 router.post('/', authenticate, [
     check('name').not().isEmpty().withMessage('Package name required'),
-    check('description').not().isEmpty().withMessage('Package description required'),
-    check('features').isArray({
-        min: 1
-    }).withMessage('features array required'),
-    check('price').not().isEmpty().withMessage('Package price required')
+    check('length').not().isEmpty().withMessage('Package length required'),
 ], validate, createPackage);
 router.put('/:packageId', authenticate, [
     check('name').not().isEmpty().withMessage('Package name required'),
-    check('description').not().isEmpty().withMessage('Package description required'),
-    check('features').isArray({
-        min: 1
-    }).withMessage('features array required'),
-    check('price').not().isEmpty().withMessage('Package price required')
+    check('length').not().isEmpty().withMessage('Package length required'),
 ], validate, updatePackage);
+router.put('/:packageId/add-product', authenticate, [
+    check('productId').not().isEmpty().withMessage('Product ID required'),
+], validate, addProductToPackage);
 router.get('/', fetchAllPackages)
 router.get('/:packageId', fetchPackage)
-router.delete('/:packaageId', authenticate, deletePackage)
+router.delete('/:packageId', authenticate, deletePackage)
 
 module.exports = router;

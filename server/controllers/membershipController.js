@@ -1,6 +1,6 @@
 const {
   Membership
-} = require('../models');
+} = require('../models/index');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const {
