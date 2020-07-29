@@ -2,10 +2,17 @@
   Content:
     type: object
     properties:
+      type:
+        type: string
+        description: What type of content is it ?
+        enum: [video, image, gif]
       forType:
         type: string
-      forId:
-        type: integer
+        description: What is the content for ?
+        enum: [Activity, Package, Product]
+      contenFor:
+        type: string
+        description: ObjectId of whatever the content is for
       content:
         type: file
         
