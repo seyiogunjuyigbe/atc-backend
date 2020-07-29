@@ -11,8 +11,7 @@ module.exports = {
     async createPackage(req, res) {
         const {
             name,
-            length_value,
-            frequency
+            length
 
         } = req.body;
         try {
@@ -23,20 +22,16 @@ module.exports = {
             else {
                 let newPackage = await Package.create({
                     name,
-                    length_value,
-                    frequency,
+                    length,
                     createdBy: req.user.id,
                 });
                 if (newPackage) {
-                    newPackage.save((err, package) => {
-                        if (err) return error(res, 400, err.message)
-                        else {
-                            return success(res, 200, {
-                                message: 'Package created successfully',
-                                package: newPackage
-                            })
-                        }
+                    let package = await newPackage.save()
+                    return success(res, 200, {
+                        message: 'Package created successfully',
+                        package
                     })
+
                 }
             }
         } catch (err) {
@@ -47,8 +42,7 @@ module.exports = {
     async updatePackage(req, res) {
         const {
             name,
-            length_value,
-            frequency
+            length
         } = req.body;
         try {
             let thisPackage = await Package.findById(req.params.packageId);
@@ -57,19 +51,13 @@ module.exports = {
             else {
                 thisPackage.set({
                     name,
-                    length_value,
-                    frequency
+                    length
                 });
-                thisPackage.save((err, package) => {
-                    if (err) return error(res, 400, err.message);
-                    else {
-                        return success(res, 200, {
-                            message: 'Package updated successfully',
-                            package
-                        })
-                    }
+                let updatedPackage = await thisPackage.save()
+                return success(res, 200, {
+                    message: 'Package updated successfully',
+                    package: updatedPackage
                 })
-
             }
         } catch (err) {
             return error(res, 500, err.message)

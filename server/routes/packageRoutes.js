@@ -15,20 +15,17 @@ const validate = require('../middlewares/validate');
 
 router.post('/', authenticate, [
     check('name').not().isEmpty().withMessage('Package name required'),
-    check('length_value').not().isEmpty().withMessage('Package length required'),
-    check('frequency').not().isEmpty().withMessage('Package frequency required'),
-
+    check('length').not().isEmpty().withMessage('Package length required'),
 ], validate, createPackage);
 router.put('/:packageId', authenticate, [
     check('name').not().isEmpty().withMessage('Package name required'),
-    check('length_value').not().isEmpty().withMessage('Package length required'),
-    check('frequency').not().isEmpty().withMessage('Package frequency required'),
+    check('length').not().isEmpty().withMessage('Package length required'),
 ], validate, updatePackage);
-router.put('/:packageId/add', authenticate, [
+router.put('/:packageId/add-product', authenticate, [
     check('productId').not().isEmpty().withMessage('Product ID required'),
 ], validate, addProductToPackage);
 router.get('/', fetchAllPackages)
 router.get('/:packageId', fetchPackage)
-router.delete('/:packaageId', authenticate, deletePackage)
+router.delete('/:packageId', authenticate, deletePackage)
 
 module.exports = router;

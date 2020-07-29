@@ -6,9 +6,6 @@
         type: string
         required: true
         description: Name of the package
-      length_value:
+      length:
         type: integer
-        description: Package length length_value
-      frequency:
-        type: string
-        description: Packange frequency (days, weeks)
+        description: Package duration (days)

@@ -150,7 +150,7 @@
           schema:
             example:
               message: An unexpected error occured
-  /packages/{packageId}:
+  /packages/{packageId}/add-product:
       summary: Add Product to package
       description: Add product to a particular package
       operationId: addProductToPackage

@@ -10,11 +10,7 @@ const PackageSchema = new Schema({
   createdBy: {
     type: mongoose.Schema.Types.ObjectId
   },
-  length_value: Number,
-  frequency: {
-    type: String,
-    enum: ['days', 'weeks', 'months', 'years']
-  },
+  length: Number,
   products: [{
     type: Schema.Types.ObjectId,
     ref: 'Product'
