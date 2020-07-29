@@ -11,18 +11,15 @@ const ContentSchema = new Schema({
   forType: {
     type: String
   },
-  contentFor: {
-    type: mongoose.Schema.Types.ObjectId,
-    refPath: 'forType',
+  forId: {
+    type: mongoose.Schema.Types.ObjectId
   },
   url: {
     type: String
   }
-},
-  {
-    timestamps: true
-  }
-);
+}, {
+  timestamps: true
+});
 const Content = mongoose.model('Content', ContentSchema);
 
 module.exports = Content;
