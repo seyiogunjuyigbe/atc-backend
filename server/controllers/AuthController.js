@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 // const models = require('../models');
+const { createCustomer } = require('../services/stripeService')
 const {
     User
 } = require('../models');
@@ -39,8 +40,8 @@ module.exports = {
             //find the user by email
             //models.users
             User.findOne({
-                    email: req.body.email
-                })
+                email: req.body.email
+            })
                 .then(async function (user) {
                     if (user !== null) {
                         return res.status(400).send(responses.error(400, 'An account with similar credentials already exists'));
@@ -57,6 +58,8 @@ module.exports = {
                         const newUser = await User.create(data);
                         if (newUser) {
                             // _email.sendEmailSignUpToken(Newuser, token);
+                            let customerDetails = await createCustomer(newUser);
+                            newUser.stripeCustomerId = customerDetails.id
                             newUser.save()
                             let url = generalFunctions.getURL();
                             let resetURL = url + `auth/${newUser.id}/verify/${token}`;
@@ -107,8 +110,8 @@ module.exports = {
 
         var email = req.params.email;
         User.findOne({
-                email
-            })
+            email
+        })
             .then(async function (user) {
                 if (!user)
                     return res
@@ -172,9 +175,9 @@ module.exports = {
 
         //find the user
         User.findOne({
-                id,
-                token
-            })
+            id,
+            token
+        })
             .then(async function (user) {
                 if (!user)
                     return res
@@ -255,14 +258,14 @@ module.exports = {
                 if (bcrypt.compareSync(req.body.password, user.password)) {
                     //generate a token
                     let token = jwt.sign({
-                            id: user.id,
-                            firstName: user.firstName,
-                            lastName: user.lastName,
-                            email: user.email,
-                        },
+                        id: user.id,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        email: user.email,
+                    },
                         credential.jwtSecret, {
-                            expiresIn: 604800, // expires in 7 days
-                        },
+                        expiresIn: 604800, // expires in 7 days
+                    },
                     );
 
                     user.token = token;
@@ -346,8 +349,8 @@ module.exports = {
                         });
                 }
                 User.findByIdAndUpdate(user.id, {
-                        ...data
-                    })
+                    ...data
+                })
                     .then(function (updatedUser) {
                         return res
                             .status(200)
@@ -396,8 +399,8 @@ module.exports = {
             };
 
             User.findByIdAndUpdate(user.id, {
-                    ...data
-                })
+                ...data
+            })
                 .then(function (updatedUser) {
                     return res
                         .status(200)
