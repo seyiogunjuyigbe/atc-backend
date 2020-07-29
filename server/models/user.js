@@ -32,7 +32,7 @@ const userSchema = mongoose.Schema( {
     },
     role: {
       type: String,
-      enum : ('admin','vendor','customer')
+      enum : ['admin','vendor','customer']
     },
     passwordResetExpires: {
       type: String
