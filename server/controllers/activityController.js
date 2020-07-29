@@ -55,9 +55,8 @@ module.exports = {
         }
         try {
             let existingPack = await Activity.findOne({
-
                 title,
-                vendorId: req.user.id
+                vendorId: req.user._id
 
             });
             if (existingPack) return error(res, 409, 'Duplicate name: Activity "' + title + '" already exists');

@@ -82,7 +82,7 @@ module.exports = {
                                     responses.success(
                                         200,
                                         'Your account was successfully created. Please check your mail-box for verification steps',
-                                        Newuser,
+                                        newUser,
                                     ),
                                 );
                         } else {
