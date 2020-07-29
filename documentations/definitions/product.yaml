@@ -2,19 +2,35 @@
   Product:
     type: object
     properties:
+      packageName:
+        type: string
+        description: package name
+      productCategory:
+        type: string
+        description: ID of product category
+      isMainProduct:
+        type: boolean
+        description: Set to true id its main product
       name:
         type: string
         description: product name
       imageUrl:
         type: string
         description: imageUrl
-      shortName:
-        type: string  
-        description: user id of the user
-      owner:
-        type: integer
+      packageID:
+        type: string
         description: user id of the user
       description:
           type: string
           description: product description
+
+
+#        name
+#        productCategory
+#        isMainProduct
+#        imageUrl
+#        shortName
+#        packageID
+#        owner
+#        description
 

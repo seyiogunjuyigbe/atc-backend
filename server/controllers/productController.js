@@ -27,7 +27,7 @@ module.exports = {
     }
 
     try {
-      const packages = await Package.findById( { name : req.body.packageTitle } )
+      const packages = await Package.findOne( { name : req.body.packageTitle } )
       if ( packages ) {
         return res
           .status( 400 )
@@ -36,7 +36,7 @@ module.exports = {
       const createdPackage = await Package.create( { name : req.body.packageTitle , length : req.body.length } )
       const productList = req.body.products
       for ( let i = 0 ; i < productList.length ; i++ ) {
-        productList.push({packageID: createdPackage._id})
+        productList.push({packageID: createdPackage._id, owner: req.user._id})
       }
       const product = await Product.insertMany( productList );
       if ( product ) {
