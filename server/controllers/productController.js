@@ -7,7 +7,10 @@ const responses = require( '../helper/responses' );
 const {
   check ,
   validationResult
-} = require( 'express-validator' );
+} = require('express-validator');
+const Transaction = require('../models/transaction');
+const { createReference } = require('../services/paymentService');
+const StripeService = require('../services/stripeService');
 
 module.exports = {
   create : async ( res , req ) => {
@@ -155,5 +158,52 @@ module.exports = {
     } catch ( err ) {
       return error( res , 500 , err.message )
     }
-  }
+  },
+  purchaseProduct: async (res, req) => {
+    try {
+      const product = await Product.findById(req.params.productId);
+      if (!product) {
+        return res.status(404).send(
+          responses.error(404, 'Product not found'),
+        );
+      }
+
+      const newTransaction = await Transaction.create({
+        reference: createReference('payment'),
+        amount: req.body.amount,
+        currency: req.body.currency || 'usd',
+        initiatedBy: req.user.id,
+        customer: req.body.customer || req.user.id, // this allows admin make a test purchase for a customer on her behalf
+        vendor: product.owner,
+        transactableType: 'Product',
+        transactable: product.id,
+        description: `Payment for ${product.name}`,
+      });
+
+      const paymentIntent = await StripeService.createPaymentIntent(
+        req.user, newTransaction,
+      ); // TODO: modify this to match when the stripe-service method is completed
+
+      if (paymentIntent && paymentIntent.id) {
+        newTransaction.stripePaymentId = paymentIntent.id;
+
+        await newTransaction.save()
+      }
+
+      res.status(200).send(
+        responses.success(
+          200,
+          'Product payment initiated successfully',
+          {
+            clientSecret: paymentIntent.client_secret,
+            transactionId: newTransaction.id,
+          },
+        ),
+      );
+    } catch (err) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error updating an record ${err.message}`));
+    }
+  },
 };

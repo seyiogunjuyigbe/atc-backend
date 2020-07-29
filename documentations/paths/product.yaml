@@ -125,5 +125,35 @@
           schema:
             example:
               message: An unexpected error occured
-
-  
+  /products/{productId}/purchase:
+    post:
+      summary: Purchase a product
+      description: Purchase a product
+      operationId: purchaseProduct
+      tags:
+        - Products
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Product details
+          required: true
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: AMount to be paid
+              currency:
+                type: string
+                description: currency. defaults to usd
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product payment initiated successfully.

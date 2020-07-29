@@ -76,6 +76,9 @@ const TransactionSchema = new Schema({
   },
   description: {
     type: String
+  },
+  stripePaymentId: {
+    type: String
   }
 },
   {
