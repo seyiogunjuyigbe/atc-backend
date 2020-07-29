@@ -10,6 +10,8 @@ exports.createReference = (type) => {
       break;
     case 'refund':
       prefix += 'RFD';
+    case 'payout':
+      prefix += 'PYT';
       break;
     default:
       prefix = 'DEF';
