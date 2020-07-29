@@ -1,7 +1,12 @@
-const models = require('../models');
+const {
+  Product
+} = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
-const { check, validationResult } = require('express-validator');
+const {
+  check,
+  validationResult
+} = require('express-validator');
 
 module.exports = {
   create: async (res, req) => {
@@ -11,21 +16,34 @@ module.exports = {
     if (hasErrors) {
       return res
         .status(400)
-        .send({ error: true, status_code: 400, message: result.array() });
+        .send({
+          error: true,
+          status_code: 400,
+          message: result.array()
+        });
     }
 
     try {
-      const Product = await models.products.create(req.body);
-      if (Product) {
-        return res
-          .status(200)
-          .send(
-            responses.success(
-              200,
-              'Your Product was successfully created.',
-              Product,
-            ),
-          );
+      const product = await Product.create(req.body);
+      if (product) {
+        product.save((err, product) => {
+          if (err) {
+            return res
+              .status(400)
+              .send(responses.error(400, err.message));
+          } else {
+            return res
+              .status(200)
+              .send(
+                responses.success(
+                  200,
+                  'Your Product was successfully created.',
+                  product,
+                ),
+              );
+          }
+        })
+
       } else {
         return res
           .status(400)
@@ -41,8 +59,8 @@ module.exports = {
   },
   viewProduct: async (res, req) => {
     try {
-      const Product = models.products.findByPk(req.params.id);
-      if (!Product) {
+      const product = await Product.findById(req.params.productId);
+      if (!product) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       } else {
         return res
@@ -51,7 +69,7 @@ module.exports = {
             responses.success(
               200,
               'Record was retreived successfully',
-              Product,
+              product,
             ),
           );
       }
@@ -66,32 +84,35 @@ module.exports = {
     var limit = req.query.limit ? req.query.limit : 20;
     var orderBy = req.query.orderBy ? req.query.orderBy : 'id';
     var order = req.query.order ? req.query.order : 'ASC';
-    var ordering = [[orderBy, order]];
+    var ordering = [
+      [orderBy, order]
+    ];
 
-    models.products
-      .findAndCountAll({
-        offset: parseInt(offset),
-        limit: parseInt(limit),
-        order: ordering,
+    Product
+      .find({})
+      .limit(limit)
+      .skip(offset)
+      .sort({
+        ordering
       })
       .then(function (product) {
-        return res
-          .status(200)
-          .send(
-            responses.success(
-              200,
-              'Record was retreived successfully',
-              product,
-            ),
-          );
-      });
+        Product.countDocuments().exec((err, products) => {
+          return res
+            .status(200)
+            .send(
+              responses.success(
+                200,
+                'Record was retreived successfully',
+                products,
+              ),
+            );
+        });
+      })
   },
   updateProduct: async (res, req) => {
     try {
-      const result = await models.products.update(req.body, {
-        where: { _id: req.params.id },
-      });
-
+      const result = await Product.findByIdAndUpdate(req.params.productId, req.body);
+      result.save()
       return res
         .status(200)
         .send(
@@ -103,4 +124,25 @@ module.exports = {
         .send(responses.error(500, `Error updating an record ${err.message}`));
     }
   },
+  deleteProduct: async (res, req) => {
+    try {
+      const product = await Product.findByIdAndDelete(req.params.productId);
+      if (!product)
+        return res
+          .status(400)
+          .send(
+            responses.error(400, 'product not found'));
+
+      else
+
+        return res
+          .status(200)
+          .send(
+            responses.success(200, 'Product was deleted successfully', product)
+          );
+
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
+  }
 };

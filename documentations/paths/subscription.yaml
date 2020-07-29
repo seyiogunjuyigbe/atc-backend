@@ -1,0 +1,129 @@
+# Subscription Paths
+
+  /subscriptions/:
+    post:
+      summary: Create new Subscription
+      description: Create a new Subscription
+      operationId: createSubscription
+      tags:
+        - Subscriptions
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Subscription details
+          required: true
+          schema:
+            $ref: '#/definitions/Subscription'
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Subscription created successfully.
+    get:
+      summary: View all Subscription
+      description: Display all Subscription
+      operationId: listSubscriptions
+      tags:
+        - Subscriptions
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Subscriptions fetched successfully
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  
+  /subscriptions/{subId}:
+    get:
+      summary: Get a single subscription
+      operationId: viewSubscription
+      tags:
+        - Subscriptions
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: id
+          description: get data
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Subscription'
+  
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    put:
+      summary: Update subscription
+      description: Update a particular subscription'
+      operationId: updateSubscription
+      tags:
+        - Subscriptions
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: id
+          description: Subscription id to update
+          required: true
+        - in: body
+          name: payload
+          description: Subscription data to update
+          schema:
+            $ref: '#/definitions/Subscription'
+  
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Subscription data successfully updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

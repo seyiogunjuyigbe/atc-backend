@@ -18,13 +18,10 @@
       password:
         type: string
         description: user password
-      shortTokenExpiry:
-        type: boolean
-        description: flag for login token length (default is false)
     example:
       email: user@example.com
       password: Pas$W0rd
-      shortTokenExpiry: true
+     
     required:
       - email
       - password

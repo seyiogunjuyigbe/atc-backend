@@ -18,10 +18,10 @@
           schema:
             $ref: "#/definitions/AuthResponse"
 
-  /auth/get-verification-email:
+  /auth/resend/{email}:
     get:
-      summary: Sends verification OTP to user
-      description: Initiate email verification for user by sending verification OTP to the user
+      summary: Resends verification email to user
+      description: Initiate email verification for user by sending verification to the user
       operationId: verifyUserEmail
       tags:
       - Authentication
@@ -42,15 +42,15 @@
             examples:
               message: Token is either invalid or email does not exist
 
-  /auth/verify/{otp}:
+  /auth/{id}/verify/{token}:
     get:
       summary: Verifies user email for profile activation
       tags:
       - Authentication
       parameters:
         - in: path
-          name: otp
-          description: otp set in the verification email sent to the user
+          name: token
+          description: token set in the verification email sent to the user
           required: true
         - in: query
           name: email
@@ -73,8 +73,8 @@
             example:
               message: An unexpected error occured
 
-  /auth/reset-password:
-    get:
+  /auth/forgot-password:
+    post:
       summary: Request password reset
       operationId: passwordResetRequest
       tags:
@@ -103,6 +103,36 @@
           description: Unexpected server error
           schema:
             example:
+  /auth/reset/{userId}: 
+    get:
+      summary: Request password reset
+      operationId: passwordResetRequest
+      tags:
+      - Authentication
+      parameters:
+        - in: query
+          name: email
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Password reset link successfully sent
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        404:
+          description: Not found
+          schema:
+            example:
+              message: User with email not found
+        500:
+          description: Unexpected server error
+          schema:
+            example:           
     post:
       summary: Set new password for user
       operationId: setNewPassword
@@ -130,37 +160,7 @@
           schema:
             example:
               message: An unexpected error occured
-
-  /auth/reset/{otp}:
-    get:
-      summary: Verifies user email for password reset
-      tags:
-      - Authentication
-      parameters:
-        - in: path
-          name: otp
-          description: otp set in the password reset email sent to the user
-          required: true
-        - in: query
-          name: email
-          description: email of the user
-          required: true
-      responses:
-        200:
-          description: Success
-          schema:
-            $ref: "#/definitions/AuthResponse"
-        400:
-          description: Bad request
-          schema:
-            example:
-              message: "Missing required parameters (code: invalid_token | token_expired)"
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured
-  /auth/profile:
+  /auth/profile/{userId}:
     get:
       summary: Get current user data
       operationId: viewCurrentUser
@@ -187,75 +187,24 @@
             example:
               message: An unexpected error occured
 
-  /auth/{userId}/verify-password:
+ 
+  /auth/signup:
     post:
-      summary: Verify user's password
-      operationId: verifyUserPassword
+      summary: Create new user with email
+      description: Create a new account for user using email and password
+      operationId: createUser
       tags:
       - Authentication
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-        - in: path
-          name: userId
-          description: User Id to upload image for
-          required: true
         - in: body
-          name: password
-          description: Password to verify
+          name: payload
+          description: User credentials to use for registration
+          required: true
+          schema:
+            $ref: "#/definitions/User"
       responses:
         200:
           description: Success
           schema:
             example:
-              message: Password is valid.
-              authorized: true
-        400:
-          description: Bad request
-          schema:
-            example:
-              message: Missing required field
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to perform this action.
-        404:
-          description: Not found
-          schema:
-            example:
-              message: User not found.
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured
-
-  /auth/reauth:
-    get:
-      summary: Re-authenticate user
-      operationId: Re-Authenticate
-      tags:
-      - Authentication
-      parameters:
-        - in: query
-          name: accountId
-          required: true
-        - in: header
-          name: authorization
-          required: true
-      responses:
-        200:
-          description: Success
-        400:
-          description: Bad request
-          schema:
-            example:
-              message: Missing required parameters
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured
+              message: A code has been sent to your email for verification.  

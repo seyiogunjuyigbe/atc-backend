@@ -4,13 +4,14 @@ const authRoute = express.Router();
 
 
 
-authRoute.post("/auth/signup", authCrl.createUser);
-authRoute.post("/auth/login", authCrl.login);
-authRoute.post("/auth/forgot-password",authCrl.forgotPassword);
-authRoute.get("/auth/reset/:userId", authCrl.getReset);
-authRoute.put("/auth/reset/:userId", authCrl.postReset);
-authRoute.get("/auth/:userId", authCrl.viewUser);
-authRoute.put("/auth/:id/verify/:token",authCrl.ValidateEmailToken);
+authRoute.post("/signup", authCrl.createUser);
+authRoute.post("/login", authCrl.login);
+authRoute.get("/forgot-password",authCrl.forgotPassword);
+authRoute.get("/reset/:userId", authCrl.getReset);
+authRoute.put("/reset/:userId", authCrl.postReset);
+authRoute.get("/profile/:userId ", authCrl.viewUser);
+authRoute.get("/:userId/verify/:token",authCrl.ValidateEmailToken);
+authRoute.get("/resend/:email",authCrl.ResendTokenEmail);
 
 
 

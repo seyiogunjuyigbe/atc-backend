@@ -1,0 +1,11 @@
+# Content Definitions
+  Content:
+    type: object
+    properties:
+      forType:
+        type: string
+      forId:
+        type: integer
+      content:
+        type: file
+        

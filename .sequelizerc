@@ -1,10 +1,10 @@
 const path = require('path');
-const config = require('./server/config');
-const dbKey = config.get('env') === 'test' ? 'testDbUrl' : 'modules.sequelize.url';
+const config = require('./server/config/config.json');
+const dbConfig = config[process.env.NODE_ENV || 'development'];
 
 module.exports = {
-  'url': config.get('modules.sequelize.url'),
-  'migrations-path': path.resolve('./', 'migrations'),
-  'models-path': path.resolve('./lib/app/', 'models'),
-  'seeders-path': path.resolve('./', 'seeders')
+  'config': path.resolve('./server/config', 'config.js'),
+  'migrations-path': path.resolve('./server/', 'migrations'),
+  'models-path': path.resolve('./server/', 'models'),
+  'seeders-path': path.resolve('./server/', 'seeders')
 }
