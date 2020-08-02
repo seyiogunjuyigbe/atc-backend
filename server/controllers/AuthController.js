@@ -59,8 +59,11 @@ module.exports = {
                         if (newUser) {
                             // _email.sendEmailSignUpToken(Newuser, token);
                             let customerDetails = await createCustomer(newUser);
-                            newUser.stripeCustomerId = customerDetails.id
-                            newUser.save()
+                            if (customerDetails && customerDetails.id) {
+                                newUser.stripeCustomerId = customerDetails.id
+                            }
+
+                            await newUser.save()
                             let url = generalFunctions.getURL();
                             let resetURL = url + `auth/${newUser.id}/verify/${token}`;
 

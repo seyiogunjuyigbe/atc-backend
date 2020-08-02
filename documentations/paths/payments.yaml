@@ -1,11 +1,11 @@
 # Webhook Path
   /payments/webhook:
     post:
-      summary: Create new package
-      description: Create a new package
-      operationId: createPackage
+      summary: Stripe webhook
+      description: Webhook for stripe payment
+      operationId: webhook
       tags:
-      - Packages
+      - Webhook
       parameters:
         - in: header
           name: Authorization
@@ -17,16 +17,14 @@
           required: true
         - in: body
           name: payload
-          description: Package details
+          description: Payment details
           required: true
-          schema:
-            $ref: "#/definitions/Package"
       responses:
         200:
           description: Success
           schema:
             example:
-              message: payment successful.
+              message: Payment successful.
         401:
           description: Invalid stripe signature
           schema:

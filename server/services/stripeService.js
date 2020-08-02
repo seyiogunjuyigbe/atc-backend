@@ -2,11 +2,19 @@ const {
   STRIPE_SECRET_KEY
 } = process.env
 const stripe = require("stripe")(STRIPE_SECRET_KEY);
+const { User } = require('../models')
 module.exports = {
-  async createPaymentIntent(transaction, customerId) {
+  async createPaymentIntent(transaction, user) {
     let { amount, currency, description, transactableType, transactable } = transaction
     try {
-      let customer = await stripe.customers.retrieve(customerId)
+      if (!user.stripeCustomerId) {
+        let customerDetails = await this.createCustomer(user);
+        if (customerDetails && customerDetails.id) {
+          user.stripeCustomerId = customerDetails.id
+        }
+        await user.save()
+      }
+      let customer = await stripe.customers.retrieve(user.stripeCustomerId)
       if (customer) {
         let intent = await stripe.paymentIntents.create({
           amount,
@@ -15,12 +23,12 @@ module.exports = {
           customer,
           metadata: {
             type: transactableType,
-            id: transactable
+            id: transactable,
+            ref: transaction.reference
           }
         })
         if (intent) return intent
       }
-
     } catch (err) {
       return err
     }

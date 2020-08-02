@@ -33,7 +33,7 @@ const userSchema = mongoose.Schema({
   stripeCustomerId: String,
   role: {
     type: String,
-    enum: ('admin', 'vendor', 'customer')
+    enum: ['admin', 'vendor', 'customer']
   },
   passwordResetExpires: {
     type: String
