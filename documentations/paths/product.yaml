@@ -17,7 +17,9 @@
           description: Product details
           required: true
           schema:
-            $ref: '#/definitions/Product'
+            type: array
+            items:
+             $ref: '#/definitions/Product'
       responses:
         200:
           description: Success
@@ -73,7 +75,7 @@
             type: array
             items:
               $ref: '#/definitions/Product'
-  
+
         403:
           description: Not authorized
           schema:
