@@ -90,11 +90,11 @@ module.exports = {
       .find({})
       .limit(limit)
       .skip(offset)
-      .sort({
-        ordering
-      })
+      // .sort({
+      //   ordering
+      // })
       .then(function (product) {
-        Product.countDocuments().exec((err, products) => {
+        Product.find({}).exec((err, products) => {
           return res
             .status(200)
             .send(

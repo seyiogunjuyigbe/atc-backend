@@ -91,11 +91,11 @@ module.exports = {
       .find({})
       .limit(limit)
       .skip(offset)
-      .sort({
-        ordering
-      })
+      // .sort({
+      //   ordering
+      // })
       .then(function (subscription) {
-        Subscription.countDocuments().exec((err, subscriptions) => {
+        Subscription.find({}).exec((err, subscriptions) => {
           return res
             .status(200)
             .send(

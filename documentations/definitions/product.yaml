@@ -10,13 +10,19 @@
         items:
           type: object
           properties:
-            productType:
+            type:
               type: string
-              enum: [main,upsell,downsell]
+              enum: [main, upsell, downsell, order-bump, cross-sell]
               description: selected product type
             isMainProduct:
               type: boolean
               description: check if its Main product
+            hasAirportTransfer:
+              type: boolean
+              description: Whether product has airtport transfer feature
+            cancellationDaysLimit:
+              type: mumber
+              description: Number of days at which no refund can be processed for product
             name:
               type: string
               description: product name
@@ -35,12 +41,16 @@
     items:
       type: object
       properties:
-        productCategory:
+        type:
           type: string
-          description: product Category id description
+          description: product type
+          enum: [main, upsell, downsell, order-bump, cross-sell]
         isMainProduct:
           type: boolean
           description: check if its Main product
+        hasAirportTransfer:
+          type: boolean
+          description: Whether product has airtport transfer feature
         name:
           type: string
           description: product name

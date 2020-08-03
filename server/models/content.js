@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const ContentSchema = new Schema({
   type: {
     type: String,
-    enum: ['video', 'image', 'gif']
+    enum: ['video', 'image', 'gif', 'svg']
   },
   forType: {
     type: String

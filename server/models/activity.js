@@ -10,20 +10,20 @@ const activitySchema = new Schema({
   bestVisitTime: [String],
   bestVisitSeason: [String],
   bestVisitWeather: [String],
-  vendorId: Schema.Types.ObjectId,
+  vendor: Schema.Types.ObjectId,
   calendarStatus: [{
     month: String,
     status: {
       type: String,
-      enum: []
+      enum: ['good', 'excellent', 'fair'],
     }
   }],
-  hasAccomodation: Boolean,
-  hasMeals: Boolean,
+  hasAccomodation: String,
+  hasMeals: String,
   start: Date,
   end: Date,
   countries: [String],
-  adventureCategories: [ {
+  adventureCategories: [{
     ref: "Category",
     type: Schema.Types.ObjectId
   }],
@@ -37,13 +37,18 @@ const activitySchema = new Schema({
     city: String,
     country: String,
   },
-  pictures: [String],
-  videos: [String],
-  route: String,
-  stops: {
+  contents: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Content',
+  }],
+  route: {
+    type: String,
+    enum: ['start', 'day', 'end'],
+  },
+  stops: [{
     stop: String,
     meal: String
-  }
+  }]
 
 });
 module.exports = mongoose.model('Activity', activitySchema)
