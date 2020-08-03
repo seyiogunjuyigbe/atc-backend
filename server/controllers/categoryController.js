@@ -15,7 +15,8 @@ module.exports = {
         const {
             name,
             parentId,
-            description
+            description,
+            type
         } = req.body;
         try {
             let existingCateg = await Category.findOne({
@@ -27,7 +28,7 @@ module.exports = {
                 let category = await Category.create({
                     name,
                     parentId,
-                    description
+                    description, type
                 });
                 category.save((err, newCategory) => {
                     return success(res, 200, {

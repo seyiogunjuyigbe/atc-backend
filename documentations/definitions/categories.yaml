@@ -11,4 +11,6 @@
       description:
         type: string
         description: Details explaining the category
-        
+      type:
+        type: string
+        description: Category type (adventure or top-sight)
