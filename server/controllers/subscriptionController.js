@@ -95,7 +95,7 @@ module.exports = {
       //   ordering
       // })
       .then(function (subscription) {
-        Subscription.countDocuments().exec((err, subscriptions) => {
+        Subscription.find({}).exec((err, subscriptions) => {
           return res
             .status(200)
             .send(

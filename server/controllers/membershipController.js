@@ -103,7 +103,7 @@ module.exports = {
       //   ordering
       // })
       .then(function (membership) {
-        Membership.countDocuments().exec((err, memberships) => {
+        Membership.find({}).exec((err, memberships) => {
           return res
             .status(200)
             .send(

@@ -80,7 +80,7 @@ module.exports = {
       //   ordering
       // })
       .then(function (user) {
-        User.countDocuments().exec((err, users) => {
+        User.find({}).exec((err, users) => {
           return res.status(200).send(responses.success(200, "Record was retreived successfully", users));
         })
       })
