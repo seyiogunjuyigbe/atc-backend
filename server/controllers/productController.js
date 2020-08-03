@@ -13,7 +13,7 @@ const { createReference } = require('../services/paymentService');
 const StripeService = require('../services/stripeService');
 
 module.exports = {
-  create: async (res, req) => {
+  create: async (req, res) => {
     const result = validationResult(req);
     const hasErrors = !result.isEmpty();
     if (hasErrors) {
@@ -34,8 +34,8 @@ module.exports = {
           .send(responses.error(400, 'Package already exist'));
       }
       const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
-      const productList = req.body.products.map((data)=> ({
-        ...data,  packageID: createdPackage._id, owner: req.user._id
+      const productList = req.body.products.map((data) => ({
+        ...data, packageID: createdPackage._id, owner: req.user._id
       }))
       const product = await Product.insertMany(productList);
       if (product) {
@@ -70,7 +70,7 @@ module.exports = {
         );
     }
   },
-  viewProduct: async (res, req) => {
+  viewProduct: async (req, res) => {
     try {
       const product = await Product.findById(req.params.productId);
       if (!product) {
@@ -92,7 +92,7 @@ module.exports = {
         .send(responses.error(500, `Error viewing a product ${error.message}`));
     }
   },
-  listProduct: (res, req) => {
+  listProduct: (req, res) => {
     var offset = req.query.offset ? req.query.offset : 0;
     var limit = req.query.limit ? req.query.limit : 20;
     var orderBy = req.query.orderBy ? req.query.orderBy : 'id';
@@ -122,7 +122,7 @@ module.exports = {
         });
       })
   },
-  updateProduct: async (res, req) => {
+  updateProduct: async (req, res) => {
     try {
       const result = await Product.findByIdAndUpdate(req.params.productId, req.body);
       result.save()
@@ -137,7 +137,7 @@ module.exports = {
         .send(responses.error(500, `Error updating an record ${err.message}`));
     }
   },
-  deleteProduct: async (res, req) => {
+  deleteProduct: async (req, res) => {
     try {
       const product = await Product.findByIdAndDelete(req.params.productId);
       if (!product)
@@ -158,7 +158,7 @@ module.exports = {
       return error(res, 500, err.message)
     }
   },
-  purchaseProduct: async (res, req) => {
+  purchaseProduct: async (req, res) => {
     try {
       const product = await Product.findById(req.params.productId);
       if (!product) {
