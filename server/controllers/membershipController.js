@@ -99,9 +99,9 @@ module.exports = {
       .find({})
       .limit(limit)
       .skip(offset)
-      .sort({
-        ordering
-      })
+      // .sort({
+      //   ordering
+      // })
       .then(function (membership) {
         Membership.countDocuments().exec((err, memberships) => {
           return res

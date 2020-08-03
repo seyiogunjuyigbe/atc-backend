@@ -32,8 +32,8 @@ module.exports = {
 
       //check if it exist
       models.memberships.findOne({
-          name: req.body.name
-        })
+        name: req.body.name
+      })
         .then(async function (membership) {
           if (membership !== null) {
             return res.status(201).send(
@@ -76,9 +76,9 @@ module.exports = {
     User.find({})
       .limit(limit)
       .skip(offset)
-      .sort({
-        ordering
-      })
+      // .sort({
+      //   ordering
+      // })
       .then(function (user) {
         User.countDocuments().exec((err, users) => {
           return res.status(200).send(responses.success(200, "Record was retreived successfully", users));
