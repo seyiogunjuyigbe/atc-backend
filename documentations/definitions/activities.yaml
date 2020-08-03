@@ -54,6 +54,9 @@
       end:
         type: string
         description: End date for this activity
+      product:
+        type: string
+        description: Product objectID
       countries:
         description: Countries related to the activity
         type: array
