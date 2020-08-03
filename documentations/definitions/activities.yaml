@@ -55,21 +55,20 @@
         type: string
         description: End date for this activity
       countries:
-        field:
-          type: array
-          items:
-            type: string
         description: Countries related to the activity
+        type: array
+        items:
+          type: string
       adventureCategories:
         description: Adventure categories for the activity (Takes an array of objectID)
         type: array
-          items:
-            type: string
+        items:
+          type: string
       sightCategories:
         description: Sight categories for the activity(Takes an array of objectID)
         type: array
-          items:
-            type: string
+        items:
+          type: string
       mainDestinationCity:
         type: string
         description: Main destination city
@@ -79,8 +78,8 @@
       contents:
         description: Contents within the activities e.g videos, images etc(Takes an array of objectID)
         type: array
-          items:
-            type: string
+        items:
+          type: string
       route:
         type: string
         description: activity route
@@ -88,10 +87,10 @@
       stops:
         description: stops and meals for this activity
         type: array
-          items:
-            type: object
-            properties:
-              stop:
-                type: string
-              meal:
-                type: string
+        items:
+          type: object
+          properties:
+            stop:
+              type: string
+            meal:
+              type: string
