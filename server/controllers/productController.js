@@ -37,31 +37,16 @@ module.exports = {
       const productList = req.body.products.map((data) => ({
         ...data, packageID: createdPackage._id, owner: req.user._id
       }))
-      const product = await Product.insertMany(productList);
-      if (product) {
-        product.save((err, product) => {
-          if (err) {
-            return res
-              .status(400)
-              .send(responses.error(400, err.message));
-          } else {
-            return res
-              .status(200)
-              .send(
-                responses.success(
-                  200,
-                  'Your Product was successfully created.',
-                  product ,
-                ) ,
-              );
-          }
-        })
-
-      } else {
-        return res
-          .status(400)
-          .send(responses.error(400, 'Unable to create Product'));
-      }
+      const product = await Product.create(productList);
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Your Product was successfully created.',
+            product ,
+          ) ,
+        );
     } catch (error) {
       return res
         .status(500)
