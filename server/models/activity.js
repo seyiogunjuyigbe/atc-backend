@@ -23,8 +23,16 @@ const activitySchema = new Schema({
   start: Date,
   end: Date,
   countries: [String],
-  adventureCategories: [String],
-  sightCategories: [String],
+  adventureCategories: [ {
+    ref: "Category",
+    type: Schema.Types.ObjectId
+  }],
+  sightCategories: [
+    {
+      ref: "Category",
+      type: Schema.Types.ObjectId
+    }
+  ],
   mainDestination: {
     city: String,
     country: String,

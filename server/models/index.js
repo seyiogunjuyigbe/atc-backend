@@ -1,4 +1,5 @@
 const Category = require( './category' )
+const Activity = require( './activity' )
 const Content = require( './content' )
 const Membership = require( './membership' )
 const Package = require( './package' )
@@ -10,6 +11,7 @@ module.exports = {
   Category,
   Content,
   Membership,
+  Activity,
   Package,
   Product,
   Subscription,

@@ -14,25 +14,25 @@
         type: integer
         required: true
         description: Number of days for this activity
-      bestVisitTime: 
+      bestVisitTime:
         field:
           type: array
           items:
             type: string
         description: Best visit times for this activity
-      bestVisitSeason: 
+      bestVisitSeason:
         field:
           type: array
           items:
             type: string
         description: Best visit season for this activity
-      bestVisitWeather: 
+      bestVisitWeather:
         field:
           type: array
           items:
             type: string
         description: Best visit times for this activity
-      calendarStatus: 
+      calendarStatus:
         field:
           type: array
           items:
@@ -43,10 +43,10 @@
               status:
                 type: string
         description: Best visit times for this activity
-      hasAccomodation: 
+      hasAccomodation:
         type: boolean
         description: Boolean value
-      hasMeals: 
+      hasMeals:
         type: boolean
         description: Boolean value
       start:
@@ -66,13 +66,13 @@
           type: array
           items:
             type: string
-        description: Adventure categories for the activity
+        description: Adventure categories for the activity (Takes an array of objectID)
       sightCategories:
         field:
           type: array
           items:
             type: string
-        description: Sight categories for the activity
+        description: Sight categories for the activity(Takes an array of objectID)
       mainDestinationCity:
         type: string
         description: Main destination city
@@ -88,7 +88,7 @@
       route:
         type: string
         description: activity route
-      stops: 
+      stops:
         field:
           type: array
           items:
