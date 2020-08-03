@@ -1,4 +1,4 @@
-# Product Definitions
+  # Product Definitions
   Product:
     type: object
     properties:
@@ -10,21 +10,46 @@
         items:
           type: object
           properties:
-              productCategory:
-                type: string
-                description: product Category id description
-              isMainProduct:
-                type: boolean
-                description: check if its Main product
-              name:
-                type: string
-                description: product name
-              imageUrl:
-                type: string
-                description: imageUrl
-              packageID:
-                type: string
-                description: id of the package
-              description:
-                type: string
-                description: product description
+            productType:
+              type: string
+              enum: [main,upsell,downsell]
+              description: selected product type
+            isMainProduct:
+              type: boolean
+              description: check if its Main product
+            name:
+              type: string
+              description: product name
+            imageUrl:
+              type: string
+              description: imageUrl
+            packageID:
+              type: string
+              description: id of the package
+            description:
+              type: string
+              description: product description
+
+  Products:
+    type: array
+    items:
+      type: object
+      properties:
+        productCategory:
+          type: string
+          description: product Category id description
+        isMainProduct:
+          type: boolean
+          description: check if its Main product
+        name:
+          type: string
+          description: product name
+        imageUrl:
+          type: string
+          description: imageUrl
+        packageID:
+          type: string
+          description: id of the package
+        description:
+          type: string
+          description: product description

@@ -39,8 +39,7 @@
         200:
           description: Success
           schema:
-            example:
-              message: Products  fetched successfully
+            $ref: '#/definitions/Products'
         403:
           description: Not authorized
           schema:

@@ -34,10 +34,9 @@ module.exports = {
           .send(responses.error(400, 'Package already exist'));
       }
       const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
-      const productList = req.body.products
-      for (let i = 0; i < productList.length; i++) {
-        productList.push({ packageID: createdPackage._id, owner: req.user._id })
-      }
+      const productList = req.body.products.map((data)=> ({
+        ...data,  packageID: createdPackage._id, owner: req.user._id
+      }))
       const product = await Product.insertMany(productList);
       if (product) {
         product.save((err, product) => {
