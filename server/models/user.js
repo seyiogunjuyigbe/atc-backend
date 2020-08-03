@@ -24,6 +24,7 @@ const userSchema = mongoose.Schema({
   city: {
     type: String
   },
+  password: String,
   country: {
     type: String
   },
@@ -46,13 +47,19 @@ const userSchema = mongoose.Schema({
 userSchema.statics.comparePassword = async (password, userPassword) => await bcrypt.compare(password, userPassword);
 
 //= ============================================================================
+userSchema.options.toJSON = {
+  transform: function (doc, ret, options) {
+    delete ret.password
+    return ret;
+  }
+}
+
 userSchema.pre('save', function saveHook(next) {
-  const user = this;
-  if (!user.isModified('password')) return next();
+  if (!this.isModified('password')) return next();
   const saltRounds = 10;
   const salt = bcrypt.genSaltSync(saltRounds);
-  const hash = bcrypt.hashSync(user.password, salt);
-  user.password = hash;
+  const hash = bcrypt.hashSync(this.password, salt);
+  this.password = hash;
   return next();
 });
 /**
