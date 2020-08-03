@@ -18,6 +18,6 @@ indexRoute.use('/packages', packageRoutes)
 indexRoute.use('/contents', contentRoutes);
 indexRoute.use('/categories', categoryRoutes)
 indexRoute.use('/activities', activityRoute);
-indexRoute.use('/fetch', stateRoutes)
+indexRoute.use('', stateRoutes)
 indexRoute.use('/payments', paymentRoute)
 module.exports = indexRoute;

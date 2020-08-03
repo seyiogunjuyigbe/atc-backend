@@ -5,6 +5,13 @@
       summary: List all states
       description: Display all states
       operationId: listStates
+      parameters:
+        - in: query
+          name: countryId
+          description: Country ID as search query
+        - in: query
+          name: stateId
+          description: state ID as search query
       tags:
       - States
       responses:
@@ -37,6 +44,13 @@
       summary: List all countries
       description: Display all countries
       operationId: listCountries
+      parameters:
+        - in: query
+          name: countryId
+          description: Country ID as search query
+        - in: query
+          name: name
+          description: Country name as search query
       tags:
       - Countries
       responses:
@@ -51,14 +65,28 @@
                   type: string
                 state:
                   type: string
-
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to access this resource
         500:
           description: Unexpected server error
           schema:
             example:
               message: An unexpected error occured
+  /country:
+    get:
+      summary: Get single country
+      description: Get single country with all its states
+      operationId: fetchCountry
+      tags:
+      - Countries
+      parameters:
+        
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Country.
+        500:
+          description: Error
+          schema:
+            example:
+              message: Error message. 

@@ -1,0 +1,10 @@
+# State Definitions
+  State:
+    type: object
+    properties:
+      name:
+        type: string
+        description: State Name
+      countryId:
+        type: string
+        description: Country ID

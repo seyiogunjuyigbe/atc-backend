@@ -1,0 +1,12 @@
+# Country Definitions
+  Country:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Country Name
+      states:
+        type: array
+        description: States in country
+          items:
+            type: string
