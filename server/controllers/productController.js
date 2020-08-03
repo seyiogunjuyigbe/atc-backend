@@ -27,13 +27,13 @@ module.exports = {
     }
 
     try {
-      const packages = await Package.findOne({ name: req.body.packageTitle })
+      const packages = await Package.findOne({ name: req.body.packageName })
       if (packages) {
         return res
           .status(400)
           .send(responses.error(400, 'Package already exist'));
       }
-      const createdPackage = await Package.create({ name: req.body.packageTitle, length: req.body.length })
+      const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
       const productList = req.body.products
       for (let i = 0; i < productList.length; i++) {
         productList.push({ packageID: createdPackage._id, owner: req.user._id })

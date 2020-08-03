@@ -17,9 +17,7 @@
           description: Product details
           required: true
           schema:
-            type: array
-            items:
-             $ref: '#/definitions/Product'
+            $ref: '#/definitions/Product'
       responses:
         200:
           description: Success
