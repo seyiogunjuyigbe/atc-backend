@@ -44,13 +44,6 @@
       summary: List all countries
       description: Display all countries
       operationId: listCountries
-      parameters:
-        - in: query
-          name: countryId
-          description: Country ID as search query
-        - in: query
-          name: name
-          description: Country name as search query
       tags:
       - Countries
       responses:
@@ -75,10 +68,15 @@
       summary: Get single country
       description: Get single country with all its states
       operationId: fetchCountry
+      parameters:
+        - in: query
+          name: countryId
+          description: Country ID as search query
+        - in: query
+          name: name
+          description: Country name as search query
       tags:
       - Countries
-      parameters:
-        
       responses:
         200:
           description: Success

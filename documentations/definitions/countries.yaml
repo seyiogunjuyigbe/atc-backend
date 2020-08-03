@@ -8,5 +8,5 @@
       states:
         type: array
         description: States in country
-          items:
-            type: string
+        items:
+          type: string
