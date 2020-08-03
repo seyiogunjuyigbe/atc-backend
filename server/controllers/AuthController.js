@@ -47,34 +47,27 @@ module.exports = {
                         return res.status(400).send(responses.error(400, 'An account with similar credentials already exists'));
                     } else {
                         //create the new user account
-                        let data = req.body;
-                        let token = uuidv1();
-                        data['token'] = token;
-
-                        //hash password
-                        let hashedPassword = bcrypt.hashSync(req.body.password, 8);
-                        data['password'] = hashedPassword;
-                        data['isActive'] = false;
-                        const newUser = await User.create(data);
+                        const newUser = await User.create({
+                            ...req.body, token: uuidv1(), isActive: false
+                        });
                         if (newUser) {
                             // _email.sendEmailSignUpToken(Newuser, token);
                             let customerDetails = await createCustomer(newUser);
                             if (customerDetails && customerDetails.id) {
                                 newUser.stripeCustomerId = customerDetails.id
+                                await newUser.save()
                             }
-
-                            await newUser.save()
                             let url = generalFunctions.getURL();
-                            let resetURL = url + `auth/${newUser.id}/verify/${token}`;
+                            let resetURL = url + `auth/${newUser.id}/verify/${newUser.token}`;
 
                             let MailTemplateName = 'account_activation.html';
                             let MailData = {
-                                name: data.firstName + ' ' + data.lastName,
-                                email: data.email,
-                                token: token,
+                                name: newUser.firstName + ' ' + newUser.lastName,
+                                email: newUser.email,
+                                token: newUser.token,
                                 resetURL: resetURL,
                             };
-                            let MailRecipient = data.email;
+                            let MailRecipient = newUser.email;
                             let MailSubject = `Account verification - African Travel Club`;
                             let sendMail = _email.sendTemplatedMail(
                                 MailTemplateName,
@@ -248,16 +241,13 @@ module.exports = {
 
     login: async (req, res) => {
         try {
+            console.log(req.body)
+
             const user = await User.findOne({
                 email: req.body.email
             });
-            const userObj = {
-                id: user.id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-            };
             if (user) {
+
                 if (bcrypt.compareSync(req.body.password, user.password)) {
                     //generate a token
                     let token = jwt.sign({
@@ -286,14 +276,15 @@ module.exports = {
                 } else {
                     return res
                         .status(400)
-                        .send(responses.error(401, 'Wrong email and password'));
+                        .send(responses.error(401, 'Invalid email and password'));
                 }
             } else {
                 return res
                     .status(401)
-                    .send(responses.error(401, 'Wrong email and password'));
+                    .send(responses.error(401, 'Invalid email and password'));
             }
         } catch (error) {
+            console.log(error)
             return res
                 .status(500)
                 .send(responses.error(500, `Error getting user ${error}`));
