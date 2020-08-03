@@ -42,13 +42,12 @@
                 type: string
               status:
                 type: string
+                enum: [good, excellent, fair]
         description: Best visit times for this activity
       hasAccomodation:
-        type: boolean
-        description: Boolean value
+        type: String
       hasMeals:
-        type: boolean
-        description: Boolean value
+        type: String
       start:
         type: string
         description: Start date for this activity
@@ -62,35 +61,33 @@
             type: string
         description: Countries related to the activity
       adventureCategories:
-        field:
-          type: array
-          items:
-            type: string
         description: Adventure categories for the activity (Takes an array of objectID)
-      sightCategories:
-        field:
-          type: array
+        type: array
           items:
             type: string
+      sightCategories:
         description: Sight categories for the activity(Takes an array of objectID)
+        type: array
+          items:
+            type: string
       mainDestinationCity:
         type: string
         description: Main destination city
       mainDestinationCountry:
         type: string
         description: Main destination country
-      attachments:
-        field:
-          type: array
+      contents:
+        description: Contents within the activities e.g videos, images etc(Takes an array of objectID)
+        type: array
           items:
             type: string
-        description: attachments for activity
       route:
         type: string
         description: activity route
+        enum: [start, day, end]
       stops:
-        field:
-          type: array
+        description: stops and meals for this activity
+        type: array
           items:
             type: object
             properties:
@@ -98,4 +95,3 @@
                 type: string
               meal:
                 type: string
-        description: stops and meals for this activity

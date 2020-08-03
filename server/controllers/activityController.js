@@ -26,10 +26,10 @@ module.exports = {
             mainDestinationCity,
             mainDestinationCountry,
             route,
-            stops
+            stops,
+            contents,
         } = req.body;
-        let pictures = [],
-            videos = [];
+
         if (dayNumber && isNaN(Number(dayNumber)) == true) return error(res, 400, 'Number required for number of days')
         if (sightCategories && Array.isArray(sightCategories) == false) return error(res, 400, 'Sight categories must be an array');
         if (adventureCategories && Array.isArray(adventureCategories) == false) return error(res, 400, 'Adventure categories must be an array')
@@ -46,23 +46,17 @@ module.exports = {
             })
             if (wrongEntry) return error(res, 400, "Route stops must be an array of objects")
         }
-        if (req.files.length > 0) {
-            req.files.forEach(file => {
-                if (file.mimetype.indexOf('image') !== -1) pictures.push(file.path);
-                if (file.mimetype.indexOf('video') !== -1) videos.push(file.path)
 
-            })
-        }
         try {
             let existingPack = await Activity.findOne({
                 title,
-                vendorId: req.user._id
+                vendor: req.user._id
 
             });
             if (existingPack) return error(res, 409, 'Duplicate name: Activity "' + title + '" already exists');
             else {
                 let newActivity = await Activity.create({
-                    vendorId: req.user.id,
+                    vendor: req.user.id,
                     dayNumber,
                     title,
                     description,
@@ -83,8 +77,7 @@ module.exports = {
                     },
                     route,
                     stops,
-                    pictures,
-                    videos
+                    contents,
                 });
                 if (newActivity) {
                     newActivity.save((err, activity) => {
@@ -123,7 +116,7 @@ module.exports = {
             mainDestinationCity,
             mainDestinationCountry,
             stops,
-            videos,
+            contents,
             route,
         } = req.body;
         try {
@@ -151,8 +144,7 @@ module.exports = {
                         country: mainDestinationCountry
                     },
                     stops,
-                    pictures,
-                    videos,
+                    contents,
                     route,
                 });
                 thisActivity.save((err, activity) => {

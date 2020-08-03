@@ -14,3 +14,11 @@
       type:
         type: string
         description: Category type (adventure or top-sight)
+      contents:
+        description: Contents within the category e.g videos, images etc(Takes an array of objectID)
+        type: array
+          items:
+            type: string
+      occurrence:
+        type: string
+        enum: [common, rare, occasional]
