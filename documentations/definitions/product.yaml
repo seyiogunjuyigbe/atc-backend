@@ -29,7 +29,7 @@
               type: boolean
               description: Whether product has airtport transfer feature
             cancellationDaysLimit:
-              type: mumber
+              type: number
               description: Number of days at which no refund can be processed for product
             name:
               type: string
