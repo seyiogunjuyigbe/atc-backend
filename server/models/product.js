@@ -8,7 +8,7 @@ const ProductSchema = new Schema({
     type: String
   },
   type: {
-    type: mongoose.Schema.ObjectId,
+    type: String,
     enum: ['main', 'upsell', 'downsell', 'order-bump', 'cross-sell'],
   },
   isMainProduct: {

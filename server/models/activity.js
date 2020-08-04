@@ -23,6 +23,10 @@ const activitySchema = new Schema({
   start: Date,
   end: Date,
   countries: [String],
+  product: {
+    ref: "Product",
+    type: Schema.Types.ObjectId
+  },
   adventureCategories: [{
     ref: "Category",
     type: Schema.Types.ObjectId
