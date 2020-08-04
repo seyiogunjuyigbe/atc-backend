@@ -9,10 +9,14 @@
       packageName:
         type: string
         description: package name
-      cycleNumber:
+      sellingCycle:
         type: number
-        description: number of days before or after the next cycle
+        description: number of days that the product will sell
         required: true
+      watingCycle:
+        type: number
+        description: number of day the produce have to wait before going back to the selling cycle
+        required: true  
       products:
         type: array
         items:
@@ -53,9 +57,14 @@
           type: string
           description: product type
           enum: [main, upsell, downsell, order-bump, cross-sell]
-        cycleNumber:
+        sellingCycle:
           type: number
-          description: number of days before or after the next cycle
+          description: number of days that the product will sell
+          required: true
+        watingCycle:
+          type: number
+          description: number of day the produce have to wait before going back to the selling cycle
+          required: true  
         endDate:
           type: string
           description: End date for product life cycle

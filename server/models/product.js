@@ -28,7 +28,8 @@ const ProductSchema = new Schema({
   shortName: {
     type: String
   },
-  cycleNumber: { type: Number, required: true },
+  sellingCycle: { type: Number, required: true },
+  watingCycle: { type: Number, required: true },
   endDate: { type: Date, required: true },
   startDate: { type: Date, default: new Date() },
   statues: { type: String, enum: ["active", "wating", "expired"], default: "active" },

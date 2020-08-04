@@ -11,7 +11,7 @@ const {
 const Transaction = require('../models/transaction');
 const { createReference } = require('../services/paymentService');
 const StripeService = require('../services/stripeService');
-
+const moment = require("moment")
 module.exports = {
   create: async (req, res) => {
     const result = validationResult(req);
@@ -34,9 +34,10 @@ module.exports = {
           .send(responses.error(400, 'Package already exist'));
       }
       const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
-      const endDate = moment( new Date() , "DD-MM-YYYY" ).add( data.cycleNumber , 'days' )
+      const endDate = moment( new Date() , "DD-MM-YYYY" ).add( req.body.sellingCycle , 'days' )
       const productList = req.body.products.map((data) => ({
-        ...data, packageID: createdPackage._id, owner: req.user._id, endDate
+        ...data, packageID: createdPackage._id, owner: req.user._id, endDate, sellingCycle:req.body.sellingCycle,
+        watingCycle:req.body.watingCycle
       }))
       const product = await Product.create(productList);
       return res
