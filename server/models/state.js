@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const stateSchema = new Schema({
     name: { type: String, uppercase: true },
-    countryId: Schema.Types.ObjectId,
+    country: { type: Schema.Types.ObjectId, ref: 'Country' }
 
 })
 

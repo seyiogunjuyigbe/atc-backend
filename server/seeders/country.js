@@ -11,7 +11,7 @@ module.exports = {
                         if (country.states.length > 0) {
                             country.states.forEach(async state => {
                                 try {
-                                    let newState = await State.create({ name: state, countryId: newCountry._id });
+                                    let newState = await State.create({ name: state, country: newCountry._id });
                                     if (newState) await newCountry.states.push(newState);
                                     console.log(newState.name + " created for " + newCountry.name)
                                 } catch (err) {
