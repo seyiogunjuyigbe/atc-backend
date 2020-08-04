@@ -190,7 +190,7 @@ module.exports = {
         .send(responses.error(500, `Error updating an record ${err.message}`));
     }
   },
-  async upadteProductPriority(req, res) {
+  async updateProductPriority(req, res) {
     const { productId } = req.params;
     const { priority } = req.body;
     if (isNaN(Number(priority)) == true) return error(res, 400, 'Priority must be a valid number')
@@ -205,7 +205,7 @@ module.exports = {
   },
   async fetchHomePageProducts(req, res) {
     const { sort, category } = req.query;
-    // if (sort && sort !== "asc" && sort !== "desc" ) return error(res, 400, 'Sort can only be "asc" or "desc"')
+    if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"')
     let today = new Date()
     try {
       let products = await Product.find({ marketingExpiryDate: { $gte: today }, $or: [{}] }).sort({ marketingPriority: sort });
@@ -218,3 +218,6 @@ module.exports = {
     }
   }
 };
+function calcPrice(product) {
+  return (product.price + (0.06 * product.price) + (0.04 * product.price)) * 4
+}

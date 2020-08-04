@@ -216,7 +216,7 @@ module.exports = {
     },
     async fetchHomePageActivities(req, res) {
         const { sort, category } = req.query;
-        // if (sort && sort !== "asc" && sort !== "desc" ) return error(res, 400, 'Sort can only be "asc" or "desc"')
+        if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"')
         let today = new Date()
         try {
             let activities = await Activity.find({ marketingExpiryDate: { $gte: today }, $or: [{}] }).sort({ marketingPriority: sort });
