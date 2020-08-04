@@ -2,9 +2,17 @@
   Product:
     type: object
     properties:
+      length:
+        type: number
+        require: true
+        description: package durations
       packageName:
         type: string
         description: package name
+      cycleNumber:
+        type: number
+        description: number of days before or after the next cycle
+        required: true
       products:
         type: array
         items:
@@ -45,6 +53,19 @@
           type: string
           description: product type
           enum: [main, upsell, downsell, order-bump, cross-sell]
+        cycleNumber:
+          type: number
+          description: number of days before or after the next cycle
+        endDate:
+          type: string
+          description: End date for product life cycle
+        startDate:
+          type: string
+          description: start date for the products life cycle for the first or current cycle
+        statues:
+           type: string
+           enum: [active, wating, expired]
+           description: current status of life cycle
         isMainProduct:
           type: boolean
           description: check if its Main product
@@ -63,3 +84,9 @@
         description:
           type: string
           description: product description
+
+
+# cycleNumber
+# endDate
+# startDate
+# statues

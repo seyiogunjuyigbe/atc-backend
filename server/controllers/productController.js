@@ -34,8 +34,9 @@ module.exports = {
           .send(responses.error(400, 'Package already exist'));
       }
       const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
+      const endDate = moment( new Date() , "DD-MM-YYYY" ).add( data.cycleNumber , 'days' )
       const productList = req.body.products.map((data) => ({
-        ...data, packageID: createdPackage._id, owner: req.user._id
+        ...data, packageID: createdPackage._id, owner: req.user._id, endDate
       }))
       const product = await Product.create(productList);
       return res
