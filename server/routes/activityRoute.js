@@ -18,19 +18,19 @@ const {
 router.post('/', authenticate, multiParser.array("attachments", 10), [
     check('title').not().isEmpty().withMessage('Activity title required'),
     check('description').not().isEmpty().withMessage('Description required'),
-    // check('bestVisitTime').isArray({
-    //     min: 1
-    // }).withMessage('Best visit time must be an array of months'),
-    // check('bestVisitSeason').isArray({
-    //     min: 1
-    // }).withMessage('Best visit season must be an array of months'),
-    // check('bestVisitWeather').isArray({
-    //     min: 1
-    // }).withMessage('Best visit weather must be an array of months'),
+    check('bestVisitTime').isArray({
+        min: 1
+    }).withMessage('Best visit time must be an array of months'),
+    check('bestVisitSeason').isArray({
+        min: 1
+    }).withMessage('Best visit season must be an array of months'),
+    check('bestVisitWeather').isArray({
+        min: 1
+    }).withMessage('Best visit weather must be an array of months'),
 
-    // check('calendarStatus').isArray({
-    //     min: 1
-    // }).withMessage('Calendar Status must be an array of months'),
+    check('calendarStatus').isArray({
+        min: 1
+    }).withMessage('Calendar Status must be an array of months'),
     check('hasAccomodation').isBoolean().withMessage('Field must be a boolean'),
     check('hasMeals').isBoolean().withMessage('Field must be a boolean'),
     check('route').isIn(['start', 'end', 'day']).withMessage('Valid route values: (start,end, day)'),

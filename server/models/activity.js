@@ -55,7 +55,5 @@ const activitySchema = new Schema({
     stop: String,
     meal: String
   }],
-  productId: Schema.Types.ObjectId
-
 });
 module.exports = mongoose.model('Activity', activitySchema)
