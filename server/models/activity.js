@@ -50,7 +50,8 @@ const activitySchema = new Schema({
   stops: [{
     stop: String,
     meal: String
-  }]
+  }],
+  productId: Schema.Types.ObjectId
 
 });
 module.exports = mongoose.model('Activity', activitySchema)

@@ -34,6 +34,7 @@ router.post('/', authenticate, multiParser.array("attachments", 10), [
     check('hasAccomodation').isBoolean().withMessage('Field must be a boolean'),
     check('hasMeals').isBoolean().withMessage('Field must be a boolean'),
     check('route').isIn(['start', 'end', 'day']).withMessage('Valid route values: (start,end, day)'),
+    check('productId').not().isEmpty().withMessage('Product ID required')
 ], validate, createActivity);
 router.put('/:activityId', authenticate, multiParser.array("attachments", 10), [
     check('title').not().isEmpty().withMessage('Activity title required'),

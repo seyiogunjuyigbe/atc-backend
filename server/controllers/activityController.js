@@ -1,5 +1,5 @@
 const {
-    Activity, Country, State
+    Activity, Country, State, Product
 } = require('../models');
 const {
     success,
@@ -28,6 +28,7 @@ module.exports = {
             route,
             stops,
             contents,
+            productId
         } = req.body;
 
         if (dayNumber && isNaN(Number(dayNumber)) == true) return error(res, 400, 'Number required for number of days')
@@ -48,6 +49,7 @@ module.exports = {
         }
 
         try {
+            let product = await Product.findById(productId)
             let country = await Country.findById(countryId);
             let city = await State.findById(cityId)
             let existingPack = await Activity.findOne({
@@ -80,19 +82,14 @@ module.exports = {
                     route,
                     stops,
                     contents,
+                    productId
                 });
-                if (newActivity) {
-                    newActivity.save((err, activity) => {
-                        if (err) return error(res, 400, err.message)
-                        else {
-                            return success(res, 200, {
-                                message: 'Activity created successfully',
-                                activity
-                            })
-                        }
-                    })
-
-                }
+                product.activities.push(newActivity);
+                await product.save()
+                return success(res, 200, {
+                    message: 'Activity created successfully',
+                    activity
+                })
             }
         } catch (err) {
             return error(res, 500, err.message)

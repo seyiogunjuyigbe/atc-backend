@@ -71,10 +71,13 @@
           type: string
       cityId:
         type: string
-        description: Main destination city
+        description: ID of main destination city
       countryId:
         type: string
-        description: Main destination country
+        description: ID of main destination country
+      productId:
+        type: string
+        description: ID of product to which activity is attached
       contents:
         description: Contents within the activities e.g videos, images etc(Takes an array of objectID)
         type: array
