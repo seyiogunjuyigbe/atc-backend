@@ -190,4 +190,31 @@ module.exports = {
         .send(responses.error(500, `Error updating an record ${err.message}`));
     }
   },
+  async upadteProductPriority(req, res) {
+    const { productId } = req.params;
+    const { priority } = req.body;
+    if (isNaN(Number(priority)) == true) return error(res, 400, 'Priority must be a valid number')
+    try {
+      let product = await Product.findById(productId);
+      product.set({ marketingPriority: priority });
+      await product.save();
+      return success(res, 200, product)
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
+  },
+  async fetchHomePageProducts(req, res) {
+    const { sort, category } = req.query;
+    // if (sort && sort !== "asc" && sort !== "desc" ) return error(res, 400, 'Sort can only be "asc" or "desc"')
+    let today = new Date()
+    try {
+      let products = await Product.find({ marketingExpiryDate: { $gte: today }, $or: [{}] }).sort({ marketingPriority: sort });
+      if (category) products = products.filter(x => {
+        return x.sightCategories.includes(category)
+      })
+      return success(res, 200, products)
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
+  }
 };

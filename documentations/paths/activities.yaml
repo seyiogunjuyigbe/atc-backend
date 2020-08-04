@@ -151,3 +151,72 @@
           schema:
             example:
               message: An unexpected error occured
+  /activities/{activityId}/priority:
+    put:
+      summary: Update Activity Priority (Admin)
+      description: Update a particular activity's priority
+      operationId: updateActivityPriority
+      tags:
+      - Activities
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: activityId
+          description: Activity id to update
+          required: true
+        - in: body
+          name: priority
+          description: New activity priority
+          type: string
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Activity priority updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /activities/priority:
+    get:
+      summary: Fetch unexpired activities (Home page)
+      description: Fetch unexpired activities based on priority and category (Home page)
+      operationId: fetchHomePageActivities
+      tags:
+      - Activities
+      parameters:
+        - in: query
+          name: sort
+          description: Sort order (asc,desc)
+        - in: query
+          name: category
+          description: Search activity category ID
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              type: array
+              message: Activities
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

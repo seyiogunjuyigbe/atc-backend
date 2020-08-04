@@ -35,6 +35,11 @@
             description:
               type: string
               description: product description
+            marketingExpiryDate:
+              description: marketing expiry date set by vendor 
+              type: date
+            marketingPriority:
+              description: marketing priority set by admin
 
   Products:
     type: array

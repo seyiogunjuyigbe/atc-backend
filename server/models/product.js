@@ -45,6 +45,7 @@ const ProductSchema = new Schema({
   },
   marketingExpiryDate: Date,
   marketingPriority: Number,
+  price: Number
 },
 
   {

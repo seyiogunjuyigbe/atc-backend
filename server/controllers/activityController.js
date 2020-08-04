@@ -173,9 +173,9 @@ module.exports = {
     },
     async fetchAllActivities(req, res) {
         try {
-            let packages = await Activity.find({})
-            if (!packages || packages.length == 0) return success(res, 200, 'No packages created yet');
-            else return success(res, 200, packages)
+            let activities = await Activity.find({})
+            if (!activities || activities.length == 0) return success(res, 200, 'No activities created yet');
+            else return success(res, 200, activities)
 
         } catch (err) {
             return error(res, 500, err.message)
