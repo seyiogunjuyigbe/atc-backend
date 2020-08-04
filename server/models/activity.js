@@ -52,7 +52,8 @@ const activitySchema = new Schema({
   stops: [{
     stop: String,
     meal: String
-  }]
-
+  }],
+  marketingExpiryDate: Date,
+  marketingPriority: Number
 });
 module.exports = mongoose.model('Activity', activitySchema)

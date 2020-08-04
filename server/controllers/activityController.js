@@ -199,6 +199,11 @@ module.exports = {
         } catch (err) {
             return error(res, 500, err.message)
         }
+    },
+    async fetchActivitiesByPriority(req, res) {
+    },
+    async upadteActivityPriority(req, res) {
+
     }
 
 }
