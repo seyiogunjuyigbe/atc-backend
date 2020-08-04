@@ -17,5 +17,7 @@ module.exports = {
   Package,
   Product,
   Subscription,
-  User, State, Country
+  User,
+  State,
+  Country
 };
