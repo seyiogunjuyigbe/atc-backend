@@ -1,5 +1,5 @@
 const mongoose = require( 'mongoose' );
-
+const Cron = require('../../cron')
 
 mongoose.set( 'useFindAndModify' , false );
 
@@ -14,7 +14,8 @@ class db {
   connect( DB_URL ) {
     mongoose.connect( DB_URL , options )
       .then( async () => {
-        console.info( `Successfully connected to ${ DB_URL }` );
+        console.log( `Successfully connected to ${ DB_URL }` );
+        new Cron().productCron()
       } )
       .catch( ( err ) => {
         console.error( `There was a db connection error ${ err }` );
@@ -22,7 +23,6 @@ class db {
       } );
     mongoose.set( 'useCreateIndex' , true );
     const db = mongoose.connection;
-
     db.once( 'disconnected' , () => {
       console.error( `Successfully disconnected from ${ DB_URL }` );
     } );

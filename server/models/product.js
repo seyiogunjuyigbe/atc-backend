@@ -28,6 +28,10 @@ const ProductSchema = new Schema({
   shortName: {
     type: String
   },
+  cycleNumber: { type: Number , required: true},
+  endDate: { type: Date },
+  startDate: { type: Date },
+  statues: { type: String, enum: ["active","wating","expired"]},
   packageID: {
     type: mongoose.Schema.ObjectId,
     ref: 'Package',
