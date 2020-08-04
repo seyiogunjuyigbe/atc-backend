@@ -24,8 +24,12 @@ const activitySchema = new Schema({
   end: Date,
   countries: [{
     type: Schema.Types.ObjectId,
-    ref: "Category"
+    ref: "Country"
   }],
+  product: {
+    ref: "Product",
+    type: Schema.Types.ObjectId
+  },
   adventureCategories: [{
     type: Schema.Types.ObjectId,
     ref: "Category"
