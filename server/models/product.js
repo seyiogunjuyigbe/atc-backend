@@ -42,8 +42,11 @@ const ProductSchema = new Schema({
   },
   description: {
     type: String
-  }
+  },
+  marketingExpiryDate: Date,
+  marketingPriority: Number,
 },
+
   {
     timestamps: true
   }
