@@ -22,20 +22,22 @@ const activitySchema = new Schema({
   hasMeals: String,
   start: Date,
   end: Date,
-  countries: [String],
+  countries: [{
+    type: Schema.Types.ObjectId,
+    ref: "Category"
+  }],
   adventureCategories: [{
-    ref: "Category",
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    ref: "Category"
   }],
   sightCategories: [
     {
-      ref: "Category",
-      type: Schema.Types.ObjectId
+      type: Schema.Types.ObjectId, ref: "Category"
     }
   ],
   mainDestination: {
-    city: String,
-    country: String,
+    city: Schema.Types.ObjectId,
+    country: Schema.Types.ObjectId,
   },
   contents: [{
     type: Schema.Types.ObjectId,

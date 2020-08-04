@@ -55,7 +55,7 @@
         type: string
         description: End date for this activity
       countries:
-        description: Countries related to the activity
+        description: IDs of Countries related to the activity
         type: array
         items:
           type: string
@@ -69,10 +69,10 @@
         type: array
         items:
           type: string
-      mainDestinationCity:
+      cityId:
         type: string
         description: Main destination city
-      mainDestinationCountry:
+      countryId:
         type: string
         description: Main destination country
       contents:
