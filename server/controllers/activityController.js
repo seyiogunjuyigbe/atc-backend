@@ -1,5 +1,5 @@
 const {
-    Activity, Product
+    Activity, Country, State, Product
 } = require('../models');
 const {
     success,
@@ -24,9 +24,9 @@ module.exports = {
             countries,
             adventureCategories,
             sightCategories,
-            mainDestinationCity,
-            mainDestinationCountry,
             marketingExpiryDate,
+            cityId,
+            countryId,
             route,
             stops,
             contents,
@@ -50,6 +50,8 @@ module.exports = {
         }
 
         try {
+            let country = await Country.findById(countryId);
+            let city = await State.findById(cityId)
             let existingPack = await Activity.findOne({
                 title,
                 vendor: req.user._id
@@ -76,25 +78,20 @@ module.exports = {
                     sightCategories,
                     marketingExpiryDate,
                     mainDestination: {
-                        city: mainDestinationCity,
-                        country: mainDestinationCountry
+                        city,
+                        country
                     },
                     route,
                     stops,
                     contents,
                 });
-                if (newActivity) {
-                    newActivity.save((err, activity) => {
-                        if (err) return error(res, 400, err.message)
-                        else {
-                            return success(res, 200, {
-                                message: 'Activity created successfully',
-                                activity
-                            })
-                        }
-                    })
-
-                }
+                let thisproduct = await Product.findById(product)
+                thisproduct.activities.push(newActivity);
+                await thisproduct.save()
+                return success(res, 200, {
+                    message: 'Activity created successfully',
+                    activity: newActivity
+                })
             }
         } catch (err) {
             return error(res, 500, err.message)
@@ -118,14 +115,16 @@ module.exports = {
             countries,
             adventureCategories,
             sightCategories,
-            mainDestinationCity,
-            mainDestinationCountry,
+            cityId,
+            countryId,
             stops,
             contents,
             route,
             marketingExpiryDate
         } = req.body;
         try {
+            let country = await Country.findById(countryId);
+            let city = await State.findById(cityId)
             let thisActivity = await Activity.findById(req.params.activityId);
             if (!thisActivity) return error(res, 404, 'Activity not found')
             else if (String(thisActivity.vendor) !== req.user.id) return error(res, 401, 'You are not authorized to do this')
@@ -147,8 +146,8 @@ module.exports = {
                     adventureCategories,
                     sightCategories,
                     mainDestination: {
-                        city: mainDestinationCity,
-                        country: mainDestinationCountry
+                        city,
+                        country
                     },
                     stops,
                     contents,

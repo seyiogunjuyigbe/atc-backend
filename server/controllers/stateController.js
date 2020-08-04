@@ -4,7 +4,7 @@ module.exports = {
     async fetchState(req, res) {
         let { stateId, countryId } = req.query;
         try {
-            let states = await State.find({ $or: [{ _id: stateId }, { countryId }] });
+            let states = await State.find({ $or: [{ _id: stateId }, { country: countryId }] });
             return success(res, 200, states)
         } catch (err) {
             return error(res, 500, err.message)

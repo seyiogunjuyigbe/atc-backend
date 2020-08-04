@@ -58,7 +58,7 @@
         type: string
         description: Product objectID
       countries:
-        description: Countries related to the activity
+        description: IDs of Countries related to the activity
         type: array
         items:
           type: string
@@ -72,12 +72,12 @@
         type: array
         items:
           type: string
-      mainDestinationCity:
+      cityId:
         type: string
-        description: Main destination city
-      mainDestinationCountry:
+        description: ID of main destination city
+      countryId:
         type: string
-        description: Main destination country
+        description: ID of main destination country
       contents:
         description: Contents within the activities e.g videos, images etc(Takes an array of objectID)
         type: array

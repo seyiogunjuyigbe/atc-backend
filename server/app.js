@@ -15,7 +15,7 @@ const ejs = require('ejs');
 const app = express();
 const db = require('./db/index')
 const PORT = process.env.PORT || 3000;
-const { createStates } = require('./middlewares/country');
+const { createStates } = require('./seeders/country');
 createStates()
 const { MONGO_URL } = process.env
 const {
