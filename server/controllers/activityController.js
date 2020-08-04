@@ -29,7 +29,6 @@ module.exports = {
             route,
             stops,
             contents,
-            productId
         } = req.body;
 
         if (dayNumber && isNaN(Number(dayNumber)) == true) return error(res, 400, 'Number required for number of days')
@@ -50,7 +49,6 @@ module.exports = {
         }
 
         try {
-            let product = await Product.findById(productId)
             let country = await Country.findById(countryId);
             let city = await State.findById(cityId)
             let existingPack = await Activity.findOne({
@@ -84,10 +82,10 @@ module.exports = {
                     route,
                     stops,
                     contents,
-                    productId
                 });
-                product.activities.push(newActivity);
-                await product.save()
+                let thisproduct = await Product.findById(product)
+                thisproduct.activities.push(newActivity);
+                await thisproduct.save()
                 return success(res, 200, {
                     message: 'Activity created successfully',
                     activity
@@ -128,8 +126,6 @@ module.exports = {
             if (!thisActivity) return error(res, 404, 'Activity not found')
             else if (thisActivity.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
             else {
-                let country = await Country.findById(countryId);
-                let city = await State.findById(cityId)
                 thisActivity.set({
                     dayNumber,
                     title,

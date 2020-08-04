@@ -78,9 +78,6 @@
       countryId:
         type: string
         description: ID of main destination country
-      productId:
-        type: string
-        description: ID of product to which activity is attached
       contents:
         description: Contents within the activities e.g videos, images etc(Takes an array of objectID)
         type: array
