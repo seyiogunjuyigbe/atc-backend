@@ -15,7 +15,9 @@ module.exports = class Cron {
                 data.statues = "wating"
                 await product.save();
             }
-            if(moment(data.endDate).isAfter( moment(data.endDate, "DD-MM-YYYY" ).add( data.cycleNumber , 'days' ))) {
+            const current = moment().startOf('day');
+            const given = moment(data.endDate, "YYYY-MM-DD");
+            if(moment.duration(given.diff(current)).asDays()>= data.cycleNumber) {
                 data.statues = "active"
                 data.endDate = moment( new Date() , "DD-MM-YYYY" ).add( data.cycleNumber , 'days' )
                 data.startDate = new Date();
