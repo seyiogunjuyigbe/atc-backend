@@ -88,7 +88,7 @@ module.exports = {
                 await thisproduct.save()
                 return success(res, 200, {
                     message: 'Activity created successfully',
-                    activity
+                    activity: newActivity
                 })
             }
         } catch (err) {
