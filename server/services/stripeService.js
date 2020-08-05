@@ -13,22 +13,20 @@ module.exports = {
           user.stripeCustomerId = customerDetails.id
         }
         await user.save()
+        user = await User.findById(user.id); // to reload
       }
-      let customer = await stripe.customers.retrieve(user.stripeCustomerId)
-      if (customer) {
-        let intent = await stripe.paymentIntents.create({
-          amount,
-          currency,
-          description,
-          customer,
-          metadata: {
-            type: transactableType,
-            id: transactable,
-            ref: transaction.reference
-          }
-        })
-        if (intent) return intent
-      }
+
+      return await stripe.paymentIntents.create({
+        amount,
+        currency,
+        description,
+        customer: user.stripeCustomerId,
+        metadata: {
+          type: transactableType,
+          id: transactable.toString(),
+          ref: transaction.reference
+        }
+      });
     } catch (err) {
       return err
     }
