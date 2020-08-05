@@ -4,7 +4,7 @@
     post:
       summary: Create new product
       description: Create a new product
-      operationId: createMembership
+      operationId: createProduct
       tags:
         - Products
       parameters:
@@ -62,8 +62,8 @@
           description: Authentication token
           required: true
         - in: path
-          name: id
-          description: get data
+          name: productId
+          description: Product ID
           required: true
       responses:
         200:
@@ -95,7 +95,7 @@
           description: Authentication token
           required: true
         - in: path
-          name: id
+          name: productId
           description: product id to update
           required: true
         - in: body
@@ -156,3 +156,72 @@
           schema:
             example:
               message: Product payment initiated successfully.
+  /products/{productId}/priority:
+    put:
+      summary: Update Product Priority (Admin)
+      description: Update a particular product's priority
+      operationId: updateProductPriority
+      tags:
+      - Products
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: productId
+          description: Product id to update
+          required: true
+        - in: body
+          name: priority
+          description: New product priority
+          type: string
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product priority updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /products/priority:
+    get:
+      summary: Fetch home page products
+      description: Fetch home page products
+      operationId: fetchHomePageProducts
+      tags:
+      - Products
+      parameters:
+        - in: query
+          name: sort
+          description: Sort order (asc,desc)
+        - in: query
+          name: category
+          description: Search product category ID
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              type: array
+              message: Products
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

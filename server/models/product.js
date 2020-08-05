@@ -42,16 +42,31 @@ const ProductSchema = new Schema({
   },
   description: {
     type: String
+  },
+  customPrices: [{
+    range: [Number],
+    prices: {
+      vendorPrice: Number,
+      childrenPrice: Number,
+      productPrice: Number,
+      freeMembershipDiscountedPrice: Number,
+      paidMembershipDiscountedPrice: Number,
+      oneOffMembershipFee: Number,
+    }
+  }],
+  marketingExpiryDate: Date,
+  marketingPriority: Number,
+  price: {
+    adult: Number,
+    children: Number,
+    actual: Number
   }
 },
+
   {
     timestamps: true
   }
 );
 const Product = mongoose.model('Product', ProductSchema);
-
 module.exports = Product;
-
-// const
-
 

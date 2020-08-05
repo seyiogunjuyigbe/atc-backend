@@ -21,7 +21,7 @@
               type: boolean
               description: Whether product has airtport transfer feature
             cancellationDaysLimit:
-              type: mumber
+              type: integer
               description: Number of days at which no refund can be processed for product
             name:
               type: string
@@ -35,7 +35,37 @@
             description:
               type: string
               description: product description
-
+            marketingExpiryDate:
+              description: marketing expiry date set by vendor 
+              type: date
+            marketingPriority:
+              type: integer
+              description: marketing priority set by admin
+            adultPrice:
+              type: integer
+              description: adult price for product
+            childrenPrice:
+              type: integer
+              description: children price for product
+            customPrices:
+              type: array
+              items:
+                type: object
+                properties:
+                  range:
+                    type: array
+                    items:
+                      type: integer
+                      description: quantity range
+                  prices:
+                    type: object
+                    properties:
+                      adult:
+                        type: integer
+                        description: Adult price for this range
+                      children:
+                        type: integer
+                        description: Children price for this range
   Products:
     type: array
     items:
