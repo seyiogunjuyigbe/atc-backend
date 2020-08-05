@@ -97,3 +97,9 @@
               type: string
             meal:
               type: string
+      marketingExpiryDate:
+        description: marketing expiry date set by vendor 
+        type: date
+      marketingPriority:
+        description: marketing priority set by admin
+

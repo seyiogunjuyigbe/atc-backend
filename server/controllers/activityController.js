@@ -24,6 +24,7 @@ module.exports = {
             countries,
             adventureCategories,
             sightCategories,
+            marketingExpiryDate,
             cityId,
             countryId,
             route,
@@ -75,6 +76,7 @@ module.exports = {
                     countries,
                     adventureCategories,
                     sightCategories,
+                    marketingExpiryDate,
                     mainDestination: {
                         city,
                         country
@@ -118,13 +120,14 @@ module.exports = {
             stops,
             contents,
             route,
+            marketingExpiryDate
         } = req.body;
         try {
             let country = await Country.findById(countryId);
             let city = await State.findById(cityId)
             let thisActivity = await Activity.findById(req.params.activityId);
             if (!thisActivity) return error(res, 404, 'Activity not found')
-            else if (thisActivity.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
+            else if (String(thisActivity.vendor) !== req.user.id) return error(res, 401, 'You are not authorized to do this')
             else {
                 thisActivity.set({
                     dayNumber,
@@ -149,6 +152,7 @@ module.exports = {
                     stops,
                     contents,
                     route,
+                    marketingExpiryDate
                 });
                 thisActivity.save((err, activity) => {
                     if (err) return error(res, 400, err.message)
@@ -168,9 +172,9 @@ module.exports = {
     },
     async fetchAllActivities(req, res) {
         try {
-            let packages = await Activity.find({})
-            if (!packages || packages.length == 0) return success(res, 200, 'No packages created yet');
-            else return success(res, 200, packages)
+            let activities = await Activity.find({})
+            if (!activities || activities.length == 0) return success(res, 200, 'No activities created yet');
+            else return success(res, 200, activities)
 
         } catch (err) {
             return error(res, 500, err.message)
@@ -178,9 +182,9 @@ module.exports = {
     },
     async fetchActivity(req, res) {
         try {
-            let package = await Activity.findById(req.params.activityId)
-            if (!package) return success(res, 204, 'Activity not found');
-            else return success(res, 200, package)
+            let activity = await Activity.findById(req.params.activityId)
+            if (!activity) return success(res, 204, 'Activity not found');
+            else return success(res, 200, activity)
 
         } catch (err) {
             return error(res, 500, err.message)
@@ -190,11 +194,36 @@ module.exports = {
         try {
             let thisActivity = await Activity.findById(req.params.activityId);
             if (!thisActivity) return error(res, 404, 'Activity not found')
-            else if (package.createdBy !== req.user.id) return error(res, 401, 'You are not authorized to do this')
-            let package = await Activity.findByIdAndRemove(req.params.activityId)
-            if (!package) return success(res, 204, 'Activity not found');
-            else return success(res, 200, "Activity deleted")
-
+            else if (String(thisActivity.vendor) !== req.user.id) return error(res, 401, 'You are not authorized to do this')
+            await Activity.findByIdAndRemove(req.params.activityId)
+            return success(res, 200, "Activity deleted")
+        } catch (err) {
+            return error(res, 500, err.message)
+        }
+    },
+    async upadteActivityPriority(req, res) {
+        const { activityId } = req.params;
+        const { priority } = req.body;
+        if (isNaN(Number(priority)) == true) return error(res, 400, 'Priority must be a valid number')
+        try {
+            let activity = await Activity.findById(activityId);
+            activity.set({ marketingPriority: priority });
+            await activity.save();
+            return success(res, 200, activity)
+        } catch (err) {
+            return error(res, 500, err.message)
+        }
+    },
+    async fetchHomePageActivities(req, res) {
+        const { sort, category } = req.query;
+        if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"')
+        let today = new Date()
+        try {
+            let activities = await Activity.find({ marketingExpiryDate: { $gte: today }, $or: [{}] }).sort({ marketingPriority: sort });
+            if (category) activities = activities.filter(x => {
+                return x.sightCategories.includes(category)
+            })
+            return success(res, 200, activities)
         } catch (err) {
             return error(res, 500, err.message)
         }
