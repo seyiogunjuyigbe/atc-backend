@@ -252,7 +252,8 @@ module.exports = {
         );
       }
 
-      const strategy = req.body.strategy ?
+      const strategy = req.body.strategy &&
+        ['facebook', 'google'].includes(req.body.strategy) ?
         `${req.body.strategy}-token` :
         'local';
 
