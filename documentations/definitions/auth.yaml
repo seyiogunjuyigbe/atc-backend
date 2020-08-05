@@ -18,6 +18,14 @@
       password:
         type: string
         description: user password
+      strategy:
+        type: string
+        description: which auth strategy to use. defaults to local. takes one of [facebook, google, local]
+        enum: [facebook, google, local]
+        example: facebook
+      access_token:
+        type: string
+        description: access_token retrieved from the Facebook / Google client SDKs
     example:
       email: user@example.com
       password: Pas$W0rd
