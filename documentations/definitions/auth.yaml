@@ -29,6 +29,8 @@
     example:
       email: user@example.com
       password: Pas$W0rd
+      strategy: facebook
+      access_token: some random token
      
     required:
       - email
