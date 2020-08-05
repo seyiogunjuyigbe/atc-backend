@@ -44,7 +44,7 @@ exports.passport = () => {
   );
 
   // Login with Google OAuth
-  passport.use(new GoogleTokenStrategy({
+  Passport.use(new GoogleTokenStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET
   },
@@ -74,7 +74,7 @@ exports.passport = () => {
   ));
 
   // Login with Facebook OAuth
-  passport.use(new FacebookTokenStrategy({
+  Passport.use(new FacebookTokenStrategy({
     clientID: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
   },

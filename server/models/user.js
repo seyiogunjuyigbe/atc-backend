@@ -71,6 +71,22 @@ userSchema.pre('save', function saveHook(next) {
   this.password = hash;
   return next();
 });
+
+userSchema.methods.comparePassword = function (password, cb) {
+  if (!this.password && cb) {
+    return cb(new Error('Registration not complete'), false);
+  }
+
+  if (!cb && this.password) {
+    return bcrypt.compareSync(password, this.password);
+  }
+
+  if (cb) {
+    bcrypt.compare(password, this.password, (err, isMatch) => {
+      cb(err, isMatch);
+    });
+  }
+}
 /**
  * Compile to Model
  */

@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const passport = require('passport');
 // const models = require('../models');
 const { createCustomer } = require('../services/stripeService')
 const {
@@ -239,7 +240,7 @@ module.exports = {
     }
   },
 
-  login: async (req, res) => {
+  login: async (req, res, next) => {
     try {
       console.log(req.body)
       if (
@@ -260,7 +261,9 @@ module.exports = {
           try {
             const errored = err || info;
             if (errored) {
-              throw createError(401, errored);
+              return res.status(401).send(
+                responses.error(401, errored),
+              );
             }
 
             await user.updateOne({ lastLoginAt: new Date() });
