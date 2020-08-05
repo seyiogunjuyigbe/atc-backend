@@ -4,7 +4,7 @@
     post:
       summary: Create new product
       description: Create a new product
-      operationId: createMembership
+      operationId: createProduct
       tags:
         - Products
       parameters:
@@ -62,8 +62,8 @@
           description: Authentication token
           required: true
         - in: path
-          name: id
-          description: get data
+          name: productId
+          description: Product ID
           required: true
       responses:
         200:
@@ -95,7 +95,7 @@
           description: Authentication token
           required: true
         - in: path
-          name: id
+          name: productId
           description: product id to update
           required: true
         - in: body

@@ -35,7 +35,7 @@ module.exports = {
       }
       const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
       const productList = req.body.products.map((data) => ({
-        ...data, packageID: createdPackage._id, owner: req.user._id
+        ...data, packageID: createdPackage._id, owner: req.user._id, price: { adult: data.adultPrice, children: data.childrenPrice, actual: calcPrice(data.adultPrice) }
       }))
       const product = await Product.create(productList);
       return res
@@ -67,7 +67,7 @@ module.exports = {
             responses.success(
               200,
               'Record was retreived successfully',
-              product ,
+              { product, prices: calc(product) }
             ) ,
           );
       }
@@ -77,39 +77,47 @@ module.exports = {
         .send(responses.error(500, `Error viewing a product ${error.message}`));
     }
   },
-  listProduct: (req, res) => {
+  listProduct: async (req, res) => {
     var offset = req.query.offset ? req.query.offset : 0;
     var limit = req.query.limit ? req.query.limit : 20;
     var orderBy = req.query.orderBy ? req.query.orderBy : 'id';
-    var order = req.query.order ? req.query.order : 'ASC';
+    var order = req.query.order ? req.query.order : 'asc';
     var ordering = [
       [orderBy, order]
     ];
-
-    Product
-      .find({})
-      .limit(limit)
-      .skip(offset)
+    try {
+      let products = await Product
+        .find({})
+        .limit(limit)
+        .skip(offset)
       // .sort({
       //   ordering
       // })
-      .then(function (product) {
-        Product.find({}).exec((err, products) => {
-          return res
-            .status(200)
-            .send(
-              responses.success(
-                200,
-                'Record was retreived successfully',
-                products ,
-              ) ,
-            );
-        });
+
+      await Product.countDocuments().exec()
+      let result = []
+      products.forEach(product => {
+        result.push({ product, prices: calc(product) })
       })
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was retreived successfully',
+            result ,
+          ) ,
+        );
+
+    } catch (err) {
+      return res.status(500).json({ error: true, message: err.message })
+    }
+
+
   },
   updateProduct: async (req, res) => {
     try {
-      const result = await Product.findByIdAndUpdate(req.params.productId, req.body);
+      const result = await Product.findByIdAndUpdate(req.params.productId, { ...req.body, price: { adult: req.body.adultPrice, children: req.body.childrenPrice, actual: calcPrice(req.body.adultPrice) } });
       result.save()
       return res
         .status(200)
@@ -218,6 +226,19 @@ module.exports = {
     }
   }
 };
-function calcPrice(product) {
-  return (product.price + (0.06 * product.price) + (0.04 * product.price)) * 4
+function calcPrice(adult) {
+  if (adult == undefined || isNaN(Number(adult) == true)) return 0
+  else {
+    return Math.round(((adult + (0.06 * adult) + (0.04 * adult)) * 4))
+  }
+}
+function calc(obj) {
+  return {
+    vendorPrice: obj.price.adult,
+    childrenPrice: obj.price.children,
+    productPrice: obj.price.actual,
+    freeMembershipDiscountedPrice: Math.round(((obj.price.actual / 2) + (obj.price.actual * 0.05))),
+    paidMembershipDiscountedPrice: Math.round((obj.price.actual / 3) + (obj.price.actual * 0.05)),
+    oneOffMembershipFee: 0.21 * obj.price.adult,
+  }
 }

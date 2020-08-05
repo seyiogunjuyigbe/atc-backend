@@ -43,9 +43,17 @@ const ProductSchema = new Schema({
   description: {
     type: String
   },
+  customPrices: [{
+    range: [Number],
+    price: Number
+  }],
   marketingExpiryDate: Date,
   marketingPriority: Number,
-  price: Number
+  price: {
+    adult: Number,
+    children: Number,
+    actual: Number
+  }
 },
 
   {
@@ -53,9 +61,5 @@ const ProductSchema = new Schema({
   }
 );
 const Product = mongoose.model('Product', ProductSchema);
-
 module.exports = Product;
-
-// const
-
 

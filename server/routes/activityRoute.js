@@ -10,7 +10,7 @@ const {
     check
 } = require('express-validator');
 const authenticate = require('../middlewares/authentication');
-const { checkIfAdmin } = require('../middlewares/access')
+const { checkIfAdmin, checkIfVendor } = require('../middlewares/access')
 
 const validate = require('../middlewares/validate');
 const {
