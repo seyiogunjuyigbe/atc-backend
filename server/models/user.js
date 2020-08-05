@@ -31,6 +31,15 @@ const userSchema = mongoose.Schema({
   isActive: {
     type: String
   },
+  facebookId: {
+    type: String
+  },
+  googleId: {
+    type: String
+  },
+  lastLoginAt: {
+    type: Date
+  },
   stripeCustomerId: String,
   role: {
     type: String,
