@@ -45,7 +45,14 @@ const ProductSchema = new Schema({
   },
   customPrices: [{
     range: [Number],
-    price: Number
+    prices: {
+      vendorPrice: Number,
+      childrenPrice: Number,
+      productPrice: Number,
+      freeMembershipDiscountedPrice: Number,
+      paidMembershipDiscountedPrice: Number,
+      oneOffMembershipFee: Number,
+    }
   }],
   marketingExpiryDate: Date,
   marketingPriority: Number,

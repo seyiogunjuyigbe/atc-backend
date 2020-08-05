@@ -57,9 +57,15 @@
                     items:
                       type: integer
                       description: quantity range
-                  price:
-                    type: integer
-                    description: price for this range
+                  prices:
+                    type: object
+                    properties:
+                      adult:
+                        type: integer
+                        description: Adult price for this range
+                      children:
+                        type: integer
+                        description: Children price for this range
   Products:
     type: array
     items:

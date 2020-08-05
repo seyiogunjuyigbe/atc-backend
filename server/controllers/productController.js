@@ -35,7 +35,12 @@ module.exports = {
       }
       const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
       const productList = req.body.products.map((data) => ({
-        ...data, packageID: createdPackage._id, owner: req.user._id, price: { adult: data.adultPrice, children: data.childrenPrice, actual: calcPrice(data.adultPrice) }
+        ...data, packageID: createdPackage._id,
+        owner: req.user._id,
+        price: { adult: data.adultPrice, children: data.childrenPrice, actual: calcPrice(data.adultPrice) },
+        customPrices: data.customPrices.map(price => ({
+          range: price.range, prices: calc(price.prices)
+        }))
       }))
       const product = await Product.create(productList);
       return res
@@ -67,7 +72,7 @@ module.exports = {
             responses.success(
               200,
               'Record was retreived successfully',
-              { product, prices: calc(product) }
+              { product, prices: calc(product.price) }
             ) ,
           );
       }
@@ -97,7 +102,7 @@ module.exports = {
       await Product.countDocuments().exec()
       let result = []
       products.forEach(product => {
-        result.push({ product, prices: calc(product) })
+        result.push({ product, prices: calc(product.price) })
       })
       return res
         .status(200)
@@ -117,7 +122,18 @@ module.exports = {
   },
   updateProduct: async (req, res) => {
     try {
-      const result = await Product.findByIdAndUpdate(req.params.productId, { ...req.body, price: { adult: req.body.adultPrice, children: req.body.childrenPrice, actual: calcPrice(req.body.adultPrice) } });
+      const result = await Product.findByIdAndUpdate(req.params.productId, {
+        ...req.body,
+        price:
+          { adult: req.body.adultPrice, children: req.body.childrenPrice, actual: calcPrice(req.body.adultPrice) },
+        
+      });
+      if(req.body.customPrices.length >=1){
+        result.set({
+          customPrices: req.body.customPrices.map(price => ({
+            range: price.range, prices: calc(price.prices)
+          }))})
+      }
       result.save()
       return res
         .status(200)
@@ -234,11 +250,11 @@ function calcPrice(adult) {
 }
 function calc(obj) {
   return {
-    vendorPrice: obj.price.adult,
-    childrenPrice: obj.price.children,
-    productPrice: obj.price.actual,
-    freeMembershipDiscountedPrice: Math.round(((obj.price.actual / 2) + (obj.price.actual * 0.05))),
-    paidMembershipDiscountedPrice: Math.round((obj.price.actual / 3) + (obj.price.actual * 0.05)),
-    oneOffMembershipFee: 0.21 * obj.price.adult,
+    vendorPrice: obj.adult,
+    childrenPrice: obj.children,
+    productPrice: calcPrice(obj.adult),
+    freeMembershipDiscountedPrice: Math.round(((calcPrice(obj.adult) / 2) + (calcPrice(obj.adult) * 0.05))) || 0,
+    paidMembershipDiscountedPrice: Math.round((calcPrice(obj.adult) / 3) + (calcPrice(obj.adult) * 0.05)) || 0,
+    oneOffMembershipFee: 0.21 * obj.adult || 0,
   }
 }
