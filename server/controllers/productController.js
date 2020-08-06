@@ -11,7 +11,7 @@ const {
 const Transaction = require('../models/transaction');
 const { createReference } = require('../services/paymentService');
 const StripeService = require('../services/stripeService');
-const moment = require("moment")
+
 module.exports = {
   create: async (req, res) => {
     const result = validationResult(req);
@@ -34,7 +34,6 @@ module.exports = {
           .send(responses.error(400, 'Package already exist'));
       }
       const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
-      const endDate = moment( new Date() , "DD-MM-YYYY" ).add( req.body.sellingCycle , 'days' )
       const productList = req.body.products.map((data) => ({
         ...data, packageID: createdPackage._id,
         owner: req.user._id,
@@ -243,3 +242,19 @@ module.exports = {
     }
   }
 };
+function calcPrice(adult) {
+  if (adult == undefined || isNaN(Number(adult) == true)) return 0
+  else {
+    return Math.round(((adult + (0.06 * adult) + (0.04 * adult)) * 4))
+  }
+}
+function calc(obj) {
+  return {
+    vendorPrice: obj.adult,
+    childrenPrice: obj.children,
+    productPrice: calcPrice(obj.adult),
+    freeMembershipDiscountedPrice: Math.round(((calcPrice(obj.adult) / 2) + (calcPrice(obj.adult) * 0.05))) || 0,
+    paidMembershipDiscountedPrice: Math.round((calcPrice(obj.adult) / 3) + (calcPrice(obj.adult) * 0.05)) || 0,
+    oneOffMembershipFee: 0.21 * obj.adult || 0,
+  }
+}
