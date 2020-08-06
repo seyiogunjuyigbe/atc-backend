@@ -36,8 +36,12 @@ module.exports = {
       const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
       const endDate = moment( new Date() , "DD-MM-YYYY" ).add( req.body.sellingCycle , 'days' )
       const productList = req.body.products.map((data) => ({
-        ...data, packageID: createdPackage._id, owner: req.user._id, endDate, sellingCycle:req.body.sellingCycle,
-        watingCycle:req.body.watingCycle
+        ...data, packageID: createdPackage._id,
+        owner: req.user._id,
+        price: { adult: data.adultPrice, children: data.childrenPrice, actual: calcPrice(data.adultPrice) },
+        customPrices: data.customPrices.map(price => ({
+          range: price.range, prices: calc(price.prices)
+        }))
       }))
       const product = await Product.create(productList);
       return res
@@ -69,7 +73,7 @@ module.exports = {
             responses.success(
               200,
               'Record was retreived successfully',
-              product ,
+              { product, prices: calc(product.price) }
             ) ,
           );
       }
@@ -79,39 +83,58 @@ module.exports = {
         .send(responses.error(500, `Error viewing a product ${error.message}`));
     }
   },
-  listProduct: (req, res) => {
+  listProduct: async (req, res) => {
     var offset = req.query.offset ? req.query.offset : 0;
     var limit = req.query.limit ? req.query.limit : 20;
     var orderBy = req.query.orderBy ? req.query.orderBy : 'id';
-    var order = req.query.order ? req.query.order : 'ASC';
+    var order = req.query.order ? req.query.order : 'asc';
     var ordering = [
       [orderBy, order]
     ];
-
-    Product
-      .find({})
-      .limit(limit)
-      .skip(offset)
+    try {
+      let products = await Product
+        .find({})
+        .limit(limit)
+        .skip(offset)
       // .sort({
       //   ordering
       // })
-      .then(function (product) {
-        Product.find({}).exec((err, products) => {
-          return res
-            .status(200)
-            .send(
-              responses.success(
-                200,
-                'Record was retreived successfully',
-                products ,
-              ) ,
-            );
-        });
+
+      await Product.countDocuments().exec()
+      let result = []
+      products.forEach(product => {
+        result.push({ product, prices: calc(product.price) })
       })
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was retreived successfully',
+            result ,
+          ) ,
+        );
+
+    } catch (err) {
+      return res.status(500).json({ error: true, message: err.message })
+    }
+
+
   },
   updateProduct: async (req, res) => {
     try {
-      const result = await Product.findByIdAndUpdate(req.params.productId, req.body);
+      const result = await Product.findByIdAndUpdate(req.params.productId, {
+        ...req.body,
+        price:
+          { adult: req.body.adultPrice, children: req.body.childrenPrice, actual: calcPrice(req.body.adultPrice) },
+
+      });
+      if(req.body.customPrices.length >=1){
+        result.set({
+          customPrices: req.body.customPrices.map(price => ({
+            range: price.range, prices: calc(price.prices)
+          }))})
+      }
       result.save()
       return res
         .status(200)
@@ -192,4 +215,31 @@ module.exports = {
         .send(responses.error(500, `Error updating an record ${err.message}`));
     }
   },
+  async updateProductPriority(req, res) {
+    const { productId } = req.params;
+    const { priority } = req.body;
+    if (isNaN(Number(priority)) == true) return error(res, 400, 'Priority must be a valid number')
+    try {
+      let product = await Product.findById(productId);
+      product.set({ marketingPriority: priority });
+      await product.save();
+      return success(res, 200, product)
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
+  },
+  async fetchHomePageProducts(req, res) {
+    const { sort, category } = req.query;
+    if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"')
+    let today = new Date()
+    try {
+      let products = await Product.find({ marketingExpiryDate: { $gte: today }, $or: [{}] }).sort({ marketingPriority: sort });
+      if (category) products = products.filter(x => {
+        return x.sightCategories.includes(category)
+      })
+      return success(res, 200, products)
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
+  }
 };
