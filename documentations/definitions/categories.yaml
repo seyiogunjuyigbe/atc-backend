@@ -15,10 +15,10 @@
         type: string
         description: Category type (adventure or top-sight)
       contents:
-        description: Contents within the category e.g videos, images etc(Takes an array of objectID)
+        description: Contents within the category e.g videos, images etc
         type: array
         items:
-          type: string
+          type: file
       occurrence:
         type: string
         enum: [common, rare, occasional]
