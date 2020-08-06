@@ -29,7 +29,6 @@ module.exports = {
                         return file.path
                     })
                 }
-                console.log(contents)
                 let category = await Category.create({
                     name,
                     parentId,
@@ -55,11 +54,16 @@ module.exports = {
             let category = await Category.findByIdAndUpdate(req.params.categoryId, {
                 ...req.body
             });
-            if (!category) return success(res, 204, 'Category not found');
-            else {
-                category.save()
-                return success(res, 200, category)
+            let contents = []
+            if (req.files.length > 0) {
+                contents = req.files.map(file => {
+                    return file.path
+                })
+                category.set({ contents })
             }
+            await category.save()
+            return success(res, 200, category)
+
         } catch (err) {
             return error(res, 500, err.message)
         }
