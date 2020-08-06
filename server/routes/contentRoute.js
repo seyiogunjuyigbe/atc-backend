@@ -1,17 +1,12 @@
 const router = require("express").Router();
-const {
-    createContent,
+const { createContent,
     fetchContent,
     deleteContent,
     fetchAllContent,
 } = require("../controllers/contentController");
 const authenticate = require('../middlewares/authentication')
-const {
-    check
-} = require('express-validator');
-const {
-    parser
-} = require('../middlewares/multer');
+const { check } = require('express-validator');
+const { parser } = require('../middlewares/multer');
 const getJWT = require('../middlewares/authentication')
 const validate = require('../middlewares/validate');
 

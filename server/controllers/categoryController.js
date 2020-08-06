@@ -18,30 +18,28 @@ module.exports = {
             description,
             type,
             occurrence,
-            contents,
         } = req.body;
         try {
-            let existingCateg = await Category.findOne({
-
-                name: name.toLowerCase()
-            })
+            let existingCateg = await Category.findOne({ name: name.toLowerCase() })
             if (existingCateg) return error(res, 409, 'Category ( ' + name + ") already exists");
             else {
+                let contents = []
+                if (req.files.length > 0) {
+                    contents = req.files.map(file => {
+                        return file.path
+                    })
+                }
+                console.log(contents)
                 let category = await Category.create({
                     name,
                     parentId,
                     description,
                     type,
                     occurrence,
-                    contents,
+                    contents
                 });
-                category.save((err, newCategory) => {
-                    return success(res, 200, {
-                        success: true,
-                        category: newCategory
-                    })
-                })
-
+                await category.save();
+                return success(res, 200, { success: true, category })
             }
         } catch (err) {
             return error(res, 500, err.message)

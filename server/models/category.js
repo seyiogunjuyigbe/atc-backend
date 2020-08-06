@@ -17,10 +17,7 @@ const categorySchema = new Schema({
   name: {
     type: String
   },
-  contents: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Content',
-  }],
+  contents: [String],
   type: {
     type: String,
     enum: ['adventure', 'top-sight']
