@@ -21,7 +21,7 @@ const { createDefaultMembersip } = require('./seeders/membership')
 const { passport } = require('./services/passport');
 createStates();
 createDefaultMembersip()
-// passport();
+passport();
 const { MONGO_URL } = process.env
 const {
   loadDefinitions,

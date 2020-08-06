@@ -1,8 +1,7 @@
-const {
-  Membership
-} = require('../models/index');
+const { Membership, User } = require('../models/index');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
+const { success, error } = require('../middlewares/response')
 const {
   check,
   validationResult
@@ -30,7 +29,7 @@ module.exports = {
       });
       if (membership) {
         const memberships = await Membership.create(req.body);
-        if (memberhips) {
+        if (memberships) {
           memberships.save()
           return res
             .status(200)
@@ -149,6 +148,61 @@ module.exports = {
             responses.success(200, 'Membership was deleted successfully', membership)
           );
 
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
+  },
+  async subscribeToMembership(req, res) {
+    const { membershipId } = req.body
+    try {
+      let membership = await Membership.findById(membershipId);
+      let user = await User.findById(req.user.id).populate('memberships');
+      let { memberships } = user;
+      let checkIfFree = memberships.find(x => {
+        return x.type == "default"
+      });
+      let checkIfOneOff = memberships.filter(x => {
+        return x.type == "one-off"
+      })
+      let checkIfAnnual = memberships.find(x => {
+        return x.type == "annual"
+      })
+      if (checkIfFree) {
+        // if current plan is free, remove free from array and overrride with plan
+        if (membership.type == "default") {
+          return error(res, 409, 'User already subscribed to free membership')
+        } else {
+          memberships.splice(memberships.indexOf(checkIfFree), 1);
+          memberships.push(membership)
+        }
+      }
+      if (checkIfOneOff) {
+        // if  plan is a one-off membrship and current plans are one-off membeships, add membership to array;
+        if (membership.type == "one-off") memberships.push(membership)
+        // if plan is an annual plan, and current plan is/are one-offs, override with  annual,
+        else if (membership.type == "annual") {
+          memberships.length = 0;
+          memberships.push(membership)
+        }
+        else {
+          return error(res, 409, 'User already subscribed to one-off membership')
+        }
+      }
+      if (checkIfAnnual) {
+        // if plan is one-off and current plan is annual, retain annual
+        if (membership.type == "one-off") {
+          return error(res, 409, 'User already subscribed to annual membership')
+        } else if (membership.type == "annual") {
+          // if plan is annual and current plan is annial. override with recent
+          memberships.splice(memberships.indexOf(checkIfAnnual), 1);
+          memberships.push(membership)
+        }
+        else {
+          return error(res, 409, 'User already subscribed to annual membership')
+        }
+      }
+      await user.save();
+      return success(res, 200, { message: "Subscription successful", user })
     } catch (err) {
       return error(res, 500, err.message)
     }
