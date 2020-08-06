@@ -1,4 +1,4 @@
-const { Membership, User } = require('../models/index');
+const { Membership, User, Transaction } = require('../models/index');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response')
@@ -6,9 +6,10 @@ const {
   check,
   validationResult
 } = require('express-validator');
-
+const { createReference } = require('../services/paymentService');
+const StripeService = require('../services/stripeService');
 module.exports = {
-  create: async (res, req) => {
+  create: async (req, res) => {
     const result = validationResult(req);
     const hasErrors = !result.isEmpty();
 
@@ -27,8 +28,8 @@ module.exports = {
       const membership = await Membership.findOne({
         name: req.body.name
       });
-      if (membership) {
-        const memberships = await Membership.create(req.body);
+      if (!membership) {
+        const memberships = await Membership.create({ ...req.body, createdBy: req.user.id });
         if (memberships) {
           memberships.save()
           return res
@@ -61,7 +62,7 @@ module.exports = {
       return res.status(500).send(responses.error(500, `Error creating a user ${error.message}`));
     }
   },
-  viewMembership: async (res, req) => {
+  viewMembership: async (req, res) => {
     try {
       const membership = await Membership.findById(req.params.membershipId);
       if (!membership) {
@@ -85,7 +86,7 @@ module.exports = {
         .send(responses.error(500, `Error viewing a user ${error.message}`));
     }
   },
-  listMembership: (res, req) => {
+  listMembership: (req, res) => {
     var offset = req.query.offset ? req.query.offset : 0;
     var limit = req.query.limit ? req.query.limit : 20;
     var orderBy = req.query.orderBy ? req.query.orderBy : 'id';
@@ -116,7 +117,7 @@ module.exports = {
 
       });
   },
-  updateMembership: async (res, req) => {
+  updateMembership: async (req, res) => {
     try {
       const result = await Membership.findByIdAndpdate(req.params.membershipId, req.body);
       result.save()
@@ -131,7 +132,7 @@ module.exports = {
         .send(responses.error(500, `Error updating an record ${err.message}`));
     }
   },
-  deleteMembership: async (res, req) => {
+  deleteMembership: async (req, res) => {
     try {
       const membership = await Membership.findByIdAndDelete(req.params.membershipId);
       if (!membership)
@@ -148,6 +149,43 @@ module.exports = {
             responses.success(200, 'Membership was deleted successfully', membership)
           );
 
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
+  },
+  async purchaseMembership(req, res) {
+    try {
+      const membership = await Membership.findById(req.params.membershipId);
+      if (!membership) {
+        return error(res, 404, 'Membership not found');
+      }
+
+      const newTransaction = await Transaction.create({
+        reference: createReference('payment'),
+        amount: membership.cost,
+        currency: req.body.currency || 'usd',
+        initiatedBy: req.user.id,
+        customer: req.body.customer || req.user.id, // this allows admin make a test purchase for a customer on her behalf
+        transactableType: 'Membership',
+        transactable: membership.id,
+        description: `Payment for ${membership.name}`,
+      });
+
+      const paymentIntent = await StripeService.createPaymentIntent(
+        newTransaction, req.user
+      ); // TODO: modify this to match when the stripe-service method is completed
+
+      if (paymentIntent && paymentIntent.id) {
+        newTransaction.stripePaymentId = paymentIntent.id;
+
+        await newTransaction.save()
+      }
+      return success(res, 200,
+        {
+          message: 'Product payment initiated successfully',
+          clientSecret: paymentIntent.client_secret,
+          transactionId: newTransaction.id,
+        })
     } catch (err) {
       return error(res, 500, err.message)
     }

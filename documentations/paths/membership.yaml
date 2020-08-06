@@ -29,11 +29,6 @@
       operationId: listMemberships
       tags:
         - Memberships
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
       responses:
         200:
           description: Success
@@ -57,10 +52,6 @@
       tags:
         - Memberships
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
         - in: path
           name: id
           description: get data
