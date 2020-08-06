@@ -153,7 +153,7 @@ module.exports = {
     }
   },
   async subscribeToMembership(req, res) {
-    const { membershipId } = req.body
+    const { membershipId } = req.params;
     try {
       let membership = await Membership.findById(membershipId);
       let user = await User.findById(req.user.id).populate('memberships');

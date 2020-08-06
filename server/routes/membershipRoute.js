@@ -10,7 +10,7 @@ membershipRoute.get("/", membershipCrl.listMembership);
 membershipRoute.put("/:membershipId", membershipCrl.updateMembership);
 membershipRoute.get("/:membershipId", membershipCrl.viewMembership);
 membershipRoute.delete("/:membershipId", membershipCrl.deleteMembership);
-membershipRoute.post("/subscribe", authenticate, membershipCrl.subscribeToMembership)
+membershipRoute.put("/:membershipId/subscribe", authenticate, membershipCrl.subscribeToMembership)
 
 
 
