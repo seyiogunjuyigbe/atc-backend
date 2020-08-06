@@ -1,0 +1,170 @@
+# Review Paths
+  /members_review/:
+    post:
+      summary: Members adding reviews
+      description: Members adding reviews
+      operationId: addReviews
+      tags:
+        - ActivityReviews
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Review details
+          required: true
+          schema:
+            $ref: '#/definitions/MemberReview'
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Your Member Review was successfully posted.
+    get:
+      summary: View all reviews
+      description: Display all member reviews
+      operationId: listReviews
+      tags:
+        - ActivityReviews
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: query
+          name: limit
+          required: true
+        - in: query
+          name: offset
+      responses:
+        200:
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MemberReviews'
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /members_review/{memberReviewId}:
+    get:
+      summary: Get a single member review
+      operationId: viewReview
+      tags:
+        - ActivityReviews
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: memberReviewId
+          description: get data
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: object
+            $ref: '#/definitions/MemberReviews'
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    put:
+      summary: Update Review
+      description: Update a particular Review
+      operationId: updateReview
+      tags:
+        - ActivityReviews
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: memberReviewId
+          description: Review id to update
+          required: true
+        - in: body
+          name: payload
+          description: Review data to update
+          schema:
+            $ref: '#/definitions/MemberReview'
+
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Review data successfully updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    delete:
+      summary: Update Review
+      description: Update a particular Review
+      operationId: updateReview
+      tags:
+        - ActivityReviews
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: memberReviewId
+          description: Review id to delete
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Review data successfully updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+
+

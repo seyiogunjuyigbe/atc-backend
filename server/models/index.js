@@ -1,5 +1,6 @@
 const Category = require('./category')
 const Activity = require('./activity')
+const MemberReview = require('./memberReview')
 const Content = require('./content')
 const Membership = require('./membership')
 const Package = require('./package')
@@ -19,5 +20,6 @@ module.exports = {
   Subscription,
   User,
   State,
-  Country
+  Country,
+  MemberReview
 };

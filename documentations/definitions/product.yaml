@@ -1,4 +1,4 @@
-  # Product Definitions
+# Product Definitions
   Product:
     type: object
     properties:
@@ -16,7 +16,7 @@
       watingCycle:
         type: number
         description: number of day the produce have to wait before going back to the selling cycle
-        required: true  
+        required: true
       products:
         type: array
         items:
@@ -64,7 +64,7 @@
         watingCycle:
           type: number
           description: number of day the produce have to wait before going back to the selling cycle
-          required: true  
+          required: true
         endDate:
           type: string
           description: End date for product life cycle
@@ -72,9 +72,9 @@
           type: string
           description: start date for the products life cycle for the first or current cycle
         statues:
-           type: string
-           enum: [active, wating, expired]
-           description: current status of life cycle
+          type: string
+          enum: [active, wating, expired]
+          description: current status of life cycle
         isMainProduct:
           type: boolean
           description: check if its Main product
@@ -94,8 +94,46 @@
           type: string
           description: product description
 
-
-# cycleNumber
-# endDate
-# startDate
-# statues
+  singleProducts:
+    type: object
+    properties:
+      type:
+        type: string
+        description: product type
+        enum: [main, upsell, downsell, order-bump, cross-sell]
+      sellingCycle:
+        type: number
+        description: number of days that the product will sell
+        required: true
+      watingCycle:
+        type: number
+        description: number of day the produce have to wait before going back to the selling cycle
+        required: true
+      endDate:
+        type: string
+        description: End date for product life cycle
+      startDate:
+        type: string
+        description: start date for the products life cycle for the first or current cycle
+      statues:
+        type: string
+        enum: [active, wating, expired]
+        description: current status of life cycle
+      isMainProduct:
+        type: boolean
+        description: check if its Main product
+      hasAirportTransfer:
+        type: boolean
+        description: Whether product has airtport transfer feature
+      name:
+        type: string
+        description: product name
+      imageUrl:
+        type: string
+        description: imageUrl
+      packageID:
+        type: string
+        description: id of the package
+      description:
+        type: string
+        description: product description

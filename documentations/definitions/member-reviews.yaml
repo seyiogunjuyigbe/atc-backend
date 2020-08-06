@@ -1,0 +1,55 @@
+# Member reviews Definitions
+  MemberReview:
+    type: object
+    properties:
+      productId:
+        type: string
+        description: id of the product that owns the activity
+        required: true
+      video:
+        type: string
+        description: path to video file
+      image:
+        type: string
+        description: path to image file
+      activityId:
+        type: string
+        description: ID of the activity that the comment belongs to
+      comment:
+        type: string
+        description: user id of the user
+      rating:
+        type: number
+        description: members rating for an activity [1-5]
+
+# member get review
+  MemberReviews:
+    type: object
+    properties:
+      product:
+        type: object
+        $ref: "#/definitions/singleProducts"
+      member:
+        type: object
+        $ref: "#/definitions/Membership"
+      activity:
+        type: object
+        $ref: "#/definitions/Activity"
+      comment:
+        type: string
+        description: user id of the user
+      video:
+        type: string
+        description: path to video file
+      image:
+        type: string
+        description: path to image file
+      rating:
+        type: number
+        description: members rating for an activity [1-5]
+      createdAt:
+        type: string
+        description: Date the review was created
+      updatedAt:
+        type: string
+        description: last date updated
