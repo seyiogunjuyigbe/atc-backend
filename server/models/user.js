@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { Schema } = mongoose
 //= ============================================================================
 /**
  * user Schema
  */
 //= ============================================================================
-const userSchema = mongoose.Schema({
+const userSchema = new Schema({
   firstName: {
     type: String
   },
@@ -41,6 +42,7 @@ const userSchema = mongoose.Schema({
     type: Date
   },
   stripeCustomerId: String,
+  memberships: [{ type: Schema.Types.ObjectId, ref: "Membership" }],
   role: {
     type: String,
     enum: ['admin', 'vendor', 'customer']

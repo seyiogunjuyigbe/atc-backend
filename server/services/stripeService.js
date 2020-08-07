@@ -51,5 +51,23 @@ module.exports = {
     } catch (err) {
       return err
     }
+  },
+  async addVendorAccount(user, code) {
+    try {
+      let response = await stripe.oauth.token({
+        grant_type: 'authorization_code',
+        code
+      })
+      var connected_account_id = response.stripe_user_id;
+      saveAccountId(connected_account_id);
+      // Render some HTML or redirect to a different page.
+      return res.status(200).json({ success: true });
+    } catch (err) {
+      if (err.type === 'StripeInvalidGrantError') {
+        return res.status(400).json({ error: 'Invalid authorization code: ' + code });
+      } else {
+        return res.status(500).json({ error: 'An unknown error occurred.' });
+      }
+    }
   }
 }

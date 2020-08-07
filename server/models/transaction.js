@@ -52,7 +52,7 @@ const TransactionSchema = new Schema({
   vendor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    // required: true,
   },
   /* card: {
     type: mongoose.Schema.Types.ObjectId,

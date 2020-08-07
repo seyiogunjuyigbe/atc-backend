@@ -1,15 +1,15 @@
-const {
-  Membership
-} = require('../models/index');
+const { Membership, User, Transaction } = require('../models/index');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
+const { success, error } = require('../middlewares/response')
 const {
   check,
   validationResult
 } = require('express-validator');
-
+const { createReference } = require('../services/paymentService');
+const StripeService = require('../services/stripeService');
 module.exports = {
-  create: async (res, req) => {
+  create: async (req, res) => {
     const result = validationResult(req);
     const hasErrors = !result.isEmpty();
 
@@ -28,9 +28,9 @@ module.exports = {
       const membership = await Membership.findOne({
         name: req.body.name
       });
-      if (membership) {
-        const memberships = await Membership.create(req.body);
-        if (memberhips) {
+      if (!membership) {
+        const memberships = await Membership.create({ ...req.body, createdBy: req.user.id });
+        if (memberships) {
           memberships.save()
           return res
             .status(200)
@@ -62,7 +62,7 @@ module.exports = {
       return res.status(500).send(responses.error(500, `Error creating a user ${error.message}`));
     }
   },
-  viewMembership: async (res, req) => {
+  viewMembership: async (req, res) => {
     try {
       const membership = await Membership.findById(req.params.membershipId);
       if (!membership) {
@@ -86,7 +86,7 @@ module.exports = {
         .send(responses.error(500, `Error viewing a user ${error.message}`));
     }
   },
-  listMembership: (res, req) => {
+  listMembership: (req, res) => {
     var offset = req.query.offset ? req.query.offset : 0;
     var limit = req.query.limit ? req.query.limit : 20;
     var orderBy = req.query.orderBy ? req.query.orderBy : 'id';
@@ -117,7 +117,7 @@ module.exports = {
 
       });
   },
-  updateMembership: async (res, req) => {
+  updateMembership: async (req, res) => {
     try {
       const result = await Membership.findByIdAndpdate(req.params.membershipId, req.body);
       result.save()
@@ -132,7 +132,7 @@ module.exports = {
         .send(responses.error(500, `Error updating an record ${err.message}`));
     }
   },
-  deleteMembership: async (res, req) => {
+  deleteMembership: async (req, res) => {
     try {
       const membership = await Membership.findByIdAndDelete(req.params.membershipId);
       if (!membership)
@@ -152,5 +152,78 @@ module.exports = {
     } catch (err) {
       return error(res, 500, err.message)
     }
-  }
+  },
+  async purchaseMembership(req, res) {
+    var subscription;
+    try {
+      const membership = await Membership.findById(req.params.membershipId);
+      if (!membership) {
+        return error(res, 404, 'Membership not found');
+      }
+      if (membership.type == "default") {
+        return error(res, 409, 'User already subscribed to free membership')
+      }
+      let user = await User.findById(req.user.id).populate('memberships');
+      let { memberships } = user;
+      let checkIfFree = memberships.find(x => {
+        return x.type == "default"
+      });
+      let checkIfOneOff = memberships.filter(x => {
+        return x.type == "one-off"
+      })
+      let checkIfAnnual = memberships.find(x => {
+        return x.type == "annual"
+      })
+      if (checkIfFree) {
+        // if current plan is free, remove free from array and overrride with plan
+        subscription = membership
+      }
+      else if (checkIfOneOff) {
+        // if  plan is a one-off membrship and current plans are one-off membeships, add membership to array;
+        if (membership.type == "one-off" || membership.type == "annual") subscription = membership
+        else {
+          return error(res, 409, 'User already subscribed to one-off membership')
+        }
+      }
+      if (checkIfAnnual) {
+        if (membership.type == "annual") {
+          subscription = membership
+        }
+        else {
+          return error(res, 409, 'User already subscribed to annual membership')
+        }
+      }
+      else {
+        subscription = membership
+      }
+      const newTransaction = await Transaction.create({
+        reference: createReference('payment'),
+        amount: subscription.cost,
+        currency: req.body.currency || 'usd',
+        initiatedBy: req.user.id,
+        customer: req.body.customer || req.user.id,
+        transactableType: 'Membership',
+        transactable: subscription.id,
+        description: `Payment for ${subscription.name}`,
+      });
+
+      const paymentIntent = await StripeService.createPaymentIntent(
+        newTransaction, req.user
+      );
+
+      if (paymentIntent && paymentIntent.id) {
+        newTransaction.stripePaymentId = paymentIntent.id;
+
+        await newTransaction.save()
+      }
+      return success(res, 200,
+        {
+          message: 'Membership payment initiated successfully',
+          clientSecret: paymentIntent.client_secret,
+          transactionId: newTransaction.id,
+        })
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
+  },
 };

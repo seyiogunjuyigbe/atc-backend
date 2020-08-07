@@ -29,11 +29,6 @@
       operationId: listMemberships
       tags:
         - Memberships
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
       responses:
         200:
           description: Success
@@ -57,12 +52,8 @@
       tags:
         - Memberships
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
         - in: path
-          name: id
+          name: membershipId
           description: get data
           required: true
       responses:
@@ -95,7 +86,7 @@
           description: Authentication token
           required: true
         - in: path
-          name: id
+          name: membershipId
           description: Membership id to update
           required: true
         - in: body
@@ -125,4 +116,44 @@
           schema:
             example:
               message: An unexpected error occured
+  /memberships/{membershipId}/purchase:
+    post:
+      summary: Purchase Membership
+      operationId: purchaseMembership
+      tags:
+        - Memberships
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: membershipId
+          description: Membership ID
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Product payment initiated successfully
+              clientSecret: 
+                type: string 
+                example: payment_intent_client_secret,
+              transactionId: 
+                type: string 
+                example: new_transaction_id,
 
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
