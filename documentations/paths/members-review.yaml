@@ -174,8 +174,9 @@
         200:
           description: success
           schema:
-            type: object
-            $ref: '#/definitions/MemberReviews'
+            type: array
+            items:
+             $ref: '#/definitions/MemberReviews'
 
         403:
           description: Not authorized
