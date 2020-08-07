@@ -35,6 +35,10 @@
           name: Authorization
           description: Authentication token
           required: true
+        - in: query
+          name: status
+          description: getting params by filter
+          enum: [active, canceled, paused, waiting, expired]
       responses:
         200:
           description: Success
@@ -217,6 +221,39 @@
             example:
               type: array
               message: Products
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /products/product_cycle/{productId}:
+    get:
+      summary: Get a single product life cycle
+      operationId: viewProduct
+      tags:
+        - Products
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: productId
+          description: Product ID
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProductLifeCycle'
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
         500:
           description: Unexpected server error
           schema:

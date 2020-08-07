@@ -2,21 +2,15 @@
   Product:
     type: object
     properties:
-      length:
-        type: number
-        require: true
-        description: package durations
       packageName:
         type: string
         description: package name
       sellingCycle:
         type: number
-        description: number of days that the product will sell
-        required: true
-      watingCycle:
+        description: number of day the product will sell
+      waitingCycle:
         type: number
-        description: number of day the produce have to wait before going back to the selling cycle
-        required: true
+        description: number of day the product will wait before it gose back into the selling cycle
       products:
         type: array
         items:
@@ -33,7 +27,7 @@
               type: boolean
               description: Whether product has airtport transfer feature
             cancellationDaysLimit:
-              type: number
+              type: integer
               description: Number of days at which no refund can be processed for product
             name:
               type: string
@@ -48,7 +42,7 @@
               type: string
               description: product description
             marketingExpiryDate:
-              description: marketing expiry date set by vendor
+              description: marketing expiry date set by vendor 
               type: date
             marketingPriority:
               type: integer
@@ -83,28 +77,16 @@
     items:
       type: object
       properties:
+        sellingCycle:
+          type: number
+          description: number of day the product will sell
+        waitingCycle:
+          type: number
+          description: number of day the product will wait before it gose back into the selling cycle
         type:
           type: string
           description: product type
           enum: [main, upsell, downsell, order-bump, cross-sell]
-        sellingCycle:
-          type: number
-          description: number of days that the product will sell
-          required: true
-        watingCycle:
-          type: number
-          description: number of day the produce have to wait before going back to the selling cycle
-          required: true
-        endDate:
-          type: string
-          description: End date for product life cycle
-        startDate:
-          type: string
-          description: start date for the products life cycle for the first or current cycle
-        statues:
-          type: string
-          enum: [active, wating, expired]
-          description: current status of life cycle
         isMainProduct:
           type: boolean
           description: check if its Main product
@@ -124,46 +106,28 @@
           type: string
           description: product description
 
-  singleProducts:
+  ProductLifeCycle:
     type: object
     properties:
-      type:
+      _id:
         type: string
-        description: product type
-        enum: [main, upsell, downsell, order-bump, cross-sell]
-      sellingCycle:
-        type: number
-        description: number of days that the product will sell
-        required: true
-      watingCycle:
-        type: number
-        description: number of day the produce have to wait before going back to the selling cycle
-        required: true
-      endDate:
+        description: cycle id
+      product:
         type: string
-        description: End date for product life cycle
+        description: id of the product that owns the cycle
       startDate:
         type: string
-        description: start date for the products life cycle for the first or current cycle
-      statues:
+        description: cycle start page
+      endDate:
         type: string
-        enum: [active, wating, expired]
-        description: current status of life cycle
-      isMainProduct:
-        type: boolean
-        description: check if its Main product
-      hasAirportTransfer:
-        type: boolean
-        description: Whether product has airtport transfer feature
-      name:
+        description: cycle start page
+      sellingCycle:
+        type: number
+        description: number of day the product will sell
+      waitingCycle:
+        type: number
+        description: number of day the product will wait before it gose back into the selling cycle
+      status:
         type: string
-        description: product name
-      imageUrl:
-        type: string
-        description: imageUrl
-      packageID:
-        type: string
-        description: id of the package
-      description:
-        type: string
-        description: product description
+        description: current status of the cycle
+        enum: [active, canceled, paused, waiting, expired]

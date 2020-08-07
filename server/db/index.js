@@ -11,17 +11,17 @@ const options = {
 };
 
 class db {
-  connect(DB_URL) {
-    mongoose.connect(DB_URL, options)
-      .then(async () => {
-        console.log(`Successfully connected to ${DB_URL}`);
-        new Cron().productCron().catch(e => console.error(`Error running cron, ${JSON.stringify(e)}`))
-      })
-      .catch((err) => {
-        console.error(`There was a db connection error ${err}`);
-        process.exit(0);
-      });
-    mongoose.set('useCreateIndex', true);
+  connect( DB_URL ) {
+    mongoose.connect( DB_URL , options )
+      .then( async () => {
+        console.info( `Successfully connected to ${ DB_URL }` );
+        new Cron().runAllCron()
+      } )
+      .catch( ( err ) => {
+        console.error( `There was a db connection error ${ err }` );
+        process.exit( 0 );
+      } );
+    mongoose.set( 'useCreateIndex' , true );
     const db = mongoose.connection;
     db.once('disconnected', () => {
       console.error(`Successfully disconnected from ${DB_URL}`);

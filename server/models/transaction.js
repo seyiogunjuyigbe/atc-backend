@@ -44,6 +44,11 @@ const TransactionSchema = new Schema({
     ref: 'User',
     required: true,
   },
+  activeCycle: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product_cycle',
+    required: true,
+  },
   customer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

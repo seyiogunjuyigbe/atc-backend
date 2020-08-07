@@ -1,10 +1,14 @@
-const { Product, Package } = require('../models');
+const {
+  Product,
+  Package
+} = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response')
 const { check, validationResult } = require('express-validator');
 const Transaction = require('../models/transaction');
 const { createReference } = require('../services/paymentService');
+const moment = require('moment')
 const StripeService = require('../services/stripeService');
 
 module.exports = {
@@ -20,7 +24,7 @@ module.exports = {
           message: result.array()
         });
     }
-
+    const {sellingCycle,waitingCycle} = req.body
     try {
       const packages = await Package.findOne({ name: req.body.packageName })
       if (packages) {
@@ -37,7 +41,18 @@ module.exports = {
           range: price.range, prices: calc(price.prices)
         }))
       }))
-      const product = await Product.create(productList);
+      const mainProductObject = productList.filter(({isMainProduct}) => isMainProduct)[0]
+      if(!mainProductObject) return  res
+        .status(500)
+        .send(
+          responses.error(500, `Error creating a Product No Main product provided`) ,
+        );
+      const endDate = moment( new Date() , "DD-MM-YYYY" ).add( req.body.sellingCycle , 'days' )
+      const product = await Product.create(productList.filter(({isMainProduct}) => !isMainProduct));
+      const mainProductInfo = await Product.create({...mainProductObject,sellingCycle, waitingCycle, endDate, startDate: new Date() });
+      const activeCycle = await ProductCycle.create({startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate})
+      mainProductInfo.activeCycle = activeCycle._id
+      await mainProductInfo.save()
       return res
         .status(200)
         .send(
@@ -53,6 +68,28 @@ module.exports = {
         .send(
           responses.error(500, `Error creating a Product ${error.message}`) ,
         );
+    }
+  },
+  viewProductCycle: async (req, res) => {
+    try {
+      const product = await ProductCycle.findOne({product:req.params.productId})
+      if (!product) {
+        return res.status(400).send(responses.error(400, 'Product Cycle not found'));
+      } else {
+        return res
+          .status(200)
+          .send(
+            responses.success(
+              200,
+              'Record was retrieved successfully',
+               product
+            ) ,
+          );
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error viewing a product ${error.message}`));
     }
   },
   viewProduct: async (req, res) => {
@@ -78,11 +115,15 @@ module.exports = {
     }
   },
   listProduct: async (req, res) => {
-    var offset = req.query.offset ? req.query.offset : 0;
-    var limit = req.query.limit ? req.query.limit : 20;
-    var orderBy = req.query.orderBy ? req.query.orderBy : 'id';
-    var order = req.query.order ? req.query.order : 'asc';
-    var ordering = [
+    let offset = req.query.offset ? req.query.offset : 0;
+    let limit = req.query.limit ? req.query.limit : 20;
+    let orderBy = req.query.orderBy ? req.query.orderBy : 'id';
+    let order = req.query.order ? req.query.order : 'asc';
+    const filter = {}
+    if(req.query.status) {
+      filter.status = req.query.status
+    }
+    let ordering = [
       [orderBy, order]
     ];
     try {
@@ -123,7 +164,7 @@ module.exports = {
           { adult: req.body.adultPrice, children: req.body.childrenPrice, actual: calcPrice(req.body.adultPrice) },
 
       });
-      if (req.body.customPrices.length >= 1) {
+      if(req.body.customPrices.length >=1){
         result.set({
           customPrices: req.body.customPrices.map(price => ({
             range: price.range, prices: calc(price.prices)
@@ -176,6 +217,7 @@ module.exports = {
         reference: createReference('payment'),
         amount: req.body.amount,
         currency: req.body.currency || 'usd',
+        activeCycle: product.activeCycle,
         initiatedBy: req.user.id,
         customer: req.body.customer || req.user.id, // this allows admin make a test purchase for a customer on her behalf
         vendor: product.owner,
