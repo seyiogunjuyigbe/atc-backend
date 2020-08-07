@@ -30,10 +30,6 @@
       tags:
         - ActivityReviews
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
         - in: query
           name: limit
           required: true
@@ -63,10 +59,6 @@
       tags:
         - ActivityReviews
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
         - in: path
           name: memberReviewId
           description: get data
@@ -167,4 +159,31 @@
             example:
               message: An unexpected error occured
 
+  /members_review/getActivityReviewByProductId/{productId}:
+    get:
+      summary: Get a single activity by product id review
+      operationId: viewReview
+      tags:
+        - ActivityReviews
+      parameters:
+        - in: path
+          name: productId
+          description: get data
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: object
+            $ref: '#/definitions/MemberReviews'
 
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

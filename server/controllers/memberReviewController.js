@@ -83,6 +83,30 @@ module.exports = {
         .send(responses.error(500, `Error viewing a user ${error.message}`));
     }
   },
+  getActivityReviewByProductId: async (req, res) => {
+    try {
+      const membership = await MemberReview.findOne({product:req.params.productId});
+      if (!membership) {
+        return res
+          .status(400)
+          .send(responses.error(400, 'Member Review not found'));
+      } else {
+        return res
+          .status(200)
+          .send(
+            responses.success(
+              200,
+              'Record was retrieved successfully',
+              membership,
+            ),
+          );
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error viewing a user ${error.message}`));
+    }
+  },
   listMemberReview: (req, res) => {
     const offset = req.query.offset ? req.query.offset : 0;
     const limit = req.query.limit ? req.query.limit : 20;
