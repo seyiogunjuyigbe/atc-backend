@@ -165,7 +165,7 @@ module.exports = {
         amount: membership.cost,
         currency: req.body.currency || 'usd',
         initiatedBy: req.user.id,
-        customer: req.body.customer || req.user.id, // this allows admin make a test purchase for a customer on her behalf
+        customer: req.body.customer || req.user.id,
         transactableType: 'Membership',
         transactable: membership.id,
         description: `Payment for ${membership.name}`,
@@ -173,7 +173,7 @@ module.exports = {
 
       const paymentIntent = await StripeService.createPaymentIntent(
         newTransaction, req.user
-      ); // TODO: modify this to match when the stripe-service method is completed
+      );
 
       if (paymentIntent && paymentIntent.id) {
         newTransaction.stripePaymentId = paymentIntent.id;
@@ -182,7 +182,7 @@ module.exports = {
       }
       return success(res, 200,
         {
-          message: 'Product payment initiated successfully',
+          message: 'Membership payment initiated successfully',
           clientSecret: paymentIntent.client_secret,
           transactionId: newTransaction.id,
         })
