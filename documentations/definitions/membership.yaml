@@ -11,3 +11,6 @@
       description:
         type: string
         description: membership description
+      cost: 
+        type: integer
+        description: membership cost

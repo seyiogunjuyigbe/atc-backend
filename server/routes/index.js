@@ -12,7 +12,7 @@ const stateRoutes = require('./stateRoutes')
 const paymentRoute = require('./paymentRoute')
 const memberReviewRoute = require('./memberReviewRoute')
 indexRoute.use("/auth", authRoute);
-indexRoute.use("/memeberships", membershipRoute);
+indexRoute.use("/memberships", membershipRoute);
 indexRoute.use("/members_review", memberReviewRoute);
 indexRoute.use("/subscriptions", subRoute);
 indexRoute.use("/products", productRoute);
