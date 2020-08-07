@@ -9,8 +9,8 @@
       forType:
         type: string
         description: What is the content for ?
-        enum: [Activity, Package, Product]
-      contenFor:
+        enum: [Activity, Category, Package, Product]
+      contentFor:
         type: string
         description: ObjectId of whatever the content is for
       content:

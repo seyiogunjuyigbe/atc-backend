@@ -19,7 +19,7 @@ const categorySchema = new Schema({
   },
   contents: [{
     type: Schema.Types.ObjectId,
-    ref: 'Content',
+    ref: "Content"
   }],
   type: {
     type: String,
