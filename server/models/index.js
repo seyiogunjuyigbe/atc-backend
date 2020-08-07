@@ -7,9 +7,11 @@ const Product = require('./product')
 const Subscription = require('./subscription')
 const User = require('./user')
 const State = require('./state')
+const ProductCycle = require('./productCycle')
 const Country = require('./country')
 
 module.exports = {
+  ProductCycle,
   Category,
   Content,
   Membership,

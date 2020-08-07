@@ -1,6 +1,7 @@
 const {
   Product,
-  Package
+  Package,
+  ProductCycle
 } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
@@ -10,6 +11,7 @@ const {
 } = require('express-validator');
 const Transaction = require('../models/transaction');
 const { createReference } = require('../services/paymentService');
+const moment = require('moment')
 const StripeService = require('../services/stripeService');
 
 module.exports = {
@@ -25,7 +27,7 @@ module.exports = {
           message: result.array()
         });
     }
-
+    const {sellingCycle,waitingCycle} = req.body
     try {
       const packages = await Package.findOne({ name: req.body.packageName })
       if (packages) {
@@ -42,7 +44,13 @@ module.exports = {
           range: price.range, prices: calc(price.prices)
         }))
       }))
-      const product = await Product.create(productList);
+      const endDate = moment( new Date() , "DD-MM-YYYY" ).add( req.body.sellingCycle , 'days' )
+      const product = await Product.create(productList.filter(({isMainProduct}) => !isMainProduct));
+      const mainProductObject = productList.filter(({isMainProduct}) => isMainProduct)[0]
+      const mainProductInfo = await Product.create({...mainProductObject, endDate, startDate: new Date()});
+      const activeCycle = await ProductCycle.create({startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate})
+      mainProductInfo.activeCycleId = activeCycle._id
+      await mainProductInfo.save()
       return res
         .status(200)
         .send(
@@ -53,6 +61,7 @@ module.exports = {
           ) ,
         );
     } catch (error) {
+      console.log(error)
       return res
         .status(500)
         .send(

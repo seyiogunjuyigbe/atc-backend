@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 const { createStates } = require('./seeders/country');
 const { passport } = require('./services/passport');
 createStates()
-passport();
+// passport();
 const { MONGO_URL } = process.env
 const {
   loadDefinitions,

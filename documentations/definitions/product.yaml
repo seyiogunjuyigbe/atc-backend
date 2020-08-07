@@ -5,6 +5,12 @@
       packageName:
         type: string
         description: package name
+      sellingCycle:
+        type: number
+        description: number of day the product will sell
+      waitingCycle:
+        type: number
+        description: number of day the product will wait before it gose back into the selling cycle
       products:
         type: array
         items:
@@ -71,6 +77,12 @@
     items:
       type: object
       properties:
+        sellingCycle:
+          type: number
+          description: number of day the product will sell
+        waitingCycle:
+          type: number
+          description: number of day the product will wait before it gose back into the selling cycle
         type:
           type: string
           description: product type
