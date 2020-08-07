@@ -157,39 +157,3 @@
           schema:
             example:
               message: An unexpected error occured
-  /memberships/{membershipId}/subscribe:
-    post:
-      summary: Subscribe to Membership
-      operationId: subscribeMembership
-      tags:
-        - Memberships
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-        - in: path
-          name: membershipId
-          description: Membership ID
-          required: true
-      responses:
-        200:
-          description: success
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-              user: 
-                $ref: '#/definitions/User'
-
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to access this resource
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured

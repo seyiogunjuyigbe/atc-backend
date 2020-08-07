@@ -154,20 +154,57 @@ module.exports = {
     }
   },
   async purchaseMembership(req, res) {
+    var subscription;
     try {
       const membership = await Membership.findById(req.params.membershipId);
       if (!membership) {
         return error(res, 404, 'Membership not found');
       }
+      if (membership.type == "default") {
+        return error(res, 409, 'User already subscribed to free membership')
+      }
+      let user = await User.findById(req.user.id).populate('memberships');
+      let { memberships } = user;
+      let checkIfFree = memberships.find(x => {
+        return x.type == "default"
+      });
+      let checkIfOneOff = memberships.filter(x => {
+        return x.type == "one-off"
+      })
+      let checkIfAnnual = memberships.find(x => {
+        return x.type == "annual"
+      })
+      if (checkIfFree) {
+        // if current plan is free, remove free from array and overrride with plan
+        subscription = membership
+      }
+      else if (checkIfOneOff) {
+        // if  plan is a one-off membrship and current plans are one-off membeships, add membership to array;
+        if (membership.type == "one-off" || membership.type == "annual") subscription = membership
+        else {
+          return error(res, 409, 'User already subscribed to one-off membership')
+        }
+      }
+      if (checkIfAnnual) {
+        if (membership.type == "annual") {
+          subscription = membership
+        }
+        else {
+          return error(res, 409, 'User already subscribed to annual membership')
+        }
+      }
+      else {
+        subscription = membership
+      }
       const newTransaction = await Transaction.create({
         reference: createReference('payment'),
-        amount: membership.cost,
+        amount: subscription.cost,
         currency: req.body.currency || 'usd',
         initiatedBy: req.user.id,
         customer: req.body.customer || req.user.id,
         transactableType: 'Membership',
-        transactable: membership.id,
-        description: `Payment for ${membership.name}`,
+        transactable: subscription.id,
+        description: `Payment for ${subscription.name}`,
       });
 
       const paymentIntent = await StripeService.createPaymentIntent(
@@ -189,62 +226,4 @@ module.exports = {
       return error(res, 500, err.message)
     }
   },
-  async subscribeToMembership(req, res) {
-    const { membershipId } = req.params;
-    try {
-      let membership = await Membership.findById(membershipId);
-      let user = await User.findById(req.user.id).populate('memberships');
-      let { memberships } = user;
-      let checkIfFree = memberships.find(x => {
-        return x.type == "default"
-      });
-      let checkIfOneOff = memberships.filter(x => {
-        return x.type == "one-off"
-      })
-      let checkIfAnnual = memberships.find(x => {
-        return x.type == "annual"
-      })
-      if (checkIfFree) {
-        // if current plan is free, remove free from array and overrride with plan
-        if (membership.type == "default") {
-          return error(res, 409, 'User already subscribed to free membership')
-        } else {
-          memberships.splice(memberships.indexOf(checkIfFree), 1);
-          memberships.push(membership)
-        }
-      }
-      if (checkIfOneOff) {
-        // if  plan is a one-off membrship and current plans are one-off membeships, add membership to array;
-        if (membership.type == "one-off") memberships.push(membership)
-        // if plan is an annual plan, and current plan is/are one-offs, override with  annual,
-        else if (membership.type == "annual") {
-          memberships.length = 0;
-          memberships.push(membership)
-        }
-        else {
-          return error(res, 409, 'User already subscribed to one-off membership')
-        }
-      }
-      if (checkIfAnnual) {
-        // if plan is one-off and current plan is annual, retain annual
-        if (membership.type == "one-off") {
-          return error(res, 409, 'User already subscribed to annual membership')
-        } else if (membership.type == "annual") {
-          // if plan is annual and current plan is annial. override with recent
-          memberships.splice(memberships.indexOf(checkIfAnnual), 1);
-          memberships.push(membership)
-        }
-        else {
-          return error(res, 409, 'User already subscribed to annual membership')
-        }
-      }
-      else {
-        memberships.push(membership)
-      }
-      await user.save();
-      return success(res, 200, { message: "Subscription successful", user })
-    } catch (err) {
-      return error(res, 500, err.message)
-    }
-  }
 };

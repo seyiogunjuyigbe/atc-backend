@@ -44,62 +44,62 @@ exports.passport = () => {
   );
 
   // Login with Google OAuth
-  Passport.use(new GoogleTokenStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET
-  },
-    async function (accessToken, refreshToken, profile, done) {
-      console.log({ accessToken, refreshToken, profile });
-      try {
-        const foundUser = await User.findOne({
-          googleId: profile.id,
-        });
+  // Passport.use(new GoogleTokenStrategy({
+  //   clientID: process.env.GOOGLE_CLIENT_ID,
+  //   clientSecret: process.env.GOOGLE_CLIENT_SECRET
+  // },
+  //   async function (accessToken, refreshToken, profile, done) {
+  //     console.log({ accessToken, refreshToken, profile });
+  //     try {
+  //       const foundUser = await User.findOne({
+  //         googleId: profile.id,
+  //       });
 
-        if (foundUser) {
-          return done(null, foundUser);
-        }
+  //       if (foundUser) {
+  //         return done(null, foundUser);
+  //       }
 
-        const newUser = await User.create({
-          googleId: profile.id,
-          firstName: profile.name.givenName,
-          lastName: profile.name.familyName,
-          email: profile.emails[0].value,
-        });
+  //       const newUser = await User.create({
+  //         googleId: profile.id,
+  //         firstName: profile.name.givenName,
+  //         lastName: profile.name.familyName,
+  //         email: profile.emails[0].value,
+  //       });
 
-        return done(null, newUser);
-      } catch (error) {
-        return done(err);
-      }
-    }
-  ));
+  //       return done(null, newUser);
+  //     } catch (error) {
+  //       return done(err);
+  //     }
+  //   }
+  // ));
 
-  // Login with Facebook OAuth
-  Passport.use(new FacebookTokenStrategy({
-    clientID: process.env.FACEBOOK_CLIENT_ID,
-    clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-  },
-    async function (accessToken, refreshToken, profile, done) {
-      console.log({ accessToken, refreshToken, profile });
-      try {
-        const foundUser = await User.findOne({
-          facebookId: profile.id,
-        });
+  // // Login with Facebook OAuth
+  // Passport.use(new FacebookTokenStrategy({
+  //   clientID: process.env.FACEBOOK_CLIENT_ID,
+  //   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+  // },
+  //   async function (accessToken, refreshToken, profile, done) {
+  //     console.log({ accessToken, refreshToken, profile });
+  //     try {
+  //       const foundUser = await User.findOne({
+  //         facebookId: profile.id,
+  //       });
 
-        if (foundUser) {
-          return done(null, foundUser);
-        }
+  //       if (foundUser) {
+  //         return done(null, foundUser);
+  //       }
 
-        const newUser = await User.create({
-          facebookId: profile.id,
-          firstName: profile.name.givenName,
-          lastName: profile.name.familyName,
-          email: profile.emails[0].value,
-        });
+  //       const newUser = await User.create({
+  //         facebookId: profile.id,
+  //         firstName: profile.name.givenName,
+  //         lastName: profile.name.familyName,
+  //         email: profile.emails[0].value,
+  //       });
 
-        return done(null, newUser);
-      } catch (error) {
-        return done(err);
-      }
-    }
-  ));
+  //       return done(null, newUser);
+  //     } catch (error) {
+  //       return done(err);
+  //     }
+  //   }
+  // ));
 };

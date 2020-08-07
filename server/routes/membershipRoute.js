@@ -9,6 +9,4 @@ membershipRoute.put("/:membershipId", authenticate, membershipCrl.updateMembersh
 membershipRoute.get("/:membershipId", membershipCrl.viewMembership);
 membershipRoute.delete("/:membershipId", authenticate, membershipCrl.deleteMembership);
 membershipRoute.post("/:membershipId/purchase", authenticate, membershipCrl.purchaseMembership)
-membershipRoute.post("/:membershipId/subscribe", authenticate, membershipCrl.subscribeToMembership)
-
 module.exports = membershipRoute;
