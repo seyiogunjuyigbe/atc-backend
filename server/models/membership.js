@@ -14,7 +14,7 @@ const membershipsSchema = new Schema({
   createdBy: {
     type: mongoose.Schema.Types.ObjectId
   },
-  cost: Number,
+  cost: { type: Number, required: true },
   description: {
     type: String
   }

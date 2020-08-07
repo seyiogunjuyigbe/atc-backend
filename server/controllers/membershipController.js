@@ -159,7 +159,6 @@ module.exports = {
       if (!membership) {
         return error(res, 404, 'Membership not found');
       }
-
       const newTransaction = await Transaction.create({
         reference: createReference('payment'),
         amount: membership.cost,
@@ -238,6 +237,9 @@ module.exports = {
         else {
           return error(res, 409, 'User already subscribed to annual membership')
         }
+      }
+      else {
+        memberships.push(membership)
       }
       await user.save();
       return success(res, 200, { message: "Subscription successful", user })

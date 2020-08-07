@@ -53,7 +53,7 @@
         - Memberships
       parameters:
         - in: path
-          name: id
+          name: membershipId
           description: get data
           required: true
       responses:
@@ -86,7 +86,7 @@
           description: Authentication token
           required: true
         - in: path
-          name: id
+          name: membershipId
           description: Membership id to update
           required: true
         - in: body
@@ -123,8 +123,12 @@
       tags:
         - Memberships
       parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
         - in: path
-          name: id
+          name: membershipId
           description: Membership ID
           required: true
       responses:
@@ -160,8 +164,12 @@
       tags:
         - Memberships
       parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
         - in: path
-          name: id
+          name: membershipId
           description: Membership ID
           required: true
       responses:
