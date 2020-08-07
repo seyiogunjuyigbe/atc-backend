@@ -16,8 +16,11 @@ const app = express();
 const db = require('./db/index')
 const PORT = process.env.PORT || 3000;
 const { createStates } = require('./seeders/country');
+const { createDefaultMembersip } = require('./seeders/membership')
+
 const { passport } = require('./services/passport');
-createStates()
+createStates();
+createDefaultMembersip()
 passport();
 const { MONGO_URL } = process.env
 const {

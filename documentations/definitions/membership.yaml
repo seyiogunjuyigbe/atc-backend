@@ -8,9 +8,6 @@
       type:
         type: string
         description: one-off,annual
-      createdBy:
-        type: string
-        description: user id of the user
       description:
         type: string
         description: membership description

@@ -1,6 +1,5 @@
-const {
-    Content
-} = require('../models/index');
+const { Content } = require('../models');
+const models = require('../models')
 const {
     Op
 } = require("sequelize");
@@ -28,6 +27,9 @@ module.exports = {
                     url,
                     type
                 });
+                let doc = await models[contentFor].findById(contentForId);
+                doc.contents.addToSet(newContent.id);
+                await doc.save()
                 if (!newContent) return res.status(400).json({
                     error: true,
                     message: 'Error creating content'
@@ -84,12 +86,16 @@ module.exports = {
         params: contentId
         */
         try {
-            let content = await Content.findByIdAndDelete(req.params.contentId);
+            let content = await Content.findById(req.params.contentId);
             if (!content) return res.status(404).json({
                 error: true,
                 message: 'Content not found'
             })
-            else return res.status(200).json({
+            let doc = await models[content.forType].findById(content.contentFor);
+            doc.contents.pull(content.id);
+            await doc.save();
+            await content.remove()
+            return res.status(200).json({
                 success: true,
                 message: "Content deleted successfully"
             })
@@ -116,9 +122,9 @@ params(query): type,forType,contentFor (optional)
             if (forType) whereStatement.forType = forType;
             if (contentFor) whereStatement.contentFor = contentFor;
             let content = await Content.find({
-                $or: {
+                $or: [{
                     whereStatement
-                }
+                }]
             });
             if (!content || content.length == 0) return res.status(204).json({
                 success: true,

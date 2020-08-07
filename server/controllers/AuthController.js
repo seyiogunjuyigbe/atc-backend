@@ -1,22 +1,17 @@
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-// const models = require('../models');
 const { createCustomer } = require('../services/stripeService')
-const {
-  User
-} = require('../models');
+const { User } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const hash = require('hashids');
 const getJWT = require('../services/jwtService');
 const jwt = require('jsonwebtoken');
 const uuidv1 = require('uuid/v1');
-const {
-  check,
-  validationResult
-} = require('express-validator');
+const { check, validationResult } = require('express-validator');
 const generalFunctions = require('../helper/util');
 const credential = require('../config/local');
+const { defaultMembership } = require('../middlewares/membership')
 
 module.exports = {
   createUser: async (req, res) => {
@@ -56,8 +51,9 @@ module.exports = {
               let customerDetails = await createCustomer(newUser);
               if (customerDetails && customerDetails.id) {
                 newUser.stripeCustomerId = customerDetails.id
-                await newUser.save()
-              }
+              };
+              newUser.memberships.push(await defaultMembership())
+              await newUser.save()
               let url = generalFunctions.getURL();
               let resetURL = url + `auth/${newUser.id}/verify/${newUser.token}`;
 

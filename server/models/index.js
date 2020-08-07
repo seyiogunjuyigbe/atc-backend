@@ -8,7 +8,8 @@ const Product = require('./product')
 const Subscription = require('./subscription')
 const User = require('./user')
 const State = require('./state')
-const Country = require('./country')
+const Country = require('./country');
+const Transaction = require('./transaction')
 
 module.exports = {
   Category,
@@ -20,6 +21,6 @@ module.exports = {
   Subscription,
   User,
   State,
-  Country,
-  MemberReview
+  MemberReview,
+  Country, Transaction
 };
