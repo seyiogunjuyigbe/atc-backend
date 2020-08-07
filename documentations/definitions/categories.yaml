@@ -6,7 +6,7 @@
         type: string
         required: true
       parentId:
-        type: integer
+        type: string
         description: Hold the category parent id
       description:
         type: string
