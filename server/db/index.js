@@ -1,13 +1,13 @@
-const mongoose = require( 'mongoose' );
-const Crons = require('../../cron')
+const mongoose = require('mongoose');
+const Cron = require('../../cron')
 
-mongoose.set( 'useFindAndModify' , false );
+mongoose.set('useFindAndModify', false);
 
 const options = {
-  keepAlive : true ,
-  connectTimeoutMS : 30000 ,
-  useNewUrlParser : true ,
-  useUnifiedTopology : true
+  keepAlive: true,
+  connectTimeoutMS: 30000,
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 };
 
 class db {
@@ -15,7 +15,7 @@ class db {
     mongoose.connect( DB_URL , options )
       .then( async () => {
         console.info( `Successfully connected to ${ DB_URL }` );
-        new Crons().runAllCron()
+        new Cron().runAllCron()
       } )
       .catch( ( err ) => {
         console.error( `There was a db connection error ${ err }` );
@@ -23,16 +23,15 @@ class db {
       } );
     mongoose.set( 'useCreateIndex' , true );
     const db = mongoose.connection;
-
-    db.once( 'disconnected' , () => {
-      console.error( `Successfully disconnected from ${ DB_URL }` );
-    } );
-    process.on( 'SIGINT' , () => {
-      mongoose.connection.close( () => {
-        console.error( 'dBase connection closed due to app termination' );
-        process.exit( 0 );
-      } );
-    } );
+    db.once('disconnected', () => {
+      console.error(`Successfully disconnected from ${DB_URL}`);
+    });
+    process.on('SIGINT', () => {
+      mongoose.connection.close(() => {
+        console.error('dBase connection closed due to app termination');
+        process.exit(0);
+      });
+    });
   }
 }
 
