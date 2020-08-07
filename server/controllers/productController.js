@@ -35,7 +35,8 @@ module.exports = {
           .status(400)
           .send(responses.error(400, 'Package already exist'));
       }
-    const productList = req.body.products.map((data) => ({
+      const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
+      const productList = req.body.products.map((data) => ({
         ...data, packageID: createdPackage._id,
         owner: req.user._id,
         price: { adult: data.adultPrice, children: data.childrenPrice, actual: calcPrice(data.adultPrice) },
@@ -49,12 +50,11 @@ module.exports = {
         .send(
           responses.error(500, `Error creating a Product No Main product provided`) ,
         );
-      const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
       const endDate = moment( new Date() , "DD-MM-YYYY" ).add( req.body.sellingCycle , 'days' )
       const product = await Product.create(productList.filter(({isMainProduct}) => !isMainProduct));
-      const mainProductInfo = await Product.create({...mainProductObject, endDate, startDate: new Date()});
+      const mainProductInfo = await Product.create({...mainProductObject,sellingCycle, waitingCycle, endDate, startDate: new Date() });
       const activeCycle = await ProductCycle.create({startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate})
-      mainProductInfo.activeCycleId = activeCycle._id
+      mainProductInfo.activeCycle = activeCycle._id
       await mainProductInfo.save()
       return res
         .status(200)
@@ -73,9 +73,31 @@ module.exports = {
         );
     }
   },
+  viewProductCycle: async (req, res) => {
+    try {
+      const product = await ProductCycle.findOne({product:req.params.productId})
+      if (!product) {
+        return res.status(400).send(responses.error(400, 'Product Cycle not found'));
+      } else {
+        return res
+          .status(200)
+          .send(
+            responses.success(
+              200,
+              'Record was retrieved successfully',
+               product
+            ) ,
+          );
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error viewing a product ${error.message}`));
+    }
+  },
   viewProduct: async (req, res) => {
     try {
-      const product = await Product.findById(req.params.productId);
+      const product = await Product.findById(req.params.productId)
       if (!product) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       } else {
@@ -96,16 +118,20 @@ module.exports = {
     }
   },
   listProduct: async (req, res) => {
-    var offset = req.query.offset ? req.query.offset : 0;
-    var limit = req.query.limit ? req.query.limit : 20;
-    var orderBy = req.query.orderBy ? req.query.orderBy : 'id';
-    var order = req.query.order ? req.query.order : 'asc';
-    var ordering = [
+    let offset = req.query.offset ? req.query.offset : 0;
+    let limit = req.query.limit ? req.query.limit : 20;
+    let orderBy = req.query.orderBy ? req.query.orderBy : 'id';
+    let order = req.query.order ? req.query.order : 'asc';
+    const filter = {}
+    if(req.query.status) {
+      filter.status = req.query.status
+    }
+    let ordering = [
       [orderBy, order]
     ];
     try {
       let products = await Product
-        .find({})
+        .find(filter)
         .limit(limit)
         .skip(offset)
       // .sort({
@@ -193,6 +219,7 @@ module.exports = {
         reference: createReference('payment'),
         amount: req.body.amount,
         currency: req.body.currency || 'usd',
+        activeCycle: product.activeCycle,
         initiatedBy: req.user.id,
         customer: req.body.customer || req.user.id, // this allows admin make a test purchase for a customer on her behalf
         vendor: product.owner,

@@ -35,10 +35,12 @@ const ProductSchema = new Schema({
       enum: ["active", "canceled", "paused", "waiting", "expired"],
       default: "active"
     },
-    activeCycleId: {
+    activeCycle: {
       ref: "Product_cycle",
       type: mongoose.Schema.ObjectId
     },
+    startDate: {type: Date},
+    endDate: {type: Date},
     packageID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Package',

@@ -105,3 +105,29 @@
         description:
           type: string
           description: product description
+
+  ProductLifeCycle:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: cycle id
+      product:
+        type: string
+        description: id of the product that owns the cycle
+      startDate:
+        type: string
+        description: cycle start page
+      endDate:
+        type: string
+        description: cycle start page
+      sellingCycle:
+        type: number
+        description: number of day the product will sell
+      waitingCycle:
+        type: number
+        description: number of day the product will wait before it gose back into the selling cycle
+      status:
+        type: string
+        description: current status of the cycle
+        enum: [active, canceled, paused, waiting, expired]

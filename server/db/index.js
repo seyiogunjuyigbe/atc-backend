@@ -1,5 +1,5 @@
 const mongoose = require( 'mongoose' );
-
+const Crons = require('../../cron')
 
 mongoose.set( 'useFindAndModify' , false );
 
@@ -15,6 +15,7 @@ class db {
     mongoose.connect( DB_URL , options )
       .then( async () => {
         console.info( `Successfully connected to ${ DB_URL }` );
+        new Crons().runAllCron()
       } )
       .catch( ( err ) => {
         console.error( `There was a db connection error ${ err }` );
