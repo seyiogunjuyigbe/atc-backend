@@ -35,8 +35,7 @@ module.exports = {
           .status(400)
           .send(responses.error(400, 'Package already exist'));
       }
-      const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
-      const productList = req.body.products.map((data) => ({
+    const productList = req.body.products.map((data) => ({
         ...data, packageID: createdPackage._id,
         owner: req.user._id,
         price: { adult: data.adultPrice, children: data.childrenPrice, actual: calcPrice(data.adultPrice) },
@@ -44,9 +43,15 @@ module.exports = {
           range: price.range, prices: calc(price.prices)
         }))
       }))
+      const mainProductObject = productList.filter(({isMainProduct}) => isMainProduct)[0]
+      if(!mainProductObject) return  res
+        .status(500)
+        .send(
+          responses.error(500, `Error creating a Product No Main product provided`) ,
+        );
+      const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
       const endDate = moment( new Date() , "DD-MM-YYYY" ).add( req.body.sellingCycle , 'days' )
       const product = await Product.create(productList.filter(({isMainProduct}) => !isMainProduct));
-      const mainProductObject = productList.filter(({isMainProduct}) => isMainProduct)[0]
       const mainProductInfo = await Product.create({...mainProductObject, endDate, startDate: new Date()});
       const activeCycle = await ProductCycle.create({startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate})
       mainProductInfo.activeCycleId = activeCycle._id
@@ -61,7 +66,6 @@ module.exports = {
           ) ,
         );
     } catch (error) {
-      console.log(error)
       return res
         .status(500)
         .send(
