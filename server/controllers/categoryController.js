@@ -1,5 +1,5 @@
 const {
-    Category
+    Category, Content
 } = require('../models');
 const {
     success,
@@ -18,13 +18,9 @@ module.exports = {
             description,
             type,
             occurrence,
-            contents,
         } = req.body;
         try {
-            let existingCateg = await Category.findOne({
-
-                name: name.toLowerCase()
-            })
+            let existingCateg = await Category.findOne({ name: name.toLowerCase() })
             if (existingCateg) return error(res, 409, 'Category ( ' + name + ") already exists");
             else {
                 let category = await Category.create({
@@ -33,15 +29,21 @@ module.exports = {
                     description,
                     type,
                     occurrence,
-                    contents,
                 });
-                category.save((err, newCategory) => {
-                    return success(res, 200, {
-                        success: true,
-                        category: newCategory
-                    })
-                })
-
+                let contents = []
+                if (req.files.length > 0) {
+                    contents = await Promise.all(req.files.map(async file => {
+                        return await Content.create({
+                            url: file.path,
+                            forType: 'category',
+                            contentFor: category.id,
+                            type: file.mimetype.substring(0, file.mimetype.indexOf('/'))
+                        })
+                    }))
+                }
+                await category.set({ contents })
+                await category.save();
+                return success(res, 200, { success: true, category })
             }
         } catch (err) {
             return error(res, 500, err.message)
@@ -57,11 +59,17 @@ module.exports = {
             let category = await Category.findByIdAndUpdate(req.params.categoryId, {
                 ...req.body
             });
-            if (!category) return success(res, 204, 'Category not found');
-            else {
-                category.save()
-                return success(res, 200, category)
+            let contents = []
+            if (req.files.length > 0) {
+                contents = req.files.map(file => {
+                    return Content.create({ url: file.path, forType: 'Category', contentFor: category.id, type: file.mimetype.substring(0, file.mimetype.indexOf('/')) })
+
+                })
+                category.set({ contents })
             }
+            await category.save()
+            return success(res, 200, category)
+
         } catch (err) {
             return error(res, 500, err.message)
         }
@@ -93,7 +101,7 @@ module.exports = {
     },
     async deleteCategory(req, res) {
         /*
-        method: GET
+        method: DELETE
         params: categoryId
         */
         try {

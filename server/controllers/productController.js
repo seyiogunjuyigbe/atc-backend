@@ -1,14 +1,11 @@
 const {
   Product,
-  Package,
-  ProductCycle
+  Package
 } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
-const {
-  check,
-  validationResult
-} = require('express-validator');
+const { success, error } = require('../middlewares/response')
+const { check, validationResult } = require('express-validator');
 const Transaction = require('../models/transaction');
 const { createReference } = require('../services/paymentService');
 const moment = require('moment')
@@ -97,7 +94,7 @@ module.exports = {
   },
   viewProduct: async (req, res) => {
     try {
-      const product = await Product.findById(req.params.productId)
+      const product = await Product.findById(req.params.productId);
       if (!product) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       } else {
@@ -131,7 +128,7 @@ module.exports = {
     ];
     try {
       let products = await Product
-        .find(filter)
+        .find({})
         .limit(limit)
         .skip(offset)
       // .sort({
@@ -165,13 +162,14 @@ module.exports = {
         ...req.body,
         price:
           { adult: req.body.adultPrice, children: req.body.childrenPrice, actual: calcPrice(req.body.adultPrice) },
-        
+
       });
       if(req.body.customPrices.length >=1){
         result.set({
           customPrices: req.body.customPrices.map(price => ({
             range: price.range, prices: calc(price.prices)
-          }))})
+          }))
+        })
       }
       result.save()
       return res
@@ -268,14 +266,11 @@ module.exports = {
     }
   },
   async fetchHomePageProducts(req, res) {
-    const { sort, category } = req.query;
+    const { sort } = req.query;
     if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"')
     let today = new Date()
     try {
-      let products = await Product.find({ marketingExpiryDate: { $gte: today }, $or: [{}] }).sort({ marketingPriority: sort });
-      if (category) products = products.filter(x => {
-        return x.sightCategories.includes(category)
-      })
+      let products = await Product.find({ marketingExpiryDate: { $gte: today }, }).sort({ marketingPriority: sort });
       return success(res, 200, products)
     } catch (err) {
       return error(res, 500, err.message)

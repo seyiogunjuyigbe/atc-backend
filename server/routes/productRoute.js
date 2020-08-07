@@ -9,8 +9,7 @@ const authenticate = require('../middlewares/authentication')
 const { checkIfAdmin } = require('../middlewares/access')
 
 productRoute.post("/", authenticate, productCrl.create);
-
-
+productRoute.get('/priority', productCrl.fetchHomePageProducts)
 productRoute.get("/", productCrl.listProduct);
 productRoute.put("/:productId", authenticate, productCrl.updateProduct);
 productRoute.get("/:productId", productCrl.viewProduct);

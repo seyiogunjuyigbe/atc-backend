@@ -179,7 +179,7 @@
         - in: body
           name: priority
           description: New product priority
-          type: string
+          type: integer
           schema:
             type: string
       responses:
@@ -214,9 +214,6 @@
         - in: query
           name: sort
           description: Sort order (asc,desc)
-        - in: query
-          name: category
-          description: Search product category ID
       responses:
         200:
           description: Success

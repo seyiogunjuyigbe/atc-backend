@@ -6,7 +6,7 @@ module.exports = class Cron {
     console.log('Started Cron Jobs')
     setInterval(() => {
       Cron.productCron().catch((e) => console.log(`Error running cron job ${e}`))
-    }, 10000)
+    }, 60000)
   }
 
   static async productCron() {
