@@ -7,9 +7,10 @@ const authenticate = require('../middlewares/authentication')
 memberReviewRoute.post("/",authenticate, memberReviewCrl.create);
 
 
-memberReviewRoute.get("/",authenticate, memberReviewCrl.listMemberReview);
+memberReviewRoute.get("/", memberReviewCrl.listMemberReview);
 memberReviewRoute.put("/:memberReviewId",authenticate, memberReviewCrl.updateMemberReview);
-memberReviewRoute.get("/:memberReviewId",authenticate, memberReviewCrl.viewMemberReview);
+memberReviewRoute.get("/:memberReviewId",memberReviewCrl.viewMemberReview);
+memberReviewRoute.get("/getActivityReviewByProductId/:productId",memberReviewCrl.getActivityReviewByProductId);
 memberReviewRoute.delete("/:memberReviewId",authenticate, memberReviewCrl.deleteMemberReview);
 
 
