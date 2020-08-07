@@ -85,7 +85,7 @@ module.exports = {
   },
   getActivityReviewByProductId: async (req, res) => {
     try {
-      const membership = await MemberReview.findOne({product:req.params.productId});
+      const membership = await MemberReview.find({product:req.params.productId});
       if (!membership) {
         return res
           .status(400)
