@@ -1,5 +1,5 @@
 const {
-    Category
+    Category, Content
 } = require('../models');
 const {
     success,
@@ -23,20 +23,25 @@ module.exports = {
             let existingCateg = await Category.findOne({ name: name.toLowerCase() })
             if (existingCateg) return error(res, 409, 'Category ( ' + name + ") already exists");
             else {
-                let contents = []
-                if (req.files.length > 0) {
-                    contents = req.files.map(file => {
-                        return file.path
-                    })
-                }
                 let category = await Category.create({
                     name,
                     parentId,
                     description,
                     type,
                     occurrence,
-                    contents
                 });
+                let contents = []
+                if (req.files.length > 0) {
+                    contents = await Promise.all(req.files.map(async file => {
+                        return await Content.create({
+                            url: file.path,
+                            forType: 'category',
+                            contentFor: category.id,
+                            type: file.mimetype.substring(0, file.mimetype.indexOf('/'))
+                        })
+                    }))
+                }
+                await category.set({ contents })
                 await category.save();
                 return success(res, 200, { success: true, category })
             }
@@ -57,7 +62,8 @@ module.exports = {
             let contents = []
             if (req.files.length > 0) {
                 contents = req.files.map(file => {
-                    return file.path
+                    return Content.create({ url: file.path, forType: 'Category', contentFor: category.id, type: file.mimetype.substring(0, file.mimetype.indexOf('/')) })
+
                 })
                 category.set({ contents })
             }
@@ -95,7 +101,7 @@ module.exports = {
     },
     async deleteCategory(req, res) {
         /*
-        method: GET
+        method: DELETE
         params: categoryId
         */
         try {
