@@ -1,12 +1,8 @@
-const {
-  Product,
-  Package
-} = require('../models');
+const { Product, Package, ProductCycle, Transaction } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response')
 const { check, validationResult } = require('express-validator');
-const Transaction = require('../models/transaction');
 const { createReference } = require('../services/paymentService');
 const moment = require('moment')
 const StripeService = require('../services/stripeService');
@@ -24,7 +20,7 @@ module.exports = {
           message: result.array()
         });
     }
-    const {sellingCycle,waitingCycle} = req.body
+    const { sellingCycle, waitingCycle } = req.body
     try {
       const packages = await Package.findOne({ name: req.body.packageName })
       if (packages) {
@@ -36,32 +32,26 @@ module.exports = {
       const productList = req.body.products.map((data) => ({
         ...data, packageID: createdPackage._id,
         owner: req.user._id,
-        price: { adult: data.adultPrice, children: data.childrenPrice, actual: calcPrice(data.adultPrice) },
+        price: calc(data.price),
+        sellingCycle: data.sellingCycle,
+        waitingCycle: data.waitingCycle,
         customPrices: data.customPrices.map(price => ({
           range: price.range, prices: calc(price.prices)
         }))
       }))
-      const mainProductObject = productList.filter(({isMainProduct}) => isMainProduct)[0]
-      if(!mainProductObject) return  res
+      const mainProductObject = productList.filter(({ isMainProduct }) => isMainProduct)[0]
+      if (!mainProductObject) return res
         .status(500)
         .send(
           responses.error(500, `Error creating a Product No Main product provided`) ,
         );
-      const endDate = moment( new Date() , "DD-MM-YYYY" ).add( req.body.sellingCycle , 'days' )
-      const product = await Product.create(productList.filter(({isMainProduct}) => !isMainProduct));
-      const mainProductInfo = await Product.create({...mainProductObject,sellingCycle, waitingCycle, endDate, startDate: new Date() });
-      const activeCycle = await ProductCycle.create({startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate})
+      const endDate = moment(new Date(), "DD-MM-YYYY").add(req.body.sellingCycle, 'days')
+      const product = await Product.create(productList.filter(({ isMainProduct }) => !isMainProduct));
+      const mainProductInfo = await Product.create({ ...mainProductObject, sellingCycle, waitingCycle, endDate, startDate: new Date() });
+      const activeCycle = await ProductCycle.create({ startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate })
       mainProductInfo.activeCycle = activeCycle._id
       await mainProductInfo.save()
-      return res
-        .status(200)
-        .send(
-          responses.success(
-            200,
-            'Your Product was successfully created.',
-            product ,
-          ) ,
-        );
+      return success(res, 200, "Product created successfully");
     } catch (error) {
       return res
         .status(500)
@@ -72,7 +62,7 @@ module.exports = {
   },
   viewProductCycle: async (req, res) => {
     try {
-      const product = await ProductCycle.findOne({product:req.params.productId})
+      const product = await ProductCycle.findOne({ product: req.params.productId })
       if (!product) {
         return res.status(400).send(responses.error(400, 'Product Cycle not found'));
       } else {
@@ -82,7 +72,7 @@ module.exports = {
             responses.success(
               200,
               'Record was retrieved successfully',
-               product
+              product
             ) ,
           );
       }
@@ -94,7 +84,14 @@ module.exports = {
   },
   viewProduct: async (req, res) => {
     try {
-      const product = await Product.findById(req.params.productId);
+      const product = await Product.findById(req.params.productId).populate('activities owner contents')
+      //   ({
+      //   path: 'activities',
+      //   populate: {
+      //     path: 'countries sightCategories adventureCategories mainDestination.city mainDestination.country contents',
+
+      //   }
+      // })
       if (!product) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       } else {
@@ -120,7 +117,7 @@ module.exports = {
     let orderBy = req.query.orderBy ? req.query.orderBy : 'id';
     let order = req.query.order ? req.query.order : 'asc';
     const filter = {}
-    if(req.query.status) {
+    if (req.query.status) {
       filter.status = req.query.status
     }
     let ordering = [
@@ -128,7 +125,7 @@ module.exports = {
     ];
     try {
       let products = await Product
-        .find({})
+        .find({}).populate('activities owner contents')
         .limit(limit)
         .skip(offset)
       // .sort({
@@ -164,7 +161,7 @@ module.exports = {
           { adult: req.body.adultPrice, children: req.body.childrenPrice, actual: calcPrice(req.body.adultPrice) },
 
       });
-      if(req.body.customPrices.length >=1){
+      if (req.body.customPrices.length >= 1) {
         result.set({
           customPrices: req.body.customPrices.map(price => ({
             range: price.range, prices: calc(price.prices)
@@ -287,7 +284,7 @@ function calc(obj) {
   return {
     vendorPrice: obj.adult,
     childrenPrice: obj.children,
-    productPrice: calcPrice(obj.adult),
+    productAdultPrice: calcPrice(obj.adult),
     freeMembershipDiscountedPrice: Math.round(((calcPrice(obj.adult) / 2) + (calcPrice(obj.adult) * 0.05))) || 0,
     paidMembershipDiscountedPrice: Math.round((calcPrice(obj.adult) / 3) + (calcPrice(obj.adult) * 0.05)) || 0,
     oneOffMembershipFee: 0.21 * obj.adult || 0,
