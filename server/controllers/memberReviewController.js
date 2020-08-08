@@ -109,27 +109,20 @@ module.exports = {
     const ordering = [
       [orderBy, order]
     ];
-    MemberReview
-      .find({})
-      .limit(Number(limit))
-      .skip(Number(offset))
-      // .sort({
-      //   ordering
-      // })
-      .then(function (membership) {
-        MemberReview.find({}).populate("activity").populate("product").populate("member").exec((err, memberReview) => {
-          return res
-            .status(200)
-            .send(
-              responses.success(
-                200,
-                'Record was retrieved successfully',
-                memberReview,
-              ),
-            );
-        })
+    MemberReview.find({}).limit(Number(limit))
+      .skip(Number(offset)).populate("activity").populate("product").populate("member").exec((err, memberReview) => {
+      console.log(err)
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was retrieved successfully',
+            memberReview,
+          ),
+        );
+    })
 
-      });
   },
   updateMemberReview: async (req, res) => {
     try {
