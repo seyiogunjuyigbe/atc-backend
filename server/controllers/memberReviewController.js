@@ -61,50 +61,44 @@ module.exports = {
   },
   viewMemberReview: async (req, res) => {
     try {
-      const membership = await MemberReview.findById(req.params.memberReviewId);
-      if (!membership) {
-        return res
-          .status(400)
-          .send(responses.error(400, 'MemberReview not found'));
-      } else {
+      MemberReview.findById(req.params.memberReviewId)
+        .populate("activity").populate("product").populate("member").exec((err, memberReview)=> {
         return res
           .status(200)
           .send(
             responses.success(
               200,
               'Record was retrieved successfully',
-              membership,
+              memberReview,
             ),
           );
-      }
-    } catch (error) {
+      })
+    }
+    catch (error) {
       return res
         .status(500)
-        .send(responses.error(500, `Error viewing a user ${error.message}`));
+        .send(responses.error(500, `Error getting reviews ${error.message}`));
     }
   },
   getActivityReviewByProductId: async (req, res) => {
     try {
-      const membership = await MemberReview.find({product:req.params.productId});
-      if (!membership) {
-        return res
-          .status(400)
-          .send(responses.error(400, 'Member Review not found'));
-      } else {
+      MemberReview.find({product:req.params.productId})
+        .populate("activity").populate("product").populate("member").exec((err, memberReview)=> {
         return res
           .status(200)
           .send(
             responses.success(
               200,
               'Record was retrieved successfully',
-              membership,
+              memberReview,
             ),
           );
-      }
-    } catch (error) {
+      })
+    }
+    catch (error) {
       return res
         .status(500)
-        .send(responses.error(500, `Error viewing a user ${error.message}`));
+        .send(responses.error(500, `Error getting reviews ${error.message}`));
     }
   },
   listMemberReview: (req, res) => {
