@@ -29,7 +29,7 @@ const ProductSchema = new Schema({
     type: String
   },
   sellingCycle: { type: Number, required: true },
-  watingCycle: { type: Number, required: true },
+  waitingCycle: { type: Number, required: true },
   endDate: { type: Date, required: true },
   startDate: { type: Date, default: new Date() },
   statues: { type: String, enum: ["active", "wating", "expired"], default: "active" },
@@ -43,7 +43,8 @@ const ProductSchema = new Schema({
   },
   activities: [{ type: Schema.Types.ObjectId, ref: 'Activity' }],
   owner: {
-    type: mongoose.Schema.Types.ObjectId
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
   },
   description: {
     type: String
@@ -53,18 +54,23 @@ const ProductSchema = new Schema({
     prices: {
       vendorPrice: Number,
       childrenPrice: Number,
-      productPrice: Number,
+      productAdultPrice: Number,
       freeMembershipDiscountedPrice: Number,
       paidMembershipDiscountedPrice: Number,
       oneOffMembershipFee: Number,
+
     }
   }],
   marketingExpiryDate: Date,
   marketingPriority: Number,
   price: {
-    adult: Number,
-    children: Number,
-    actual: Number
+    vendorPrice: Number,
+    childrenPrice: Number,
+    productAdultPrice: Number,
+    freeMembershipDiscountedPrice: Number,
+    paidMembershipDiscountedPrice: Number,
+    oneOffMembershipFee: Number,
+    annualMembershipFee: { type: Number, default: 200 }
   }
 },
 

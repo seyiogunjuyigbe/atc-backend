@@ -10,7 +10,7 @@ const activitySchema = new Schema({
   bestVisitTime: [String],
   bestVisitSeason: [String],
   bestVisitWeather: [String],
-  vendor: Schema.Types.ObjectId,
+  vendor: { type: Schema.Types.ObjectId, ref: "User" },
   calendarStatus: [{
     month: String,
     status: {
@@ -40,8 +40,8 @@ const activitySchema = new Schema({
     }
   ],
   mainDestination: {
-    city: Schema.Types.ObjectId,
-    country: Schema.Types.ObjectId,
+    city: { type: Schema.Types.ObjectId, ref: 'State' },
+    country: { type: Schema.Types.ObjectId, ref: 'Country' }
   },
   contents: [{
     type: Schema.Types.ObjectId,

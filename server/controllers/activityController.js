@@ -172,7 +172,7 @@ module.exports = {
     },
     async fetchAllActivities(req, res) {
         try {
-            let activities = await Activity.find({})
+            let activities = await Activity.find({}).populate('countries sightCategories adventureCategories mainDestination.city mainDestination.country contents vendor')
             if (!activities || activities.length == 0) return success(res, 200, 'No activities created yet');
             else return success(res, 200, activities)
 
@@ -182,7 +182,7 @@ module.exports = {
     },
     async fetchActivity(req, res) {
         try {
-            let activity = await Activity.findById(req.params.activityId)
+            let activity = await Activity.findById(req.params.activityId).populate('countries sightCategories adventureCategories mainDestination.city mainDestination.country contents vendor')
             if (!activity) return success(res, 204, 'Activity not found');
             else return success(res, 200, activity)
 

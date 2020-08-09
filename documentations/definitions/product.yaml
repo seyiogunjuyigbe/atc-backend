@@ -47,12 +47,15 @@
             marketingPriority:
               type: integer
               description: marketing priority set by admin
-            adultPrice:
-              type: integer
-              description: adult price for product
-            childrenPrice:
-              type: integer
-              description: children price for product
+            price:
+              type: object
+              properties:
+                adult:
+                  type: integer
+                  description: Vendor adult price
+                children:
+                  type: integer
+                  description: Children price
             customPrices:
               type: array
               items:
@@ -68,10 +71,12 @@
                     properties:
                       adult:
                         type: integer
-                        description: Adult price for this range
+                        description: Vendor adult price for this range
                       children:
                         type: integer
                         description: Children price for this range
+
+                                                                     
   Products:
     type: array
     items:
