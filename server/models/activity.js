@@ -7,15 +7,42 @@ const activitySchema = new Schema({
   title: String,
   dayNumber: Number,
   description: String,
-  bestVisitTime: [String],
-  bestVisitSeason: [String],
-  bestVisitWeather: [String],
+  bestVisitTime: {
+    description: String,
+    calendarStatus: [{
+      month: String,
+      status: {
+        type: String,
+        enum: ['excellent', 'good', 'fair'],
+      }
+    }]
+  },
+  bestVisitSeason: {
+    description: String,
+    calendarStatus: [{
+      month: String,
+      status: {
+        type: String,
+        enum: ['excellent', 'good', 'fair'],
+      }
+    }]
+  },
+  bestVisitWeather: {
+    description: String,
+    calendarStatus: [{
+      month: String,
+      status: {
+        type: String,
+        enum: ['excellent', 'good', 'fair'],
+      }
+    }]
+  },
   vendor: { type: Schema.Types.ObjectId, ref: "User" },
   calendarStatus: [{
     month: String,
-    status: {
+    score: {
       type: String,
-      enum: ['good', 'excellent', 'fair'],
+      enum: ['excellent', 'good', 'fair'],
     }
   }],
   hasAccomodation: String,
