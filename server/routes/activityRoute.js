@@ -19,17 +19,9 @@ const {
 
 router.post('/', authenticate, multiParser.array("attachments", 10), [
     check('title').not().isEmpty().withMessage('Activity title required'),
-    check('description').not().isEmpty().withMessage('Description required'),
-    check('hasAccomodation').isBoolean().withMessage('Field must be a boolean'),
-    check('hasMeals').isBoolean().withMessage('Field must be a boolean'),
-    check('route').isIn(['start', 'end', 'day']).withMessage('Valid route values: (start,end, day)'),
 ], validate, createActivity);
 router.put('/:activityId', authenticate, multiParser.array("attachments", 10), [
     check('title').not().isEmpty().withMessage('Activity title required'),
-    check('description').not().isEmpty().withMessage('Description required'),
-    check('hasAccomodation').isBoolean().withMessage('Field must be a boolean'),
-    check('hasMeals').isBoolean().withMessage('Field must be a boolean'),
-    check('route').isIn(['start', 'end', 'day']).withMessage('Valid route values: (start,end, day)')
 ], validate, updateActivity);
 router.get('/priority', fetchHomePageActivities)
 router.put('/:activityId/priority', authenticate, checkIfAdmin, check('priority').not().isEmpty().withMessage('Priority is required'),

@@ -42,13 +42,6 @@ module.exports = {
             })
             if (wrongEntry) return error(res, 400, "Calendar status must be an array of objects")
         }
-        if (stops && stops.length > 0) {
-            let wrongEntry = stops.find(entry => {
-                return checkIfObj(entry) == false
-            })
-            if (wrongEntry) return error(res, 400, "Route stops must be an array of objects")
-        }
-
         try {
             let country = await Country.findById(countryId);
             let city = await State.findById(cityId)
@@ -217,12 +210,15 @@ module.exports = {
     async fetchHomePageActivities(req, res) {
         const { sort, category } = req.query;
         if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"')
-        let today = new Date()
+        let today = new Date();
         try {
-            let activities = await Activity.find({ marketingExpiryDate: { $gte: today }, $or: [{}] }).sort({ marketingPriority: sort });
+
+            let activities = await Activity.find({ marketingExpiryDate: { $gte: today } }).populate('countries sightCategories adventureCategories mainDestination.city mainDestination.country contents vendor').sort({ marketingPriority: sort });
             if (category) activities = activities.filter(x => {
-                return x.sightCategories.includes(category)
-            })
+                return x.sightCategories.filter(cat => {
+                    return String(cat._id) === String(category)
+                })
+            });
             return success(res, 200, activities)
         } catch (err) {
             return error(res, 500, err.message)

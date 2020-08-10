@@ -43,7 +43,7 @@
               description: product description
             marketingExpiryDate:
               description: marketing expiry date set by vendor 
-              type: date
+              type: string
             marketingPriority:
               type: integer
               description: marketing priority set by admin
@@ -148,7 +148,7 @@
         type: number
         description: number of days that the product will sell
         required: true
-      watingCycle:
+      waitingCycle:
         type: number
         description: number of day the produce have to wait before going back to the selling cycle
         required: true
@@ -158,9 +158,9 @@
       startDate:
         type: string
         description: start date for the products life cycle for the first or current cycle
-      statues:
+      status:
         type: string
-        enum: [active, wating, expired]
+        enum: [active, waiting, expired]
         description: current status of life cycle
       isMainProduct:
         type: boolean

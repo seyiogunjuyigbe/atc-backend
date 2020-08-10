@@ -263,11 +263,14 @@ module.exports = {
     }
   },
   async fetchHomePageProducts(req, res) {
-    const { sort } = req.query;
-    if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"')
-    let today = new Date()
+    const { sort, status } = req.query;
+    if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"');
+    if (!["active", "waiting", "expired"].includes(status)) return error(res, 400, "Status must be active, waiting or expired")
+    let today = new Date();
+    let searchObj = { marketingExpiryDate: { $gte: today } };
+    if (status); searchObj.status = status
     try {
-      let products = await Product.find({ marketingExpiryDate: { $gte: today }, }).sort({ marketingPriority: sort });
+      let products = await Product.find(searchObj).populate('activities owner contents').sort({ marketingPriority: sort });
       return success(res, 200, products)
     } catch (err) {
       return error(res, 500, err.message)

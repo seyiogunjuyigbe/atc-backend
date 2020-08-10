@@ -32,7 +32,7 @@ const ProductSchema = new Schema({
   waitingCycle: { type: Number, required: true },
   endDate: { type: Date, required: true },
   startDate: { type: Date, default: new Date() },
-  statues: { type: String, enum: ["active", "wating", "expired"], default: "active" },
+  status: { type: String, enum: ["active", "waiting", "expired"], default: "active" },
   packageID: {
     type: mongoose.Schema.ObjectId,
     ref: 'Package',
