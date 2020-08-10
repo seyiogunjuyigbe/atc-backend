@@ -67,7 +67,7 @@ exports.passport = () => {
         });
 
         return done(null, newUser);
-      } catch (error) {
+      } catch (err) {
         return done(err);
       }
     }
@@ -97,7 +97,7 @@ exports.passport = () => {
         });
 
         return done(null, newUser);
-      } catch (error) {
+      } catch (err) {
         return done(err);
       }
     }
