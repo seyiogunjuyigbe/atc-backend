@@ -1,23 +1,12 @@
-const {
-    Activity, Country, State, Product
-} = require('../models');
-const {
-    success,
-    error
-} = require("../middlewares/response");
+const { Activity, Country, State, Product } = require('../models');
+const { success, error } = require("../middlewares/response");
 
 module.exports = {
     async createActivity(req, res) {
         const {
             dayNumber,
             title,
-            description,
-            bestVisitTime,
-            bestVisitSeason,
-            bestVisitWeather,
             calendarStatus,
-            hasAccomodation,
-            hasMeals,
             start,
             end,
             product,
@@ -26,12 +15,9 @@ module.exports = {
             sightCategories,
             marketingExpiryDate,
             cityId,
-            countryId,
-            route,
-            stops,
-            contents,
+            countryId
         } = req.body;
-
+        if (new Date(start) > new Date(end)) return error(res, 400, 'Wrong start and enddate selection')
         if (dayNumber && isNaN(Number(dayNumber)) == true) return error(res, 400, 'Number required for number of days')
         if (sightCategories && Array.isArray(sightCategories) == false) return error(res, 400, 'Sight categories must be an array');
         if (adventureCategories && Array.isArray(adventureCategories) == false) return error(res, 400, 'Adventure categories must be an array')
@@ -53,30 +39,13 @@ module.exports = {
             if (existingPack) return error(res, 409, 'Duplicate name: Activity "' + title + '" already exists');
             else {
                 let newActivity = await Activity.create({
+                    ...req.body,
                     vendor: req.user.id,
-                    dayNumber,
-                    title,
-                    description,
-                    bestVisitTime,
-                    bestVisitSeason,
-                    bestVisitWeather,
-                    calendarStatus,
-                    hasAccomodation,
-                    hasMeals,
-                    start,
-                    end,
-                    product,
-                    countries,
-                    adventureCategories,
-                    sightCategories,
-                    marketingExpiryDate,
                     mainDestination: {
                         city,
                         country
                     },
-                    route,
-                    stops,
-                    contents,
+
                 });
                 let thisproduct = await Product.findById(product)
                 thisproduct.activities.push(newActivity);

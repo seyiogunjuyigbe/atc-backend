@@ -74,10 +74,7 @@ const activitySchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Content',
   }],
-  route: {
-    type: String,
-    enum: ['start', 'day', 'end'],
-  },
+  route: Number,
   stops: [{
     stop: String,
     meal: String
