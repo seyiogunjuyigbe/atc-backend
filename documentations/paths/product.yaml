@@ -214,6 +214,9 @@
         - in: query
           name: sort
           description: Sort order (asc,desc)
+        - in: query
+          name: status
+          description: active, waiting, expired
       responses:
         200:
           description: Success

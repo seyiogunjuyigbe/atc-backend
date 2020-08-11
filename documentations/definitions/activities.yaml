@@ -108,9 +108,8 @@
         items:
           type: string
       route:
-        type: string
+        type: integer
         description: activity route
-        enum: [start, day, end]
       stops:
         description: stops and meals for this activity
         type: array
