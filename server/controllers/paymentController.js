@@ -2,7 +2,7 @@ const { STRIPE_SECRET_KEY, WEBHOOK_SECRET } = process.env
 const stripe = require("stripe")(STRIPE_SECRET_KEY);
 const Transaction = require('../models/transaction')
 const { success, error } = require("../middlewares/response");
-const { subscribeMembership } = require('../services/paymentService')
+const { subscribeMembership, unsubscribeMembership } = require('../services/paymentService')
 module.exports = {
 
     async webhook(req, res) {
@@ -16,7 +16,7 @@ module.exports = {
                     intent = event.data.object;
                     currentTransaction.set({ status: "successful" });
                     await currentTransaction.save();
-                    if (currentTransaction.transactableType === "Membership") {
+                    if (currentTransaction.transactableType === "Membership" && currentTransaction.type == "subscription") {
                         await subscribeMembership(currentTransaction.transactable, req.user.id);
                     }
                     return success(res, 200, { success: true, intent: intent.id });

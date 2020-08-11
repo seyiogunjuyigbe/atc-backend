@@ -8,6 +8,10 @@ const TransactionSchema = new Schema({
     default: 'payment',
     enum: ['payment', 'subscription', 'refund', 'payout'],
   },
+  refund: {
+    type: Schema.Types.ObjectId,
+    ref: "Transaction"
+  },
   status: {
     type: String,
     default: 'pending',
@@ -63,12 +67,12 @@ const TransactionSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Card',
     required: true,
-  },
+  }, */
   bankAcount: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'BankAccount',
-    required: true,
-  }, */
+    // required: true,
+  },
   transactableType: {
     type: String,
     enum: ['Product', 'Membership'],
