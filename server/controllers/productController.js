@@ -84,14 +84,13 @@ module.exports = {
   },
   viewProduct: async (req, res) => {
     try {
-      const product = await Product.findById(req.params.productId).populate('activities owner contents')
-      //   ({
-      //   path: 'activities',
-      //   populate: {
-      //     path: 'countries sightCategories adventureCategories mainDestination.city mainDestination.country contents',
+      const product = await Product.findById(req.params.productId).populate('owner contents').populate({
+        path: 'activities',
+        populate: {
+          path: 'countries sightCategories adventureCategories mainDestination.city mainDestination.country contents',
 
-      //   }
-      // })
+        }
+      })
       if (!product) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       } else {
