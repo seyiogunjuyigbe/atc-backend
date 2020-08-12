@@ -4,7 +4,7 @@ const { STATE } = require('../config/config');
 const { addVendorAccount } = require('../services/stripeService')
 module.exports = {
     async addVendorAccount(req, res) {
-        const { code, state } = req.query;
+        const { } = req.query;
         try {
             if (state !== STATE) {
                 return error(res, 403, { error: 'Incorrect state parameter: ' + state });
