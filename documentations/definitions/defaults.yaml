@@ -5,18 +5,40 @@
       description: Authentication token
       required: true
     - in: query
-      name: $limit
+      name: limit
       required: false
     - in: query
-      name: $offset
+      name: offset
       required: false
     - in: query
-      name: $order
+      name: order
       required: false
     - in: query
-      name: $orderBy
+      name: orderBy
       required: false
     - in: query
-      name: $or
+      name: populate
+      description: GET api/v1/activities/priority?sightCategories=5f2d6292b8447a166ce62823&populate[]=sightCategories&populate[]=contents&status=active
+      type: array
+      items:
+        type: string
+# Default definitionss
+  GetQuery:
+    - in: query
+      name: limit
       required: false
-      description: OR query e.g "GET /cars?$or=color:red,brand:toyota" to get cars that are either red in color or made by toyota
+    - in: query
+      name: offset
+      required: false
+    - in: query
+      name: order
+      required: false
+    - in: query
+      name: orderBy
+      required: false
+    - in: query
+      name: populate
+      description: GET api/v1/activities/priority?sightCategories=5f2d6292b8447a166ce62823&populate[]=sightCategories&populate[]=contents&status=active
+      type: array
+      items:
+        type: string      

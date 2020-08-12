@@ -66,11 +66,8 @@ const get = async (model, req, conditions = {}, multiple = true) => {
 
   if (multiple) {
     const total = await model.countDocuments(conditions);
-
     q = q.skip(offset).limit(limit).sort({ [orderBy]: order });;
-
-    const data = await q.skip(offset).limit(limit);
-
+    let data = await q.skip(offset).limit(limit);
     return {
       data,
       meta: { limit, offset, total },

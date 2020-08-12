@@ -29,6 +29,8 @@
       operationId: listPackages
       tags:
       - Packages
+      parameters:
+        $ref: "#/definitions/GetQuery"      
       responses:
         200:
           description: success

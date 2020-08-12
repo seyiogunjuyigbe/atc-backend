@@ -31,14 +31,7 @@
       tags:
         - Products
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-        - in: query
-          name: status
-          description: getting params by filter
-          enum: [active, canceled, paused, waiting, expired]
+        $ref: "#/definitions/GetQuery"
       responses:
         200:
           description: Success
@@ -61,10 +54,6 @@
       tags:
         - Products
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
         - in: path
           name: productId
           description: Product ID
@@ -211,12 +200,7 @@
       tags:
       - Products
       parameters:
-        - in: query
-          name: sort
-          description: Sort order (asc,desc)
-        - in: query
-          name: status
-          description: active, waiting, expired
+        $ref: "#/definitions/GetQuery"
       responses:
         200:
           description: Success
@@ -236,10 +220,6 @@
       tags:
         - Products
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
         - in: path
           name: productId
           description: Product ID

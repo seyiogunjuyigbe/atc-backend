@@ -29,6 +29,8 @@
       operationId: listActivities
       tags:
       - Activities
+      parameters:
+        $ref: "#/definitions/GetQuery"
       responses:
         200:
           description: success
@@ -85,20 +87,15 @@
       tags:
       - Activities
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
         - in: path
           name: activityId
-          description: Activity Id to fetch
+          description: Activity ID
           required: true
       responses:
         200:
           description: Success
           schema:
             $ref: "#/definitions/Activity"
-
         403:
           description: Not authorized
           schema:
@@ -202,12 +199,7 @@
       tags:
       - Activities
       parameters:
-        - in: query
-          name: sort
-          description: Sort order (asc,desc)
-        - in: query
-          name: category
-          description: Search activity category ID
+        $ref: "#/definitions/GetQuery"
       responses:
         200:
           description: Success
