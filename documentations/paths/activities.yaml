@@ -222,7 +222,7 @@
           description: Search in array field (e.g sightCategories)
         - in: query
           name: populate[]
-          description: Object field(s) to populate
+          description: Object field(s) to populate (e.g sightCategories, contents, countries)
         - in: query
           name: limit
           description: Number of results per page

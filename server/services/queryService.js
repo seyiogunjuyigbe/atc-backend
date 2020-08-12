@@ -74,16 +74,18 @@ const get = async (model, req, conditions = {}, multiple = true) => {
 
     let data = await q.skip(offset).limit(limit);
     if (Array.isArray(data) && type && typeId) {
-      if ((Array.isArray(populate) && populate.includes(type)) || (populate && populate == type)) {
-        data = data.filter(a => {
-          return (a[type].length > 0 && a[type].filter(x => {
-            return String(x._id) === (String(typeId))
-          }))
-        })
+      if (populate && (Array.isArray(populate) && populate.length > 0)) {
+        if (populate.includes(type) || (populate && populate == type)) {
+          data = data.filter(a => {
+            return (a[type].length > 0 && a[type].filter(x => {
+              return String(x._id) === (String(typeId))
+            }))
+          })
+        }
       }
       else {
         data = data.filter(a => {
-          return a[type].includes(String(typeId))
+          return (a[type] == String(typeId) || a[type].includes(String(typeId)))
         })
       }
     }

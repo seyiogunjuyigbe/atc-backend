@@ -222,13 +222,13 @@
           description: Sort order
         - in: query
           name: typeId
-          description: Search ID (e.g category ID)
+          description: Search ID (e.g activity ID)
         - in: query
           name: type
-          description: Search in array field (e.g sightCategories)
+          description: Search in array field (e.g activities)
         - in: query
           name: populate[]
-          description: Object field(s) to populate
+          description: Object field(s) to populate (e.g activities, activities.sightCategories)
         - in: query
           name: limit
           description: Number of results per page
