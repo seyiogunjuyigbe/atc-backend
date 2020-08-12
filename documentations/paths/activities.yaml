@@ -30,9 +30,7 @@
       tags:
       - Activities
       parameters:
-        - in: query
-          name: populate[]
-          description: Object field(s) to populate
+        $ref: "#/definitions/GetQuery"
       responses:
         200:
           description: success
@@ -89,17 +87,10 @@
       tags:
       - Activities
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
         - in: path
           name: activityId
-          description: Activity Id to fetch
+          description: Activity ID
           required: true
-        - in: query
-          name: populate[]
-          description: Object field(s) to populate
       responses:
         200:
           description: Success
@@ -208,26 +199,7 @@
       tags:
       - Activities
       parameters:
-        - in: query
-          name: orderBy
-          description: Field to sort
-        - in: query
-          name: order
-          description: Sort order
-        - in: query
-          name: typeId
-          description: Search ID (e.g category ID)
-        - in: query
-          name: type
-          description: Search in array field (e.g sightCategories)
-        - in: query
-          name: populate[]
-          description: Object field(s) to populate (e.g sightCategories, contents, countries)
-        - in: query
-          name: limit
-          description: Number of results per page
-        - in: query
-          name: offset
+        $ref: "#/definitions/GetQuery"
       responses:
         200:
           description: Success

@@ -31,10 +31,7 @@
       tags:
         - Subscriptions
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
+        $ref: "#/definitions/GetAuthQuery"
       responses:
         200:
           description: Success
@@ -59,10 +56,6 @@
       tags:
         - Subscriptions
       parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
         - in: path
           name: id
           description: get data
