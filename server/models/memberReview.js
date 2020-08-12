@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const reviewsSchema = new Schema({
   member: {
     type: Schema.Types.ObjectId,
-    ref: "Membership",
+    ref: "User",
     required: true
   },
   video: { type: String },

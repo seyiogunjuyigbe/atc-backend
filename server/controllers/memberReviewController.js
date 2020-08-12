@@ -4,7 +4,7 @@ const {
 const __Product = require('../models/product');
 const __Activity = require('../models/activity');
 const responses = require('../helper/responses');
-
+const Queryservice = require("../services/queryService")
 const {
   check,
   validationResult
@@ -61,18 +61,16 @@ module.exports = {
   },
   viewMemberReview: async (req, res) => {
     try {
-      MemberReview.findById(req.params.memberReviewId)
-        .populate("activity").populate("product").populate("member").exec((err, memberReview)=> {
+      const memberReview = await Queryservice.findOne(MemberReview, req, {_id: req.params.memberReviewId})
         return res
-          .status(200)
-          .send(
-            responses.success(
-              200,
-              'Record was retrieved successfully',
-              memberReview,
-            ),
-          );
-      })
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was retrieved successfully',
+            memberReview,
+          ),
+        );
     }
     catch (error) {
       return res
@@ -81,37 +79,9 @@ module.exports = {
     }
   },
   getActivityReviewByProductId: async (req, res) => {
+    // product:req.params.productId
     try {
-      MemberReview.find({product:req.params.productId})
-        .populate("activity").populate("product").populate("member").exec((err, memberReview)=> {
-        return res
-          .status(200)
-          .send(
-            responses.success(
-              200,
-              'Record was retrieved successfully',
-              memberReview,
-            ),
-          );
-      })
-    }
-    catch (error) {
-      return res
-        .status(500)
-        .send(responses.error(500, `Error getting reviews ${error.message}`));
-    }
-  },
-  listMemberReview: (req, res) => {
-    const offset = req.query.offset ? req.query.offset : 0;
-    const limit = req.query.limit ? req.query.limit : 20;
-    const orderBy = req.query.orderBy ? req.query.orderBy : 'id';
-    const order = req.query.order ? req.query.order : 'ASC';
-    const ordering = [
-      [orderBy, order]
-    ];
-    MemberReview.find({}).limit(Number(limit))
-      .skip(Number(offset)).populate("activity").populate("product").populate("member").exec((err, memberReview) => {
-      console.log(err)
+      const memberReview = await Queryservice.find(MemberReview, req, {product:req.params.productId})
       return res
         .status(200)
         .send(
@@ -121,8 +91,31 @@ module.exports = {
             memberReview,
           ),
         );
-    })
-
+    }
+    catch (error) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error getting reviews ${error.message}`));
+    }
+  },
+  listMemberReview: async (req, res) => {
+    try {
+      const memberReview = await Queryservice.find(MemberReview, req, {})
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was retrieved successfully',
+            memberReview,
+          ),
+        );
+    }
+    catch (err) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error getting record ${err.message}`));
+    }
   },
   updateMemberReview: async (req, res) => {
     try {
