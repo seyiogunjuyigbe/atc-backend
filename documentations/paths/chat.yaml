@@ -1,0 +1,88 @@
+# Chat Paths
+
+  /chat:
+    post:
+      summary: Send chat message to any user
+      description: This creates an active chat between to users and none exit aleady or just send a new message
+      operationId: SendMessage
+      tags:
+      - Chat
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Chat details
+          required: true
+          schema:
+            $ref: "#/definitions/Chat"
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Chat created successfully.
+    get:
+      summary: Get All Active chat
+      description: Display active all chat
+      operationId: listChat
+      tags:
+      - Chat
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ActiveChat"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /chat/{chatId}:
+    get:
+      summary: Get All chat messages
+      description: Get all chat messages
+      operationId: getChatMessages
+      tags:
+      - Chat
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: chatId
+          description: id of the chat to get it's messages
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ChatMessages"
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

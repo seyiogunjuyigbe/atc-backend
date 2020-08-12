@@ -11,8 +11,11 @@ const State = require('./state')
 const ProductCycle = require('./productCycle')
 const Country = require('./country');
 const Transaction = require('./transaction')
+const Chats = require('./chats')
+const Messages = require('./messages')
 
 module.exports = {
+  Chats,
   ProductCycle,
   Category,
   Content,
@@ -23,6 +26,7 @@ module.exports = {
   Subscription,
   User,
   State,
+  Messages,
   MemberReview,
   Country, Transaction
 };

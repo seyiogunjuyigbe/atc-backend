@@ -1,6 +1,7 @@
 const express = require("express");
 const indexRoute = express.Router();
 const authRoute = require("./authRoute");
+const chatRoute = require("./chatRoute");
 const subRoute = require("./subscriptionRoute");
 const membershipRoute = require('./membershipRoute');
 const productRoute = require('./productRoute');
@@ -12,6 +13,7 @@ const stateRoutes = require('./stateRoutes')
 const paymentRoute = require('./paymentRoute')
 const memberReviewRoute = require('./memberReviewRoute')
 indexRoute.use("/auth", authRoute);
+indexRoute.use("/chat", chatRoute);
 indexRoute.use("/memberships", membershipRoute);
 indexRoute.use("/members_review", memberReviewRoute);
 indexRoute.use("/subscriptions", subRoute);
