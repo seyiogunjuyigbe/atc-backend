@@ -6,6 +6,7 @@ const { check, validationResult } = require('express-validator');
 const { createReference } = require('../services/paymentService');
 const moment = require('moment')
 const StripeService = require('../services/stripeService');
+const Queryservice = require("../services/queryService")
 
 module.exports = {
   create: async (req, res) => {
@@ -84,73 +85,19 @@ module.exports = {
   },
   viewProduct: async (req, res) => {
     try {
-      const product = await Product.findById(req.params.productId).populate('owner contents').populate({
-        path: 'activities',
-        populate: {
-          path: 'countries sightCategories adventureCategories mainDestination.city mainDestination.country contents',
-
-        }
-      })
-      if (!product) {
-        return res.status(400).send(responses.error(400, 'Product not found'));
-      } else {
-        return res
-          .status(200)
-          .send(
-            responses.success(
-              200,
-              'Record was retreived successfully',
-              { product, prices: calc(product.price) }
-            ) ,
-          );
-      }
-    } catch (error) {
-      return res
-        .status(500)
-        .send(responses.error(500, `Error viewing a product ${error.message}`));
+      const product = await Queryservice.findOne(Product, req);
+      return success(res, 200, product)
+    } catch (err) {
+      return error(res, 500, err.message);
     }
   },
   listProduct: async (req, res) => {
-    let offset = req.query.offset ? req.query.offset : 0;
-    let limit = req.query.limit ? req.query.limit : 20;
-    let orderBy = req.query.orderBy ? req.query.orderBy : 'id';
-    let order = req.query.order ? req.query.order : 'asc';
-    const filter = {}
-    if (req.query.status) {
-      filter.status = req.query.status
-    }
-    let ordering = [
-      [orderBy, order]
-    ];
     try {
-      let products = await Product
-        .find({}).populate('activities owner contents')
-        .limit(limit)
-        .skip(offset)
-      // .sort({
-      //   ordering
-      // })
-
-      await Product.countDocuments().exec()
-      let result = []
-      products.forEach(product => {
-        result.push({ product, prices: calc(product.price) })
-      })
-      return res
-        .status(200)
-        .send(
-          responses.success(
-            200,
-            'Record was retreived successfully',
-            result ,
-          ) ,
-        );
-
+      let products = await Queryservice.find(Product, req)
+      return success(res, 200, products)
     } catch (err) {
-      return res.status(500).json({ error: true, message: err.message })
+      return error(res, 500, err.message);
     }
-
-
   },
   updateProduct: async (req, res) => {
     try {
@@ -262,14 +209,9 @@ module.exports = {
     }
   },
   async fetchHomePageProducts(req, res) {
-    const { sort, status } = req.query;
-    if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"');
-    if (!["active", "waiting", "expired"].includes(status)) return error(res, 400, "Status must be active, waiting or expired")
     let today = new Date();
-    let searchObj = { marketingExpiryDate: { $gte: today } };
-    if (status); searchObj.status = status
     try {
-      let products = await Product.find(searchObj).populate('activities owner contents').sort({ marketingPriority: sort });
+      let products = await Queryservice.find(Product, req, { marketingExpiryDate: { $gte: today } });
       return success(res, 200, products)
     } catch (err) {
       return error(res, 500, err.message)

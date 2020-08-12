@@ -212,11 +212,28 @@
       - Products
       parameters:
         - in: query
-          name: sort
-          description: Sort order (asc,desc)
-        - in: query
           name: status
-          description: active, waiting, expired
+          description: Search by status
+        - in: query
+          name: orderBy
+          description: Field to sort
+        - in: query
+          name: order
+          description: Sort order
+        - in: query
+          name: typeId
+          description: Search ID (e.g category ID)
+        - in: query
+          name: type
+          description: Search in array field (e.g sightCategories)
+        - in: query
+          name: populate[]
+          description: Object field(s) to populate
+        - in: query
+          name: limit
+          description: Number of results per page
+        - in: query
+          name: offset
       responses:
         200:
           description: Success

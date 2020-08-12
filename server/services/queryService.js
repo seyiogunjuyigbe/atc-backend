@@ -19,7 +19,7 @@ const processPopulate = function (query) {
 const get = async (model, req, conditions = {}, multiple = true) => {
 
   const { query, params: { id } } = req;
-  const { populate } = query;
+  const { populate, typeId, type } = query;
   const limit = parseInt((query.limit) || '10', 10);
   const offset = parseInt((query.offset) || '0', 10);
   const orderBy = query.orderBy ? query.orderBy : 'createdAt';
@@ -30,6 +30,8 @@ const get = async (model, req, conditions = {}, multiple = true) => {
   delete query.populate;
   delete query.order;
   delete query.orderBy;
+  delete query.typeId;
+  delete query.type;
 
   if (!_.isEmpty(query)) {
     Object.keys(query).forEach((field) => {
@@ -47,6 +49,7 @@ const get = async (model, req, conditions = {}, multiple = true) => {
           break;
       }
       conditions[field] = value;
+      console.log({ conditions })
     })
   }
 
@@ -69,8 +72,21 @@ const get = async (model, req, conditions = {}, multiple = true) => {
 
     q = q.skip(offset).limit(limit).sort({ [orderBy]: order });;
 
-    const data = await q.skip(offset).limit(limit);
-
+    let data = await q.skip(offset).limit(limit);
+    if (Array.isArray(data) && type && typeId) {
+      if ((Array.isArray(populate) && populate.includes(type)) || (populate && populate == type)) {
+        data = data.filter(a => {
+          return (a[type].length > 0 && a[type].filter(x => {
+            return String(x._id) === (String(typeId))
+          }))
+        })
+      }
+      else {
+        data = data.filter(a => {
+          return a[type].includes(String(typeId))
+        })
+      }
+    }
     return {
       data,
       meta: { limit, offset, total },
