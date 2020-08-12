@@ -34,6 +34,9 @@ module.exports = {
                     if (currentTransaction.transactableType === "Membership" && currentTransaction.type == "subscription") {
                         await subscribeMembership(currentTransaction.transactable, req.user.id);
                     }
+                    if (currentTransaction.transactableType === "Membership" && currentTransaction.type == "refund") {
+                        await unsubscribeMembership(currentTransaction.transactable, currentTransaction.customer);
+                    }
                     return success(res, 200, { success: true, intent: intent.id });
                 } else if (event['type'] === 'payment_intent.payment_failed') {
                     intent = event.data.object;
