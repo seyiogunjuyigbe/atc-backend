@@ -50,6 +50,12 @@ const get = async (model, req, conditions = {}, multiple = true) => {
     })
   }
 
+  if (!multiple && !conditions._id) {
+    const params = req.params;
+    const paramId = Object.keys(params).find(param => param.toLowerCase().includes('id'));
+    conditions._id = req.params[paramId];
+  }
+
   let q = model[multiple ? 'find' : 'findOne'](conditions);
   const temp = await model[multiple ? 'find' : 'findOne'](conditions);
 
