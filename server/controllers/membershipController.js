@@ -228,16 +228,19 @@ module.exports = {
     }
   },
   async refundMembership(req, res) {
-    const { membershipId, customerId } = req.body
+    const { membershipId } = req.params
+    const { customerId } = req.body;
+    if (customerId && req.user.role !== "admin") return error(res, 401, 'Unauthorized')
+    let userId = customerId || req.user.id
     try {
       let membership = await Membership.findById(membershipId);
-      let customer = await User.findById(customerId).populate('memberships');
+      let customer = await User.findById(userId).populate('memberships');
       let transactions = await Transaction.find({ customer, transactableType: "Membership", transactable: membershipId, status: "successful" }).populate('activeCycle').sort({ paidAt: "desc" })
       // verify that subscribed membership isn't expired
-      transactions = transactions.filter(x => {
-        return x.activeCycle.endDate > new Date()
-      })[0]
-      if (!transactions || transactions.length == 0) return error(res, 400, 'No refundable transactions');
+      // let transaction = transactions.find(x => {
+      //   return x.activeCycle.endDate > new Date()
+      // })
+      if (!transactions || transactions.length == 0) return error(res, 400, 'No refundable transaction');
       else if (!customer.bankAcount) return (res, 400, "Bank account required for succesful refund")
       else {
         let refund = await Transaction.create({
@@ -246,20 +249,20 @@ module.exports = {
           reference: createReference('refund'),
           amount: transactions[0].amount,
           initiatedBy: req.user.id,
-          activeCycle: transactions[0].activeCycle,
+          // activeCycle: transactions[0].activeCycle,
           customer,
           bankAcount: customer.bankAcount,
           transactableType: 'Membership',
           transactable: membershipId,
           description: `Refund for ${membership.title} to ${customer.firstName} ${customer.lastName}`,
         });
-        // const paymentIntent = await StripeService.createPaymentIntent(
-        //   refund, req.user
-        // );
+        const paymentIntent = await StripeService.createPaymentIntent(
+          refund, req.user
+        );
 
-        // if (paymentIntent && paymentIntent.id) {
-        //   refund.stripePaymentId = paymentIntent.id;
-        //  }
+        if (paymentIntent && paymentIntent.id) {
+          refund.stripePaymentId = paymentIntent.id;
+        }
         await refund.save()
 
         return success(res, 200,
@@ -270,7 +273,7 @@ module.exports = {
           })
       }
     } catch (err) {
-
+      return error(res, 500, err.message)
     }
   }
 };
