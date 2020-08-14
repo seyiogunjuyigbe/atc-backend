@@ -3,12 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const cron = require('node-cron');
 const morgan = require('morgan');
-const {
-  safeLoad
-} = require('js-yaml');
-const {
-  readFileSync
-} = require('fs');
+const { safeLoad } = require('js-yaml');
+const { readFileSync } = require('fs');
 const bodyParser = require('body-parser');
 const path = require('path');
 const ejs = require('ejs');
@@ -23,10 +19,7 @@ createStates();
 createDefaultMembersip()
 passport();
 const { MONGO_URL } = process.env
-const {
-  loadDefinitions,
-  loadPaths
-} = require('../documentations');
+const { loadDefinitions, loadPaths } = require('../documentations');
 
 new db().connect(MONGO_URL);
 app.use(cors());
