@@ -24,7 +24,8 @@ module.exports = function (req, res, next) {
                     }
 
                     req.user = await User.findById(decoded.id);
-
+                    req.user.lastSeen = new Date();
+                    await req.user.save()
                     if (!req.user) {
                         return res.status(401).json({
                             response: {

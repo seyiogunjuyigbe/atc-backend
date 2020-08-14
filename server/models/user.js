@@ -25,6 +25,10 @@ const userSchema = new Schema({
   city: {
     type: String
   },
+  lastSeen: {
+    type: Date,
+    default: new Date()
+  },
   password: String,
   country: {
     type: String

@@ -8,6 +8,10 @@ const TransactionSchema = new Schema({
     default: 'payment',
     enum: ['payment', 'subscription', 'refund', 'payout'],
   },
+  refund: {
+    type: Schema.Types.ObjectId,
+    ref: "Transaction"
+  },
   status: {
     type: String,
     default: 'pending',

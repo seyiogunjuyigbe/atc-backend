@@ -13,7 +13,6 @@ const validate = require('../middlewares/validate');
 
 router.post('/', authenticate, parser.single('content'), [
     check('contentFor').isIn(Object.keys(models)).withMessage('Specify model which content is for: ' + Object.keys(models).join(",")),
-    check('contentForId').not().isEmpty().withMessage('ID required')
 ], validate, createContent)
 router.get('/:contentId', fetchContent)
 router.delete('/:contentId', authenticate, deleteContent)

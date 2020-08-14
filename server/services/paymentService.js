@@ -1,4 +1,4 @@
-const { User, Membership } = require('../models')
+const { User, Membership, Transaction } = require('../models')
 exports.createReference = (type) => {
   const randomChars = Math.random().toString(32).substr(8);
   let prefix = 'ATC_';
@@ -33,6 +33,17 @@ exports.subscribeMembership = async (membershipId, userId) => {
     else {
       memberships.push(membership)
     }
+    await user.save();
+    return user
+  } catch (err) {
+    return err
+  }
+}
+exports.unsubscribeMembership = async (membershipId, userId) => {
+  try {
+    let membership = await Membership.findById(membershipId);
+    let user = await User.findById(userId).populate('memberships');
+    user.memberships.pull(membership);
     await user.save();
     return user
   } catch (err) {
