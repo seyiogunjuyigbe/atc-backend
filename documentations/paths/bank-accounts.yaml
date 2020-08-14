@@ -130,7 +130,6 @@
           description: BankAccount data to update
           schema:
             $ref: "#/definitions/BankAccount"
-
       responses:
         200:
           description: Success
@@ -152,24 +151,31 @@
           schema:
             example:
               message: An unexpected error occured
-
-  /bank-accounts/list-banks:
-    get:
-      summary: List all supported banks
-      operationId: listBanks
+  /payout:
+    post:
+      summary: Pay a vendor account
+      operationId: payOut
       tags:
-      - BankAccounts
+      - Payout
       parameters:
         - in: header
           name: Authorization
           description: Authentication token
           required: true
+        - in: body
+          name: userId
+          description: Recipient ID
+          required: true
+        - in: body
+          name: amount
+          description: Payment amount
+          required: true        
       responses:
         200:
           description: Success
           schema:
             example:
-              message: Banks fetched successfully
+              message: Payout successful
         403:
           description: Not authorized
           schema:

@@ -11,7 +11,7 @@ const State = require('./state')
 const ProductCycle = require('./productCycle')
 const Country = require('./country');
 const Transaction = require('./transaction')
-
+const BankAccount = require('./bankaccount')
 module.exports = {
   ProductCycle,
   Category,
@@ -24,5 +24,7 @@ module.exports = {
   User,
   State,
   MemberReview,
-  Country, Transaction
+  Country,
+  Transaction,
+  BankAccount
 };
