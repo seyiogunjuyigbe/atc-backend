@@ -22,6 +22,9 @@
       password:
         type: string
         minLength: 6
+      lastSeen:
+        type: String
+        description: last time a user was seen online
       address:
         type: string
       country:
