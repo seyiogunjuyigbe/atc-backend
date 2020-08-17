@@ -5,7 +5,8 @@ const Schema = mongoose.Schema;
 
 const PackageSchema = new Schema({
   name: {
-    type: String
+    type: String,
+    lowercase: true
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId
