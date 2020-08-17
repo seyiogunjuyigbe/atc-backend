@@ -85,11 +85,11 @@ module.exports = {
   },
   updateSlot: async (req, res) => {
     try {
-      const product = await Product.findOne({ _id: req.params.productId })
+      const product = await Product.findOne({ _id: req.params.productId, status: "active" })
       if (!product) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       } else {
-        const productCycle = await ProductCycle.findOne({product: product._id});
+        const productCycle = await ProductCycle.findOne({product: product._id, status: "active"});
         if(product.slotsUsed < req.body.totalSlots) {
           return res
             .status(500)
