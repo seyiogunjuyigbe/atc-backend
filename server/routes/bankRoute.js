@@ -9,10 +9,10 @@ router.get("/bank-accounts/:bankAccountId", authenticate, bankCtrl.fetchAccount)
 router.put("/bank-accounts/:bankAccountId", authenticate, bankCtrl.updateRecipient)
 router.delete("/bank-accounts/:bankAccountId", authenticate, bankCtrl.deleteRecipient)
 router.get("/bank-accounts", authenticate, checkIfAdmin, bankCtrl.listAccounts)
-router.post("/payout", authenticate, checkIfAdmin,
-    [
-        check('userId').not().isEmpty().withMessage("Required field"),
-        check('amount').not().isEmpty().withMessage("Required field"),
-    ],
-    validate, bankCtrl.payRecipient);
+// router.post("/payout", authenticate, checkIfAdmin,
+//     [
+//         check('userId').not().isEmpty().withMessage("Required field"),
+//         check('amount').not().isEmpty().withMessage("Required field"),
+//     ],
+//     validate, bankCtrl.payRecipient);
 module.exports = router;
