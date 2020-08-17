@@ -3,7 +3,8 @@ const stripe = require("stripe")(STRIPE_SECRET_KEY);
 const Transaction = require('../models/transaction')
 const { success, error } = require("../middlewares/response");
 const { subscribeMembership, unsubscribeMembership } = require('../services/paymentService');
-const stripeService = require('../services/stripeService')
+const stripeService = require('../services/stripeService');
+const moment = require("moment")
 module.exports = {
 
     async webhook(req, res) {
@@ -24,19 +25,22 @@ module.exports = {
                 WEBHOOK_SECRET = data.secret
             }
             let event = stripe.webhooks.constructEvent(req.body, sig, WEBHOOK_SECRET);
-            let currentTransaction = await Transaction.findOne({ stripePaymentId: event.data.object.id })
+            let currentTransaction = await Transaction.findOne({ stripePaymentId: event.data.object.id }).populate('transactable')
             let intent;
             if (event && event.data && event.data.object) {
                 if (event['type'] === 'payment_intent.succeeded') {
                     intent = event.data.object;
-                    currentTransaction.set({ status: "successful" });
-                    await currentTransaction.save();
+                    currentTransaction.set({ status: "successful", paidAt: new Date() });
+                    if (currentTransaction.transactableType == "Product" && currentTransaction.type == "payment") {
+                        currentTransaction.settleDate = moment().add(currentTransaction.transactable.cancellationDaysLimit, 'days')
+                    }
                     if (currentTransaction.transactableType === "Membership" && currentTransaction.type == "subscription") {
                         await subscribeMembership(currentTransaction.transactable, req.user.id);
                     }
-                    if (currentTransaction.transactableType === "Membership" && currentTransaction.type == "refund") {
-                        await unsubscribeMembership(currentTransaction.transactable, currentTransaction.customer);
-                    }
+                    // if (currentTransaction.transactableType === "Membership" && currentTransaction.type == "refund") {
+                    //     await unsubscribeMembership(currentTransaction.transactable, currentTransaction.customer);
+                    // }
+                    await currentTransaction.save();
                     return success(res, 200, { success: true, intent: intent.id });
                 } else if (event['type'] === 'payment_intent.payment_failed') {
                     intent = event.data.object;

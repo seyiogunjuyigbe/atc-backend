@@ -89,7 +89,8 @@ const TransactionSchema = new Schema({
   stripePaymentId: {
     type: String
   },
-  transferwiseId: String
+  transferwiseId: String,
+  settleDate: Date
 },
   {
     timestamps: true
