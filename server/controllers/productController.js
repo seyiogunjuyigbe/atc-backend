@@ -31,7 +31,7 @@ module.exports = {
       }
       const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
       const productList = req.body.products.map((data) => ({
-        ...data, packageID: createdPackage._id,
+        ...data, package: createdPackage._id,
         owner: req.user._id,
         price: calc(data.price),
         sellingCycle: data.sellingCycle,
@@ -103,18 +103,16 @@ module.exports = {
     try {
       const result = await Product.findByIdAndUpdate(req.params.productId, {
         ...req.body,
-        price:
-          { adult: req.body.adultPrice, children: req.body.childrenPrice, actual: calcPrice(req.body.adultPrice) },
-
       });
-      if (req.body.customPrices.length >= 1) {
-        result.set({
-          customPrices: req.body.customPrices.map(price => ({
+      if (req.body.price) result.price = calc(req.body.price);
+      if (req.body.customPrices) {
+        if (req.body.customPrices.length >= 1) {
+          result.customPrices = req.body.customPrices.map(price => ({
             range: price.range, prices: calc(price.prices)
           }))
-        })
+        }
       }
-      result.save()
+      await result.save()
       return res
         .status(200)
         .send(

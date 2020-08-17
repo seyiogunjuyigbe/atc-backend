@@ -22,12 +22,12 @@ module.exports = {
         if (sightCategories && Array.isArray(sightCategories) == false) return error(res, 400, 'Sight categories must be an array');
         if (adventureCategories && Array.isArray(adventureCategories) == false) return error(res, 400, 'Adventure categories must be an array')
         if (countries && Array.isArray(countries) == false) return error(res, 400, 'Countries must be an array')
-        if (calendarStatus && calendarStatus.length > 0) {
-            let wrongEntry = calendarStatus.find(entry => {
-                return checkIfObj(entry) == false
-            })
-            if (wrongEntry) return error(res, 400, "Calendar status must be an array of objects")
-        }
+        // if (calendarStatus && calendarStatus.length > 0) {
+        //     let wrongEntry = calendarStatus.find(entry => {
+        //         return checkIfObj(entry) == false
+        //     })
+        //     if (wrongEntry) return error(res, 400, "Calendar status must be an array of objects")
+        // }
         try {
             let country = await Country.findById(countryId);
             let city = await State.findById(cityId)
