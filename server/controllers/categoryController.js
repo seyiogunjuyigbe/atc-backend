@@ -41,8 +41,8 @@ module.exports = {
                         })
                     }))
                     await category.set({ contents })
+                    await category.save();
                 }
-                await category.save();
                 return success(res, 200, { success: true, category })
             }
         } catch (err) {
