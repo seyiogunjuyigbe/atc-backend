@@ -10,8 +10,7 @@ const Product_cycleSchema = new Schema({
     sellingCycle: {type: Number, required: true},
     waitingCycle: {type: Number, required: true},
     totalSlots: {type: Number, required: true},
-    slotsUsed: {type: Number, required: true},
-    slotsLeft: {type: Number, required: true},
+    slotsUsed: {type: Number, required: true, default: 0},
     status: {
       type: String,
       enum: ["active", "canceled", "paused", "waiting", "expired"],

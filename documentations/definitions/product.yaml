@@ -8,9 +8,6 @@
       slotsUsed:
         type: number
         description: total number of slots used
-      slotsLeft:
-        type: number
-        description: total number of slots left
       packageName:
         type: string
         description: package name
@@ -97,9 +94,6 @@
         slotsUsed:
           type: number
           description: total number of slots used
-        slotsLeft:
-          type: number
-          description: total number of slots left
         sellingCycle:
           type: number
           description: number of day the product will sell
@@ -138,9 +132,6 @@
       slotsUsed:
         type: number
         description: total number of slots used
-      slotsLeft:
-        type: number
-        description: total number of slots left
       _id:
         type: string
         description: cycle id
@@ -174,10 +165,6 @@
       slotsUsed:
         type: number
         description: total number of slots used
-        required: true
-      slotsLeft:
-        type: number
-        description: total number of slots left
         required: true
       type:
         type: string
