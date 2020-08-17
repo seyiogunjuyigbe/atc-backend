@@ -83,6 +83,37 @@ module.exports = {
         .send(responses.error(500, `Error viewing a product ${error.message}`));
     }
   },
+  updateSlot: async (req, res) => {
+    try {
+      const product = await Product.findOne({ _id: req.params.productId })
+      if (!product) {
+        return res.status(400).send(responses.error(400, 'Product not found'));
+      } else {
+        const productCycle = await ProductCycle.findOne({product: product._id});
+        if(product.slotsUsed < req.body.totalSlots) {
+          return res
+            .status(500)
+            .send(responses.error(500, 'Product slot cannot be less than slots already purchased'));
+        }
+        product.totalSlots = req.body.totalSlots
+        productCycle.totalSlots = req.body.totalSlots
+        await product.save();
+        await productCycle.save();
+        return res
+          .status(200)
+          .send(
+            responses.success(
+              200,
+              'Record was updated successfully'
+            ) ,
+          );
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error viewing a product ${error.message}`));
+    }
+  },
   viewProduct: async (req, res) => {
     try {
       const product = await Queryservice.findOne(Product, req);
