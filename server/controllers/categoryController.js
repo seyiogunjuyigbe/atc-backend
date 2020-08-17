@@ -31,7 +31,7 @@ module.exports = {
                     occurrence,
                 });
                 let contents = []
-                if (req.files.length > 0) {
+                if (req.files && req.files.length) {
                     contents = await Promise.all(req.files.map(async file => {
                         return await Content.create({
                             url: file.path,
@@ -40,9 +40,9 @@ module.exports = {
                             type: file.mimetype.substring(0, file.mimetype.indexOf('/'))
                         })
                     }))
+                    await category.set({ contents })
+                    await category.save();
                 }
-                await category.set({ contents })
-                await category.save();
                 return success(res, 200, { success: true, category })
             }
         } catch (err) {
