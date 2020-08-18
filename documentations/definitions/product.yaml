@@ -2,6 +2,12 @@
   Product:
     type: object
     properties:
+      totalSlots:
+        type: number
+        description: total avalable slots
+      slotsUsed:
+        type: number
+        description: total number of slots used
       packageName:
         type: string
         description: package name
@@ -82,6 +88,12 @@
     items:
       type: object
       properties:
+        totalSlots:
+          type: number
+          description: total avalable slots
+        slotsUsed:
+          type: number
+          description: total number of slots used
         sellingCycle:
           type: number
           description: number of day the product will sell
@@ -114,6 +126,12 @@
   ProductLifeCycle:
     type: object
     properties:
+      totalSlots:
+        type: number
+        description: total avalable slots
+      slotsUsed:
+        type: number
+        description: total number of slots used
       _id:
         type: string
         description: cycle id
@@ -140,6 +158,14 @@
   singleProducts:
     type: object
     properties:
+      totalSlots:
+        type: number
+        description: total avalable slots
+        required: true
+      slotsUsed:
+        type: number
+        description: total number of slots used
+        required: true
       type:
         type: string
         description: product type
@@ -180,3 +206,10 @@
       description:
         type: string
         description: product description
+
+  slot:
+    type: object
+    properties:
+      totalSlots:
+        type: number
+        description: total avalable slots
