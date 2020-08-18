@@ -38,6 +38,10 @@ const ProductSchema = new Schema({
       ref: 'Package',
       required: true
     },
+    activeCycle: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Product_cycle'
+    },
     cancellationDaysLimit: {
       type: Number,
     },
