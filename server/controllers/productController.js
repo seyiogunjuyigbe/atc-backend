@@ -89,7 +89,7 @@ module.exports = {
       if (!productCycle) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       }
-      if(productCycle.slotsUsed < req.body.totalSlots) {
+      if(productCycle.slotsUsed > req.body.totalSlots) {
         return res
           .status(500)
           .send(responses.error(500, 'Product slot cannot be less than slots already purchased'));

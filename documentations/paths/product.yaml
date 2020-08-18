@@ -242,7 +242,7 @@
           schema:
             example:
               message: An unexpected error occured
-  /products/slots{productId}:
+  /products/slots/{productId}:
     put:
       summary: Update slot count
       operationId: updateSlot
