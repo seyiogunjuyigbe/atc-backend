@@ -13,7 +13,7 @@ productRoute.get('/priority', productCrl.fetchHomePageProducts)
 productRoute.get("/", productCrl.listProduct);
 productRoute.put("/:productId", authenticate, productCrl.updateProduct);
 productRoute.get("/:productId", productCrl.viewProduct);
-productRoute.put("/slot/:productId", productCrl.updateSlot);
+productRoute.put("/slots/:productId", productCrl.updateSlot);
 productRoute.get('/priority', productCrl.fetchHomePageProducts)
 productRoute.get('/product_cycle/:productId', productCrl.viewProductCycle)
 productRoute.put('/:productId/priority', authenticate, check('priority').not().isEmpty().withMessage('Priority is required'),
