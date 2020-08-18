@@ -47,9 +47,9 @@ module.exports = {
           responses.error(500, `Error creating a Product No Main product provided`) ,
         );
       const endDate = moment(new Date(), "DD-MM-YYYY").add(req.body.sellingCycle, 'days')
-      const product = await Product.create(productList.filter(({ isMainProduct }) => !isMainProduct));
-      const mainProductInfo = await Product.create({ ...mainProductObject, sellingCycle, waitingCycle, endDate, startDate: new Date() });
-      const activeCycle = await ProductCycle.create({ startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate })
+      await Product.create(productList.filter(({ isMainProduct }) => !isMainProduct));
+      const mainProductInfo = await Product.create({ ...mainProductObject, sellingCycle, waitingCycle, endDate, startDate: new Date(),  });
+      const activeCycle = await ProductCycle.create({ startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate, totalSlots: req.body.totalSlots , slotsUsed: req.body.slotsUsed })
       mainProductInfo.activeCycle = activeCycle._id
       await mainProductInfo.save()
       return success(res, 200, "Product created successfully");
@@ -85,29 +85,25 @@ module.exports = {
   },
   updateSlot: async (req, res) => {
     try {
-      const product = await Product.findOne({ _id: req.params.productId, status: "active" })
-      if (!product) {
+      const productCycle = await ProductCycle.findOne({product: req.params.productId, status: "active"});
+      if (!productCycle) {
         return res.status(400).send(responses.error(400, 'Product not found'));
-      } else {
-        const productCycle = await ProductCycle.findOne({product: product._id, status: "active"});
-        if(product.slotsUsed < req.body.totalSlots) {
-          return res
-            .status(500)
-            .send(responses.error(500, 'Product slot cannot be less than slots already purchased'));
-        }
-        product.totalSlots = req.body.totalSlots
-        productCycle.totalSlots = req.body.totalSlots
-        await product.save();
-        await productCycle.save();
-        return res
-          .status(200)
-          .send(
-            responses.success(
-              200,
-              'Record was updated successfully'
-            ) ,
-          );
       }
+      if(productCycle.slotsUsed < req.body.totalSlots) {
+        return res
+          .status(500)
+          .send(responses.error(500, 'Product slot cannot be less than slots already purchased'));
+      }
+      productCycle.totalSlots = req.body.totalSlots
+      await productCycle.save();
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was updated successfully'
+          ) ,
+        );
     } catch (error) {
       return res
         .status(500)

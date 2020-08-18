@@ -49,14 +49,6 @@ const ProductSchema = new Schema({
     description: {
       type: String
     },
-    totalSlots: {
-      type: Number,
-      required: true
-    },
-    slotsUsed: {
-      type: Number,
-      required: true
-    },
     customPrices: [{
       range: [Number],
       prices: {

@@ -53,16 +53,13 @@ exports.ProductStatusUpdate = async (activeCycle, action) => {
   if (action !== "refund" || action !== "payment") return null;
   try {
     const productCycle = await ProductCycle.findOne({_id: activeCycle})
-    const product = await Product.findOne({_id: productCycle.product})
     if (action === "refund") {
       productCycle.slotsUsed = productCycle.slotsUsed - 1;
       await productCycle.save()
-      await product.save()
     }
     if (action === "payment") {
-      product.slotsUsed = productCycle.slotsUsed + 1;
+      productCycle.slotsUsed = productCycle.slotsUsed + 1;
       await productCycle.save()
-      await product.save()
     }
   } catch (err) {
     return err
