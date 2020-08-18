@@ -23,10 +23,14 @@
         properties:
           country: 
             type: string
+            example: AL, DZ, ER, ES
           countryCode: 
             type: string
+            description: country code
+            example: AL, DZ, ER, ES
           firstLine:
             type: string
+            example: 123, Avenue way
           postCode:
             type: string
           city:
@@ -38,18 +42,21 @@
         type: string
         description: Account number, Required for ARS, AUD, BDT (private),BRL(private),CAD, CLP,CNY(alipay),CZK,EGP(Swift code),GBP,GHS,HKD,HUF,IDR,INR(private),JPY,KES,KRW,LKR,MAD,MYR,NGN,NPR(Private),NZD,PEN,PHP,PLN(Account option),RUB(Private),SEK(Local),SGD,THB,UAH(Private, Last 4 digits of UAH PrivatBank card),USD,VND,ZAR
         required: true
+        example: 0584412903
       email:
         type: string
         description: Required for KRW,
       accountType:
         type: string
-        description: Required for BRL(private),CAD, CLP,JPY,PEN,USD
+        description: Account type, Required for BRL(private),CAD, CLP,JPY,PEN,USD
+        example: CURRENT, SAVINGS, CHECKING
       sortCode:
         type: string
-        description: Required for GBP,
+        description: UK Sort code, Required for GBP,
       bankCode:
         type: string
-        description: Required for BDT(private), BRL(private), CLP,CZK,EGP,GHS,HKD,IDR,JPY,KES,KRW,LKR,MAD,NGN,NPR(Private),PEN,PHP,RUB(Private),SGD,THB
+        description: Beneficiary's bank Code. Required for BDT(private), BRL(private), CLP,CZK,EGP,GHS,HKD,IDR,JPY,KES,KRW,LKR,MAD,NGN,NPR(Private),PEN,PHP,RUB(Private),SGD,THB
+        example: 044
       phoneNumber:
         type: string
         description: Required for BRL(private), CLP,PEN,UAH
@@ -58,67 +65,72 @@
         description: Required for KRW,
       rut:
         type: string
-        description: Required for CLP,
+        description: RUT Number, Required for CLP,
+        example: 760864285
       swiftCode:
         type: string
-        description: Required for MYR,VND,ZAR
+        description: Beneficiary's bank name [BIC/SWIFT], Required for MYR,VND,ZAR
+        example: ABSAZAJJ
       branchCode:
         type: string
-        description: Required for BDT(private),BRL(private),JPY,LKR,VND
+        description: Bank Branch, Required for BDT(private),BRL(private),JPY,LKR,VND
       cpf:
         type: string
-        description: Required for BRL(private),
+        description: Tax Registration Number (CPF), Required for BRL(private),
       ifscCode:
         type: string
-        description: Required for INR(private)
+        description: IFSC Code, Required for INR(private)
+        example: YESB0236041
       idDocumentType:
         type: string
-        description: Required for PEN
+        description: ID document type, Required for PEN
       idDocumentNumber:
         type: string
-        description: Required for PEN
+        description: Beneficiary's identification number, Required for PEN
       russiaRegion:
         type: string
-        description: Required for RUB(Private)
+        description: Region, Required for RUB(Private)
       IBAN:
         type: string
-        description: Required for AED, BGN, CHF,CZK(IBAN option),DKK,EUR,GBP(IBAN option),GEL,HRK,HUF(IBAN option),ILS,NOK,PKR(Private),PLN(IBAN option),RON,SEK(IBAN),TRY,
+        description: IBAN, Required for AED, BGN, CHF,CZK(IBAN option),DKK,EUR,GBP(IBAN option),GEL,HRK,HUF(IBAN option),ILS,NOK,PKR(Private),PLN(IBAN option),RON,SEK(IBAN),TRY,
       taxId:
         type: string
-        description: Required for ARS
+        description: Tax Id(CUIL / CUIT), Required for ARS
       institutionNumber:
         type: string
-        description: Required for CAD,
+        description: Institution Number, Required for CAD,
       transitNumber:
         type: string
-        description: Required for CAD,
+        description: Transit Number, Required for CAD,
       clabe:
         type: string
-        description: Required for MXN
+        description: CLABE, Required for MXN
+        example: 032180000118359719
       bsbCode:
         type: string
-        description: Required for AUD,
+        description: BSB code, Required for AUD,
       businessNumber:
         type: string
         description: Required for AUD (business accts only),
       clearingNumber:
         type: string
-        description: Required for SEK(Local)
+        description: Clearing number, Required for SEK(Local)
+        example: 1234
       abartn:
         type: string
-        description: Required for USD
+        description: ACH routing number, Required for USD
       prefix:
         type: string
-        description: Required for CZK,
+        description: Account prefix, Required for CZK,
       interacAccount:
         type: string
-        description: Required for CAD(Interac)
+        description: Interac registered email, Required for CAD(Interac)
       bankgiroNumber:
         type: string
-        description: Required for SEK(Local)
+        description: Bankgiro number, Required for SEK(Local)
       cardNumber:
         type: string
-        description: Required for CNY(Card)
+        description: UnionPay card number, Required for CNY(Card)
       owner:
         type: string
         description: ID of bank account owner
