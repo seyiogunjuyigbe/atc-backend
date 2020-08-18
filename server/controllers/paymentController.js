@@ -33,12 +33,14 @@ module.exports = {
           await currentTransaction.save();
           if (currentTransaction.transactableType === "Membership" && currentTransaction.type === "subscription") {
             await subscribeMembership(currentTransaction.transactable, req.user.id);
-          } else {
+          }
+          if(currentTransaction.transactableType === "Product" && currentTransaction.type === "payment") {
             await ProductStatusUpdate(currentTransaction.activeCycle, "payment")
           }
           if (currentTransaction.transactableType === "Membership" && currentTransaction.type === "refund") {
             await unsubscribeMembership(currentTransaction.transactable, currentTransaction.customer);
-          } else {
+          }
+          if(currentTransaction.transactableType === "Product" && currentTransaction.type === "refund") {
             await ProductStatusUpdate(currentTransaction.activeCycle, "refund")
           }
           return success(res, 200, {success: true, intent: intent.id});
