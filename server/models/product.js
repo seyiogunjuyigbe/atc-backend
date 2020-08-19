@@ -35,8 +35,11 @@ const ProductSchema = new Schema({
     status: {type: String, enum: ["active", "waiting", "expired"], default: "active"},
     package: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Package',
-      required: true
+      ref: 'Package'
+    },
+    activeCycle: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Product_cycle'
     },
     cancellationDaysLimit: {
       type: Number,

@@ -85,7 +85,7 @@ module.exports = {
   },
   updateSlot: async (req, res) => {
     try {
-      const productCycle = await ProductCycle.findOne({product: req.params.productId, status: "active"});
+      const productCycle = await ProductCycle.findOne({product: req.params.productId, status: "active"},{ sort: { createdAt: -1 } });
       if (!productCycle) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       }
