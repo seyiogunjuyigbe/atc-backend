@@ -58,13 +58,13 @@ module.exports = class Cron {
       });
       if (pendingPayouts.length == 0) console.log("No pending payouts")
       else {
-        pendingPayouts.forEach(async transaction => {
-          let { vendor } = transaction;
+        pendingPayouts.forEach(async payoutTransaction => {
+          let { vendor } = payoutTransaction;
           if (!vendor) console.log("No vendor found for this transaction");
           else {
-            let payout = await walletService.creditWallet(vendor, transaction.amount);
-            transaction.status = "settled"
-            await transaction.save()
+            let payout = await walletService.creditWallet(vendor, payoutTransaction.amount);
+            payoutTransaction.status = "settled"
+            await payoutTransaction.save()
             console.log({ message: "Payout done for " + vendor.email, payout })
           }
 
