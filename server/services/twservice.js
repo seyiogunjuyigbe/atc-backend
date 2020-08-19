@@ -1,8 +1,8 @@
-const { TRANSFERWISE_API_KEY, TRANSFERWISE_PROFILE_ID } = process.env;
+const { TRANSFERWISE_API_KEY, TRANSFERWISE_PROFILE_ID, TW_MODE } = process.env;
 const Transferwise = require('transferwise');
 const TwClient = new Transferwise({
     apiKey: TRANSFERWISE_API_KEY,
-    sandbox: true,
+    sandbox: TW_MODE == "sandbox",
 });
 const uuid = require("uuid")
 
