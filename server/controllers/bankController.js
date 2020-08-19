@@ -94,7 +94,7 @@ module.exports = {
                         initiatedBy: req.user.id,
                         vendor: user,
                         wallet: userWallet,
-                        bankAcount: user.bankAccount,
+                        bankAccount: user.bankAccount,
                         description: "Payout from ATC",
                     })
                     let transfer = await twService.initateTransfer(user.bankAccount.transferWiseId, quote.id, transaction.reference);
