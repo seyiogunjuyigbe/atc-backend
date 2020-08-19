@@ -54,10 +54,7 @@
       tags:
         - Products
       parameters:
-        - in: path
-          name: productId
-          description: Product ID
-          required: true
+       $ref: "#/definitions/GetQueryProduct"
       responses:
         200:
           description: success
@@ -253,6 +250,12 @@
           name: productId
           description: Product ID
           required: true
+        - in: body
+          name: payload
+          description: Product details
+          required: true
+          schema:
+            $ref: '#/definitions/slot'
       responses:
         200:
           description: success

@@ -3,8 +3,9 @@ const moment = require('moment');
 const twService = require("./server/services/twservice");
 const walletService = require("./server/services/walletService")
 module.exports = class Cron {
-  runAllCron() {
+  async runAllCron() {
     console.log('Started Cron Jobs')
+    await Cron.productCron().catch((e) => console.log(`Error running cron job ${e}`))
     setInterval(() => {
       Cron.productCron().catch((e) => console.log(`Error running cron job ${e}`))
     }, 60000);
@@ -15,20 +16,22 @@ module.exports = class Cron {
     for (let product = 0; product < allProducts.length; product++) {
       const data = allProducts[product];
       const cycle = await ProductCycle.findOne({ product: data._id })
+      if (!cycle) return;
       if (moment(moment().startOf('day')).isSame(data.endDate, 'day')) {
         cycle.status = "expired"
         data.status = "expired"
         await cycle.save()
         await data.save()
       }
-      if (moment(new Date()).isAfter(data.waitingCycle) && data.status === "expired") {
-        cycle.status = "waiting"
+      if (moment(new Date()).isAfter(data.waitingCycle)) {
+        cycle.status = "expired"
         data.status = "waiting"
         await data.save();
+        await cycle.save()
       }
       const current = moment().startOf('day');
       const given = moment(data.endDate, "YYYY-MM-DD");
-      if (moment.duration(given.diff(current)).asDays() >= data.waitingCycle) {
+      if (moment.duration(current.diff(given)).asDays() >= data.waitingCycle) {
         const endDate = moment(new Date(), "DD-MM-YYYY").add(data.sellingCycle, 'days')
         data.status = "active"
         data.endDate = endDate
@@ -38,7 +41,8 @@ module.exports = class Cron {
           startDate: new Date(),
           endDate,
           sellingCycle: data.sellingCycle,
-          waitingCycle: data.waitingCycle
+          waitingCycle: data.waitingCycle,
+          totalSlots: cycle.totalSlots,
         })
         data.activeCycle = currentCycle._id
         await data.save()
@@ -59,39 +63,11 @@ module.exports = class Cron {
           if (!vendor) console.log("No vendor found for this transaction");
           else {
             let payout = await walletService.creditWallet(vendor, transaction.amount);
+            transaction.status = "settled"
+            await transaction.save()
             console.log({ message: "Payout done for " + vendor.email, payout })
           }
-          // else if (!vendor.bankAccount) console.log("Payout failed for " + vendor.email + ": Bank acount details found")
-          // else {
-          //   let quote = await twService.createQuote(vendor.bankAccount, amount);
-          //   if (quote.error || typeof (quote) == "string") console.log("Error creating quote" + vendor.email + ": " + quote.error || quote)
-          //   else {
-          //     let payoutTransaction = await Transaction.create({
-          //       type: 'payout',
-          //       reference: createReference('payout'),
-          //       provider: 'transferwise',
-          //       paymentType: "bankAccount",
-          //       amount,
-          //       vendor: vendor,
-          //       bankAccount: vendor.bankAccount,
-          //       description: "Payout from ATC",
-          //     })
-          //     let transfer = await twService.initateTransfer(vendor.bankAccount.transferWiseId, quote.id, transaction.reference);
-          //     if (transfer.error && typeof (transfer) == "string") {
-          //       console.log("Error initiating transfer for " + vendor.email + ": " + transfer.error || transfer)
-          //     }
-          //     else {
-          //       transaction.transferwiseId = transfer.id;
-          //       let payout = await twService.completeTransfer(transfer.id);
-          //       if (payout.status !== "COMPLETED") transaction.status = "failed";
-          //       else transaction.status = "successful";
-          //       console.log("Payout successful for " + vendor.email + ": " + payout);
-          //       transaction.status = "settled"
-          //       await transaction.save()
 
-          //     }
-          //   }
-          // }
         })
       }
 

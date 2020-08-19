@@ -11,10 +11,7 @@ router.put("/bank-accounts/:bankAccountId", authenticate, bankCtrl.updateRecipie
 router.delete("/bank-accounts/:bankAccountId", authenticate, bankCtrl.deleteRecipient)
 router.get("/bank-accounts", authenticate, checkIfAdmin, bankCtrl.listAccounts)
 router.post("/payout", authenticate,
-    [
-        check('userId').not().isEmpty().withMessage("Required field"),
-        check('amount').not().isEmpty().withMessage("Required field"),
-    ],
+    check('amount').not().isEmpty().withMessage("Required field"),
     validate, bankCtrl.payoutFromWallet);
 router.get("/wallet", authenticate, checkIfAdmin, walletCtrl.fetchUserWallet);
 router.get("/wallet-history", authenticate, checkIfAdmin, walletCtrl.fetchAllWalletHistories)

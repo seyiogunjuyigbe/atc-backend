@@ -2,7 +2,7 @@ const { success, error } = require('../middlewares/response');
 const { User, BankAccount, Transaction } = require('../models');
 const twService = require("../services/twservice");
 const { createReference } = require("../services/paymentService");
-const { debitWallet } = require('../services/walletService');
+const { debitWallet, fetchWallet } = require('../services/walletService');
 module.exports = {
     async addBankAccount(req, res) {
         try {
@@ -75,9 +75,10 @@ module.exports = {
     async payoutFromWallet(req, res) {
         let { amount } = req.body
         try {
-            let user = await User.findById(req.user.id).populate('bankAccount wallet');
-            if (!user) return error(res, 404, "Payee account not found")
-            else if (user.wallet.balance < amount) return error(res, 400, 'Insuffcient wallet balance')
+            let user = await User.findById(req.user.id).populate('bankAccount');
+            if (!user) return error(res, 404, "Payee account not found");
+            let userWallet = await fetchWallet(user);
+            if (userWallet.balance < amount) return error(res, 400, 'Insuffcient wallet balance')
             else if (!user.bankAccount) return error(res, 400, "Bank acount required for payout")
             else if (isNaN(amount)) return error(res, 400, "Valid amount required for payout");
             else {
@@ -92,7 +93,7 @@ module.exports = {
                         amount,
                         initiatedBy: req.user.id,
                         vendor: user,
-                        wallet: user.wallet,
+                        wallet: userWallet,
                         bankAcount: user.bankAccount,
                         description: "Payout from ATC",
                     })
@@ -106,7 +107,8 @@ module.exports = {
                         if (payout.status !== "COMPLETED") transaction.status = "failed";
                         else transaction.status = "successful";
                         await transaction.save();
-                        await debitWallet(user, transaction.amount)
+                        let debit = await debitWallet(user, transaction.amount);
+                        console.log({ debit })
                         return success(res, 200, payout)
                     }
                 }

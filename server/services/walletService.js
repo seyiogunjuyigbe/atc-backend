@@ -1,4 +1,6 @@
-const { Wallet, WalletHistory, Transaction } = require("../models")
+const { Wallet, WalletHistory, Transaction } = require("../models");
+const { createReference } = require("./paymentService");
+
 module.exports = {
     async createUserWallet(user) {
         try {
@@ -41,12 +43,14 @@ module.exports = {
                 amount,
                 description: "Payout to wallet",
                 paymentType: "wallet",
+                initiatedBy: user,
+                reference: createReference('payout'),
                 provider: "system",
                 status: "successful",
                 wallet: userWallet
             })
             // create wallet history
-            let walletHistory = WalletHistory.create({
+            let walletHistory = await WalletHistory.create({
                 balance: userWallet.balance,
                 previousBalance: userWallet.previousBalance,
                 amount,
@@ -73,12 +77,14 @@ module.exports = {
                 amount,
                 description: "Payout to wallet",
                 paymentType: "wallet",
+                initiatedBy: user,
+                reference: createReference('payout'),
                 provider: "system",
                 status: "successful",
                 wallet: userWallet
             })
             // create wallet history
-            let walletHistory = WalletHistory.create({
+            let walletHistory = await WalletHistory.create({
                 balance: userWallet.balance,
                 previousBalance: userWallet.previousBalance,
                 amount,
@@ -87,7 +93,7 @@ module.exports = {
                 description: transaction.description,
                 user
             })
-
+            console.log({ walletHistory })
             return userWallet;
         } catch (err) {
             return err.message

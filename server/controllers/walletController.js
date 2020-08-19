@@ -13,15 +13,15 @@ module.exports = {
     async fetchUserWalletHistory(req, res) {
         try {
             let walletHistory = await WalletHistory.find({ user: req.params.userId });
-            return success(res, 300, walletHistory)
+            return success(res, 200, walletHistory)
         } catch (err) {
             return error(res, 500, err.message)
         }
     },
     async fetchAllWalletHistories(req, res) {
         try {
-            let walletHistory = await WalletHistory.find({ user: req.params.userId });
-            return success(res, 300, walletHistory)
+            let walletHistory = await WalletHistory.find({});
+            return success(res, 200, walletHistory)
         } catch (err) {
             return error(res, 500, err.message)
         }
