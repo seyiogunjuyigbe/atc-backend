@@ -15,7 +15,7 @@ router.post("/payout", authenticate,
         check('userId').not().isEmpty().withMessage("Required field"),
         check('amount').not().isEmpty().withMessage("Required field"),
     ],
-    validate, bankCtrl.payRecipient);
+    validate, bankCtrl.payoutFromWallet);
 router.get("/wallet", authenticate, checkIfAdmin, walletCtrl.fetchUserWallet);
 router.get("/wallet-history", authenticate, checkIfAdmin, walletCtrl.fetchAllWalletHistories)
 router.get("/wallet-history/:userId", authenticate, checkIfAdmin, walletCtrl.fetchUserWalletHistory)
