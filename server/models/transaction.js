@@ -68,7 +68,7 @@ const TransactionSchema = new Schema({
     ref: 'Card',
     required: true,
   },*/
-  bankAcount: {
+  bankAccount: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'BankAccount',
     // required: true,
