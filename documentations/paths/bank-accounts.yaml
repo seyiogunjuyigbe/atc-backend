@@ -151,34 +151,3 @@
           schema:
             example:
               message: An unexpected error occured
-  /payout:
-    post:
-      summary: Pay a vendor account
-      operationId: payOut
-      tags:
-      - Payout
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-        - in: body
-          name: amount
-          description: Payment amount
-          required: true        
-      responses:
-        200:
-          description: Success
-          schema:
-            example:
-              message: Payout successful
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to access this resource
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured

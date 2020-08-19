@@ -15,9 +15,9 @@
       type:
         type: string
         description: credit or debit
-     transaction: 
+      transaction: 
         type: string
         description: transaction involved in this history
-    description:
+      description:
         type: string
 
