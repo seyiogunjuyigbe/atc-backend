@@ -2,8 +2,9 @@ const Product = require('./server/models/product')
 const ProductCycle = require('./server/models/productCycle')
 const moment = require('moment');
 module.exports = class Cron {
-  runAllCron() {
+  async runAllCron() {
     console.log('Started Cron Jobs')
+   await Cron.productCron().catch((e) => console.log(`Error running cron job ${e}`))
     setInterval(() => {
       Cron.productCron().catch((e) => console.log(`Error running cron job ${e}`))
     }, 60000)
@@ -14,20 +15,22 @@ module.exports = class Cron {
     for (let product = 0; product < allProducts.length; product++) {
       const data = allProducts[product];
       const cycle = await ProductCycle.findOne({product: data._id})
+      if(!cycle) return;
       if (moment(moment().startOf('day')).isSame(data.endDate, 'day')) {
         cycle.status = "expired"
         data.status = "expired"
         await cycle.save()
         await data.save()
       }
-      if (moment(new Date()).isAfter(data.waitingCycle) && data.status === "expired") {
-        cycle.status = "waiting"
+      if (moment(new Date()).isAfter(data.waitingCycle)) {
+        cycle.status = "expired"
         data.status = "waiting"
         await data.save();
+        await cycle.save()
       }
       const current = moment().startOf('day');
       const given = moment(data.endDate, "YYYY-MM-DD");
-      if (moment.duration(given.diff(current)).asDays() >= data.waitingCycle) {
+      if (moment.duration(current.diff(given)).asDays() >= data.waitingCycle) {
         const endDate = moment(new Date(), "DD-MM-YYYY").add(data.sellingCycle, 'days')
         data.status = "active"
         data.endDate = endDate
@@ -37,7 +40,8 @@ module.exports = class Cron {
           startDate: new Date(),
           endDate,
           sellingCycle: data.sellingCycle,
-          waitingCycle: data.waitingCycle
+          waitingCycle: data.waitingCycle,
+          totalSlots: cycle.totalSlots,
         })
         data.activeCycle = currentCycle._id
         await data.save()
