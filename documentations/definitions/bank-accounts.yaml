@@ -13,7 +13,7 @@
       currency:
         type: string
         description: Account number (3-character currrency symbol in upperase e.g USD)
-        example: AED,ARS,AUD,BDT,BGN,BRL,CAD,CHF,CLP,CNY,CZK,DKK,EGP,EUR,GBP","GEL,GHS,HKD,HRK,HUF,IDR,ILS,INR,JPY,KES,KRW,LKR,MAD,MXN,MYR,NGN","NOK,NPR,NZD,PEN,PHP,PKR,PLN,RON,RUB,SEK,SGD,THB,TRY,UAH,USD,VND,ZAR"
+        example: AED,ARS,AUD,BDT,BGN,BRL,CAD,CHF,CLP,CNY,CZK,DKK,EGP,EUR,GBP,GEL,GHS,HKD,HRK,HUF,IDR,ILS,INR,JPY,KES,KRW,LKR,MAD,MXN,MYR,NGN,NOK,NPR,NZD,PEN,PHP,PKR,PLN,RON,RUB,SEK,SGD,THB,TRY,UAH,USD,VND,ZAR
         required: true
       ownedByCustomer:
           type: boolean,

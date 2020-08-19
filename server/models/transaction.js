@@ -73,6 +73,10 @@ const TransactionSchema = new Schema({
     ref: 'BankAccount',
     // required: true,
   },
+  wallet: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wallet'
+  },
   transactableType: {
     type: String,
     enum: ['Product', 'Membership'],

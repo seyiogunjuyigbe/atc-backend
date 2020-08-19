@@ -1,7 +1,8 @@
 const { success, error } = require('../middlewares/response');
 const { User, BankAccount, Transaction } = require('../models');
 const twService = require("../services/twservice");
-const { createReference } = require("../services/paymentService")
+const { createReference } = require("../services/paymentService");
+const { debitWallet } = require('../services/walletService');
 module.exports = {
     async addBankAccount(req, res) {
         try {
@@ -71,14 +72,14 @@ module.exports = {
             return error(res, 500, err.message)
         }
     },
-    async payRecipient(req, res) {
-        let { userId, amount } = req.body
+    async payoutFromWallet(req, res) {
+        let { amount } = req.body
         try {
-
-            let user = await User.findById(userId).populate('bankAccount');
+            let user = await User.findById(req.user.id).populate('bankAccount wallet');
             if (!user) return error(res, 404, "Payee account not found")
+            else if (user.wallet.balance < amount) return error(res, 400, 'Insuffcient wallet balance')
             else if (!user.bankAccount) return error(res, 400, "Bank acount required for payout")
-            else if (isNaN(amount)) return error(res, 400, "Valid amount required for payout")
+            else if (isNaN(amount)) return error(res, 400, "Valid amount required for payout");
             else {
                 let quote = await twService.createQuote(user.bankAccount, amount);
                 if (quote.error || typeof (quote) == "string") return error(res, 400, quote.error || quote)
@@ -87,10 +88,11 @@ module.exports = {
                         type: 'payout',
                         reference: createReference('payout'),
                         provider: 'transferwise',
-                        paymentType: "transferwise",
+                        paymentType: "withdrawal",
                         amount,
                         initiatedBy: req.user.id,
                         vendor: user,
+                        wallet: user.wallet,
                         bankAcount: user.bankAccount,
                         description: "Payout from ATC",
                     })
@@ -103,7 +105,8 @@ module.exports = {
                         let payout = await twService.completeTransfer(transfer.id);
                         if (payout.status !== "COMPLETED") transaction.status = "failed";
                         else transaction.status = "successful";
-                        await transaction.save()
+                        await transaction.save();
+                        await debitWallet(user, transaction.amount)
                         return success(res, 200, payout)
                     }
                 }

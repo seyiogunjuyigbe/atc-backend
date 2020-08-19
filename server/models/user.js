@@ -55,6 +55,10 @@ const userSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "BankAccount"
   },
+  wallet: {
+    type: Schema.Types.ObjectId,
+    ref: "Wallet"
+  },
   passwordResetExpires: {
     type: String
   },
