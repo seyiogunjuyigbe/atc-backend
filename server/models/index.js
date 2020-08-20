@@ -11,6 +11,9 @@ const State = require('./state')
 const ProductCycle = require('./productCycle')
 const Country = require('./country');
 const Transaction = require('./transaction')
+const BankAccount = require('./bankaccount');
+const Wallet = require("./wallet");
+const WalletHistory = require("./walletHistory");
 
 module.exports = {
   ProductCycle,
@@ -24,5 +27,9 @@ module.exports = {
   User,
   State,
   MemberReview,
-  Country, Transaction
+  Country,
+  Transaction,
+  BankAccount,
+  Wallet,
+  WalletHistory,
 };
