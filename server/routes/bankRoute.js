@@ -10,9 +10,9 @@ router.get("/bank-accounts/:bankAccountId", authenticate, bankCtrl.fetchAccount)
 router.put("/bank-accounts/:bankAccountId", authenticate, bankCtrl.updateRecipient)
 router.delete("/bank-accounts/:bankAccountId", authenticate, bankCtrl.deleteRecipient)
 router.get("/bank-accounts", authenticate, checkIfAdmin, bankCtrl.listAccounts)
-router.post("/payout", authenticate,
+router.post("/payments/withdraw", authenticate,
     check('amount').not().isEmpty().withMessage("Required field"),
-    validate, bankCtrl.payoutFromWallet);
+    validate, bankCtrl.withdrawFromWallet);
 router.get("/wallet", authenticate, checkIfAdmin, walletCtrl.fetchUserWallet);
 router.get("/wallet-history", authenticate, checkIfAdmin, walletCtrl.fetchAllWalletHistories)
 router.get("/wallet-history/:userId", authenticate, checkIfAdmin, walletCtrl.fetchUserWalletHistory)

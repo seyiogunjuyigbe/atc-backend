@@ -1,4 +1,4 @@
-const {User, Membership, Transaction, Product, ProductCycle} = require('../models')
+const { User, Membership, Transaction, Product, ProductCycle } = require('../models')
 exports.createReference = (type) => {
   const randomChars = Math.random().toString(32).substr(8);
   let prefix = 'ATC_';
@@ -14,6 +14,9 @@ exports.createReference = (type) => {
     case 'payout':
       prefix += 'PYT';
       break;
+    case 'withdrawal':
+      prefix += 'WDR';
+      break;
     default:
       prefix = 'DEF';
       break;
@@ -24,7 +27,7 @@ exports.subscribeMembership = async (membershipId, userId) => {
   try {
     let membership = await Membership.findById(membershipId);
     let user = await User.findById(userId).populate('memberships');
-    let {memberships} = user
+    let { memberships } = user
     if (membership.type == "one-off") memberships.push(membership)
     else if (membership.type == "annual") {
       memberships.length = 0;
@@ -52,7 +55,7 @@ exports.unsubscribeMembership = async (membershipId, userId) => {
 exports.ProductStatusUpdate = async (activeCycle, action) => {
   if (action !== "refund" || action !== "payment") return null;
   try {
-    const productCycle = await ProductCycle.findOne({_id: activeCycle})
+    const productCycle = await ProductCycle.findOne({ _id: activeCycle })
     if (action === "refund") {
       productCycle.slotsUsed = productCycle.slotsUsed - 1;
       await productCycle.save()

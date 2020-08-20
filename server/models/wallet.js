@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 const walletSchema = new Schema({
     balance: Number,
     previousBalance: Number,
+    loyaltyPoints: Number,
     user: {
         type: Schema.Types.ObjectId,
         ref: "User"

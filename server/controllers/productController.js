@@ -1,4 +1,4 @@
-const { Product, Package, ProductCycle, Transaction } = require('../models');
+const { Product, Package, ProductCycle, Transaction, User } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response')
@@ -6,7 +6,8 @@ const { check, validationResult } = require('express-validator');
 const { createReference } = require('../services/paymentService');
 const moment = require('moment')
 const StripeService = require('../services/stripeService');
-const Queryservice = require("../services/queryService")
+const Queryservice = require("../services/queryService");
+const { refundPaymentToWallet } = require('../services/walletService');
 
 module.exports = {
   create: async (req, res) => {
@@ -48,8 +49,8 @@ module.exports = {
         );
       const endDate = moment(new Date(), "DD-MM-YYYY").add(req.body.sellingCycle, 'days')
       await Product.create(productList.filter(({ isMainProduct }) => !isMainProduct));
-      const mainProductInfo = await Product.create({ ...mainProductObject, sellingCycle, waitingCycle, endDate, startDate: new Date(),  });
-      const activeCycle = await ProductCycle.create({ startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate, totalSlots: req.body.totalSlots , slotsUsed: req.body.slotsUsed })
+      const mainProductInfo = await Product.create({ ...mainProductObject, sellingCycle, waitingCycle, endDate, startDate: new Date(), });
+      const activeCycle = await ProductCycle.create({ startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate, totalSlots: req.body.totalSlots, slotsUsed: req.body.slotsUsed })
       mainProductInfo.activeCycle = activeCycle._id
       await mainProductInfo.save()
       return success(res, 200, "Product created successfully");
@@ -85,11 +86,11 @@ module.exports = {
   },
   updateSlot: async (req, res) => {
     try {
-      const productCycle = await ProductCycle.findOne({product: req.params.productId, status: "active"},{ sort: { createdAt: -1 } });
+      const productCycle = await ProductCycle.findOne({ product: req.params.productId, status: "active" }, { sort: { createdAt: -1 } });
       if (!productCycle) {
         return res.status(400).send(responses.error(400, 'Product not found'));
       }
-      if(productCycle.slotsUsed > req.body.totalSlots) {
+      if (productCycle.slotsUsed > req.body.totalSlots) {
         return res
           .status(500)
           .send(responses.error(500, 'Product slot cannot be less than slots already purchased'));
@@ -238,6 +239,38 @@ module.exports = {
     try {
       let products = await Queryservice.find(Product, req, { marketingExpiryDate: { $gte: today } });
       return success(res, 200, products)
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
+  },
+  async refundProductPayment(req, res) {
+    const { refundOption } = req.body;
+
+    try {
+      let user = await User.findById(req.user.id)
+      let transactions = await Transaction.find({
+        type: "payment",
+        transactable: req.params.productId,
+        transactableType: "Product",
+        customer: req.user.id,
+      });
+      if (transactions.length == 0) return error(res, 400, 'Sorry, no refundable transaction found for this product');
+      let transaction = transactions.find(tr => {
+        return (tr.status == "successful" && moment().isBefore(tr.settleDate))
+      })
+      if (!transaction) {
+        return error(res, 400, 'Sorry, no refundable transaction found for this product');
+      }
+      else {
+        let refund;
+        if (refundOption == "wallet") {
+          refund = await refundPaymentToWallet(user, transaction)
+        }
+        else if (refundOption == "points") {
+          refund = await refundPaymentToPoints(user, transaction)
+        }
+        return success(res, 200, refund)
+      }
     } catch (err) {
       return error(res, 500, err.message)
     }

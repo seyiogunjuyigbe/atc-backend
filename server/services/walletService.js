@@ -7,6 +7,7 @@ module.exports = {
             const userWallet = await Wallet.create({
                 balance: 0,
                 previousBalance: 0,
+                loyaltyPoints: 0,
                 user
             })
             return userWallet;
@@ -23,6 +24,7 @@ module.exports = {
                 userWallet = await Wallet.create({
                     balance: 0,
                     previousBalance: 0,
+                    loyaltyPoints: 0,
                     user
                 })
             }
@@ -41,8 +43,9 @@ module.exports = {
             await userWallet.save();
             let transaction = await Transaction.create({
                 amount,
+                type: "payout",
                 description: "Payout to wallet",
-                paymentType: "wallet",
+                paymentType: "Wallet",
                 initiatedBy: user,
                 reference: createReference('payout'),
                 provider: "system",
@@ -72,31 +75,81 @@ module.exports = {
             userWallet.previousBalance = userWallet.balance
             userWallet.balance -= Number(amount);
             await userWallet.save();
-            // create transaction
             let transaction = await Transaction.create({
+                type: 'withdrawal',
+                reference: createReference('withdrawal'),
+                provider: 'transferwise',
+                paymentType: "BankAccount",
                 amount,
-                description: "Payout to wallet",
-                paymentType: "wallet",
-                initiatedBy: user,
-                reference: createReference('payout'),
-                provider: "system",
-                status: "successful",
-                wallet: userWallet
+                initiatedBy: user.id,
+                vendor: user,
+                wallet: userWallet,
+                bankAccount: user.bankAccount,
+                description: "Withdrawal from wallet to bank account",
             })
             // create wallet history
             let walletHistory = await WalletHistory.create({
                 balance: userWallet.balance,
                 previousBalance: userWallet.previousBalance,
-                amount,
+                amount: transaction.amount,
                 type: "debit",
                 transaction,
                 description: transaction.description,
                 user
             })
-            console.log({ walletHistory })
+            return transaction;
+        } catch (err) {
+            return err.message
+        }
+    },
+    async awardLoyaltyPoints(user, points) {
+        try {
+            let userWallet = await Wallet.findOne({ user });
+            userWallet.loyaltyPoints += Number(points);
+            await userWallet.save();
             return userWallet;
         } catch (err) {
             return err.message
         }
     },
+    async refundPaymentToWallet(user, transaction) {
+        try {
+            let refund = await Transaction.create({
+                type: "refund",
+                refund: transaction,
+                paymentType: "wallet",
+                reference: createReference('refund'),
+                amount: transaction.amount,
+                initiatedBy: user.id,
+                customer: user,
+                bankAcount: user.bankAcount,
+                transactableType: 'Product',
+                transactable: transaction.transactableType,
+                description: `Refund for ${transaction.transactableType.title} to ${user.firstName} ${user.lastName}`,
+            });
+            return (await this.creditWallet(user, refund.amount))
+        } catch (err) {
+            return err.message
+        }
+    },
+    async refundPaymentToPoints(user, transaction) {
+        try {
+            let refund = await Transaction.create({
+                type: "refund",
+                refund: transaction,
+                paymentType: "wallet",
+                reference: createReference('refund'),
+                amount: transaction.amount,
+                initiatedBy: user.id,
+                customer: user,
+                bankAcount: user.bankAcount,
+                transactableType: 'Product',
+                transactable: transaction.transactableType,
+                description: `Refund for ${transaction.transactableType.title} to ${user.firstName} ${user.lastName}`,
+            });
+            return (await this.awardLoyaltyPoints(user, refund.amount))
+        } catch (err) {
+            return err.message
+        }
+    }
 }

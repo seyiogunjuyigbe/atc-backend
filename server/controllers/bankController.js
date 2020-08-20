@@ -72,7 +72,7 @@ module.exports = {
             return error(res, 500, err.message)
         }
     },
-    async payoutFromWallet(req, res) {
+    async withdrawFromWallet(req, res) {
         let { amount } = req.body
         try {
             let user = await User.findById(req.user.id).populate('bankAccount');
@@ -85,18 +85,7 @@ module.exports = {
                 let quote = await twService.createQuote(user.bankAccount, amount);
                 if (quote.error || typeof (quote) == "string") return error(res, 400, quote.error || quote)
                 else {
-                    let transaction = await Transaction.create({
-                        type: 'payout',
-                        reference: createReference('payout'),
-                        provider: 'transferwise',
-                        paymentType: "withdrawal",
-                        amount,
-                        initiatedBy: req.user.id,
-                        vendor: user,
-                        wallet: userWallet,
-                        bankAccount: user.bankAccount,
-                        description: "Payout from ATC",
-                    })
+                    let transaction = await debitWallet(user, amount);
                     let transfer = await twService.initateTransfer(user.bankAccount.transferWiseId, quote.id, transaction.reference);
                     if (transfer.error && typeof (transfer) == "string") {
                         return error(res, 400, transfer.error || transfer)
@@ -107,7 +96,6 @@ module.exports = {
                         if (payout.status !== "COMPLETED") transaction.status = "failed";
                         else transaction.status = "successful";
                         await transaction.save();
-                        let debit = await debitWallet(user, transaction.amount);
                         console.log({ debit })
                         return success(res, 200, payout)
                     }

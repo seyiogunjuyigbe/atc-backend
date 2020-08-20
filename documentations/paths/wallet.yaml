@@ -81,7 +81,7 @@
           schema:
             example:
               message: An unexpected error occured
-  /payout:
+  /payments/withdraw:
     post:
       summary: Pay a vendor account
       operationId: payOut

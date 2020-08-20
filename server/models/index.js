@@ -13,7 +13,8 @@ const Country = require('./country');
 const Transaction = require('./transaction')
 const BankAccount = require('./bankaccount');
 const Wallet = require("./wallet");
-const WalletHistory = require("./walletHistory")
+const WalletHistory = require("./walletHistory");
+
 module.exports = {
   ProductCycle,
   Category,
@@ -30,5 +31,5 @@ module.exports = {
   Transaction,
   BankAccount,
   Wallet,
-  WalletHistory
+  WalletHistory,
 };
