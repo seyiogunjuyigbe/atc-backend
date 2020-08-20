@@ -15,7 +15,7 @@ exports.createReference = (type) => {
       prefix += 'PYT';
       break;
     case 'withdrawal':
-      prefix += 'WDR';
+      prefix += 'WTD';
       break;
     default:
       prefix = 'DEF';
