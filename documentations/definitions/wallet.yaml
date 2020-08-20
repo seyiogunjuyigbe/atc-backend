@@ -1,0 +1,16 @@
+# Wallet Definitions
+  Wallet:
+    type: object
+    properties:
+      balance:
+        type: number
+        description: Wallet current balance
+        example: 200
+      previousBalance:
+        type: number
+        description: Wallet previous balance
+        example: 50
+      user:
+        type: object
+
+

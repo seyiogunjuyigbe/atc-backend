@@ -12,7 +12,7 @@ const { check, validationResult } = require('express-validator');
 const generalFunctions = require('../helper/util');
 const credential = require('../config/local');
 const { defaultMembership } = require('../middlewares/membership')
-
+const { createUserWallet } = require("../services/walletService")
 module.exports = {
   createUser: async (req, res) => {
     // username must be an email
@@ -52,7 +52,8 @@ module.exports = {
               if (customerDetails && customerDetails.id) {
                 newUser.stripeCustomerId = customerDetails.id
               };
-              newUser.memberships.push(await defaultMembership())
+              newUser.memberships.push(await defaultMembership());
+              newUser.wallet = await createUserWallet()
               await newUser.save()
               let url = generalFunctions.getURL();
               let resetURL = url + `auth/${newUser.id}/verify/${newUser.token}`;

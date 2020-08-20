@@ -1,0 +1,114 @@
+# Wallet Paths
+  /wallet:
+    get:
+      summary: Fetch user wallet
+      description: Fetch user wallet
+      operationId: fetchMyWallet
+      tags:
+      - Wallet
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+             $ref: "#/definitions/Wallet"
+  /wallet-history/{userId}:
+    get:
+      summary: Fetch user wallet history
+      description: Fetch user wallet history
+      operationId: fetchWalletHistory
+      tags:
+      - Wallets
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: userId
+          description: User ID
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              $ref: "#/definitions/WalletHistory"
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /wallet-history:
+    get:
+      summary: Fetch all user wallet histories
+      description: Fetch all user wallet histories
+      operationId: fetchAllWalletHistories
+      tags:
+      - Wallets
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: bankAccountId
+          description: BankAccount Id to fetch
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/WalletHistory"
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /payments/withdraw:
+    post:
+      summary: Pay a vendor account
+      operationId: payOut
+      tags:
+      - Payout
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: amount
+          description: Payment amount
+          required: true        
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Payout successful
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

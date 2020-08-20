@@ -1,0 +1,23 @@
+# Wallet history Definitions
+  WalletHistory:
+    type: object
+    properties:
+      balance:
+        type: number
+        description: Wallet current balance
+        example: 200
+      previousBalance:
+        type: number
+        description: Wallet previous balance
+        example: 50
+      user:
+        type: object
+      type:
+        type: string
+        description: credit or debit
+      transaction: 
+        type: string
+        description: transaction involved in this history
+      description:
+        type: string
+

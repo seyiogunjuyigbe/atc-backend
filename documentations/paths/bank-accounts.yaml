@@ -130,7 +130,6 @@
           description: BankAccount data to update
           schema:
             $ref: "#/definitions/BankAccount"
-
       responses:
         200:
           description: Success
@@ -147,34 +146,6 @@
           schema:
             example:
               message: You are not authorized to perform this action
-        500:
-          description: Unexpected server error
-          schema:
-            example:
-              message: An unexpected error occured
-
-  /bank-accounts/list-banks:
-    get:
-      summary: List all supported banks
-      operationId: listBanks
-      tags:
-      - BankAccounts
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-      responses:
-        200:
-          description: Success
-          schema:
-            example:
-              message: Banks fetched successfully
-        403:
-          description: Not authorized
-          schema:
-            example:
-              message: You are not authorized to access this resource
         500:
           description: Unexpected server error
           schema:

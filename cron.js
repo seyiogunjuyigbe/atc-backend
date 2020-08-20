@@ -1,21 +1,22 @@
-const Product = require('./server/models/product')
-const ProductCycle = require('./server/models/productCycle')
+const { ProductCycle, Product, Transaction } = require('./server/models')
 const moment = require('moment');
+const twService = require("./server/services/twservice");
+const walletService = require("./server/services/walletService")
 module.exports = class Cron {
   async runAllCron() {
     console.log('Started Cron Jobs')
-   await Cron.productCron().catch((e) => console.log(`Error running cron job ${e}`))
+    await Cron.productCron().catch((e) => console.log(`Error running cron job ${e}`))
     setInterval(() => {
       Cron.productCron().catch((e) => console.log(`Error running cron job ${e}`))
-    }, 60000)
+    }, 60000);
   }
 
   static async productCron() {
-    const allProducts = await Product.find({isMainProduct: true, status: {$ne: "canceled"}});
+    const allProducts = await Product.find({ isMainProduct: true, status: { $ne: "canceled" } });
     for (let product = 0; product < allProducts.length; product++) {
       const data = allProducts[product];
-      const cycle = await ProductCycle.findOne({product: data._id})
-      if(!cycle) return;
+      const cycle = await ProductCycle.findOne({ product: data._id })
+      if (!cycle) return;
       if (moment(moment().startOf('day')).isSame(data.endDate, 'day')) {
         cycle.status = "expired"
         data.status = "expired"
@@ -48,5 +49,29 @@ module.exports = class Cron {
       }
     }
   }
+  static async payoutCron() {
+    let pendingPayouts = await Transaction.find({ status: "successful", type: 'payment', transactableType: "Product" }).populate('vendor vendor.wallet');
+    if (!pendingPayouts) console.log("No pending payouts");
+    else {
+      pendingPayouts = pendingPayouts.filter(pay => {
+        return moment(pay.settleDate).isSameOrBefore(moment().startOf('day'))
+      });
+      if (pendingPayouts.length == 0) console.log("No pending payouts")
+      else {
+        pendingPayouts.forEach(async payoutTransaction => {
+          let { vendor } = payoutTransaction;
+          if (!vendor) console.log("No vendor found for this transaction");
+          else {
+            let payout = await walletService.creditWallet(vendor, payoutTransaction.amount);
+            payoutTransaction.status = "settled"
+            await payoutTransaction.save()
+            console.log({ message: "Payout done for " + vendor.email, payout })
+          }
 
+        })
+      }
+
+    }
+
+  }
 }

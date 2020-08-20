@@ -16,13 +16,14 @@ productRoute.get("/:productId", productCrl.viewProduct);
 productRoute.put("/slots/:productId", productCrl.updateSlot);
 productRoute.get('/priority', productCrl.fetchHomePageProducts)
 productRoute.get('/product_cycle/:productId', productCrl.viewProductCycle)
-productRoute.put('/:productId/priority', authenticate, check('priority').not().isEmpty().withMessage('Priority is required'),
-    validate, checkIfAdmin, productCrl.updateProductPriority)
+productRoute.put('/:productId/priority', authenticate, checkIfAdmin, check('priority').not().isEmpty().withMessage('Priority is required'),
+    validate, productCrl.updateProductPriority)
 
 //productRoute.delete("/product/:productId",  productCrl.deleteProduct);
 productRoute.post("/:productId/purchase", authenticate, productCrl.purchaseProduct);
+productRoute.post("/:productId/refund", authenticate, check('refundOption').isIn(['wallet', 'points']).withMessage("Invalid refund option"),
 
-
+    validate, productCrl.refundProductPayment)
 
 
 module.exports = productRoute;

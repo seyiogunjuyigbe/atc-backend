@@ -51,6 +51,14 @@ const userSchema = new Schema({
     type: String,
     enum: ['admin', 'vendor', 'customer']
   },
+  bankAccount: {
+    type: Schema.Types.ObjectId,
+    ref: "BankAccount"
+  },
+  wallet: {
+    type: Schema.Types.ObjectId,
+    ref: "Wallet"
+  },
   passwordResetExpires: {
     type: String
   },
