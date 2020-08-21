@@ -14,7 +14,7 @@ const Transaction = require('./transaction')
 const BankAccount = require('./bankaccount');
 const Wallet = require("./wallet");
 const WalletHistory = require("./walletHistory");
-
+const Recommendation = require("./recommendation")
 module.exports = {
   ProductCycle,
   Category,
@@ -32,4 +32,5 @@ module.exports = {
   BankAccount,
   Wallet,
   WalletHistory,
+  Recommendation
 };

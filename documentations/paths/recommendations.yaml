@@ -1,0 +1,45 @@
+# Recommendation Paths
+  /recommendations:
+    post:
+      summary: New recommendation
+      description:  New recommendation
+      operationId:  newRecommendation
+      tags:
+      -  Recommendations
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: recommendation details
+          required: true
+          schema:
+            $ref: '#/definitions/Recommendations'
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+             $ref: "#/definitions/Recommendations"
+    get:
+      summary: Fetch Recommendations
+      description:  Fetch Recommendations
+      operationId:  fetchRecommendation
+      tags:
+      -  Recommendations
+      parameters:
+        - in: query
+          name: featureType
+          description: Feature type(Product,Activity)
+          required: true
+        - in: query
+          name: featureId
+          description: ID of product or activity
+          required: true
+      responses:
+        200:
+          description: Success
+          example: 20
+                         
