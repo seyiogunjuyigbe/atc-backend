@@ -24,7 +24,7 @@ module.exports = class Cron {
         await data.save()
         return;
       }
-      if (moment(new Date()).isAfter(data.waitingCycle)) {
+      if (moment(new Date()).isAfter(data.endDate)) {
         cycle.status = "expired"
         data.status = "waiting"
         await data.save();
