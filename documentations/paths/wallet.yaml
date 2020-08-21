@@ -5,7 +5,7 @@
       description: Fetch user wallet
       operationId: fetchMyWallet
       tags:
-      - Wallet
+      - Wallets
       parameters:
         - in: header
           name: Authorization
@@ -23,7 +23,7 @@
       description: Fetch user wallet history
       operationId: fetchWalletHistory
       tags:
-      - Wallets
+      - Wallet Histories
       parameters:
         - in: header
           name: Authorization
@@ -55,7 +55,7 @@
       description: Fetch all user wallet histories
       operationId: fetchAllWalletHistories
       tags:
-      - Wallets
+      - Wallet Histories
       parameters:
         - in: header
           name: Authorization
@@ -84,9 +84,9 @@
   /payments/withdraw:
     post:
       summary: Pay a vendor account
-      operationId: payOut
+      operationId: withdrawFromWallet
       tags:
-      - Payout
+      - Payments
       parameters:
         - in: header
           name: Authorization
