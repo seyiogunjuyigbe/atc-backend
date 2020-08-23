@@ -114,6 +114,8 @@ module.exports = {
   viewProduct: async (req, res) => {
     try {
       const product = await Queryservice.findOne(Product, req);
+      product.stats.views += 1;
+      await product.save()
       return success(res, 200, product)
     } catch (err) {
       return error(res, 500, err.message);
@@ -274,7 +276,7 @@ module.exports = {
     } catch (err) {
       return error(res, 500, err.message)
     }
-  }
+  },
 };
 function calcPrice(adult) {
   if (adult == undefined || isNaN(Number(adult) == true)) return 0

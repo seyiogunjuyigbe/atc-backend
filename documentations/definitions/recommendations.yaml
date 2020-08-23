@@ -14,5 +14,5 @@
         description: logged in user who gave the recommendation
       comment:
         type: string
-        description: commenton recommendation
+        description: comment on recommendation
         example: Such a nice product
