@@ -11,6 +11,7 @@ const { refundPaymentToWallet, createUserWallet } = require('../services/walletS
 const { defaultMembership } = require('../middlewares/membership')
 const uuidv1 = require('uuid/v1');
 const jwt = require('jsonwebtoken');
+const credential = require('../config/local');
 
 module.exports = {
   create: async (req, res) => {
