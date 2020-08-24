@@ -287,7 +287,7 @@ module.exports = {
 
       }
       // register user
-      let existingUser = User.findOne({ email })
+      let existingUser = await User.findOne({ email })
       if (existingUser) {
         return error(res, 400, 'An account with similar credentials already exists');
       }

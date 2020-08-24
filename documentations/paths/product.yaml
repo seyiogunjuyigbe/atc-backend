@@ -1,307 +1,311 @@
-# Product Paths
+  # Product Paths
 
-/products:
-  post:
-    summary: Create new product
-    description: Create a new product
-    operationId: createProduct
-    tags:
-      - Products
-    parameters:
-      - in: header
-        name: Authorization
-        description: Authentication token
-        required: true
-      - in: body
-        name: payload
-        description: Product details
-        required: true
-        schema:
-          $ref: '#/definitions/Product'
-    responses:
-      200:
-        description: Success
-        schema:
-          example:
-            message: Product created successfully.
-  get:
-    summary: View all products
-    description: Display all products
-    operationId: listProducts
-    tags:
-      - Products
-    parameters:
-      $ref: '#/definitions/GetQuery'
-    responses:
-      200:
-        description: Success
-        schema:
-          $ref: '#/definitions/Products'
-      403:
-        description: Not authorized
-        schema:
-          example:
-            message: You are not authorized to access this resource
-      500:
-        description: Unexpected server error
-        schema:
-          example:
-            message: An unexpected error occured
-/products/{productId}:
-  get:
-    summary: Get a single product
-    operationId: viewProduct
-    tags:
-      - Products
-    parameters:
-      $ref: '#/definitions/GetQueryProduct'
-    responses:
-      200:
-        description: success
-        schema:
-          type: array
-          items:
+  /products:
+    post:
+      summary: Create new product
+      description: Create a new product
+      operationId: createProduct
+      tags:
+        - Products
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Product details
+          required: true
+          schema:
             $ref: '#/definitions/Product'
-
-      403:
-        description: Not authorized
-        schema:
-          example:
-            message: You are not authorized to access this resource
-      500:
-        description: Unexpected server error
-        schema:
-          example:
-            message: An unexpected error occured
-  put:
-    summary: Update product
-    description: Update a particular product
-    operationId: updateProduct
-    tags:
-      - Products
-    parameters:
-      - in: header
-        name: Authorization
-        description: Authentication token
-        required: true
-      - in: path
-        name: productId
-        description: product id to update
-        required: true
-      - in: body
-        name: payload
-        description: product data to update
-        schema:
-          $ref: '#/definitions/Product'
-    responses:
-      200:
-        description: Success
-        schema:
-          example:
-            message: Membership data successfully updated
-      400:
-        description: Bad request
-        schema:
-          example:
-            message: Missing required parameters
-      403:
-        description: Not authorized
-        schema:
-          example:
-            message: You are not authorized to perform this action
-      500:
-        description: Unexpected server error
-        schema:
-          example:
-            message: An unexpected error occured
-/products/{productId}/purchase:
-  post:
-    summary: Purchase a product
-    description: Purchase a product
-    operationId: purchaseProduct
-    tags:
-      - Products
-    parameters:
-      - in: header
-        name: Authorization
-        description: Authentication token
-        required: true
-      - in: body
-        name: payload
-        description: Product details
-        required: true
-        schema:
-          type: object
-          properties:
-            amount:
-              type: number
-              required: true
-              description: AMount to be paid
-            currency:
-              type: string
-              description: currency. defaults to usd
-    responses:
-      200:
-        description: Success
-        schema:
-          example:
-            message: Product payment initiated successfully.
-/products/{productId}/priority:
-  put:
-    summary: Update Product Priority (Admin)
-    description: Update a particular product's priority
-    operationId: updateProductPriority
-    tags:
-      - Products
-    parameters:
-      - in: header
-        name: Authorization
-        description: Authentication token
-        required: true
-      - in: path
-        name: productId
-        description: Product id to update
-        required: true
-      - in: body
-        name: priority
-        description: New product priority
-        type: integer
-        schema:
-          type: string
-    responses:
-      200:
-        description: Success
-        schema:
-          example:
-            message: Product priority updated
-      400:
-        description: Bad request
-        schema:
-          example:
-            message: Missing required parameters
-      403:
-        description: Not authorized
-        schema:
-          example:
-            message: You are not authorized to perform this action
-      500:
-        description: Unexpected server error
-        schema:
-          example:
-            message: An unexpected error occured
-/products/priority:
-  get:
-    summary: Fetch home page products
-    description: Fetch home page products
-    operationId: fetchHomePageProducts
-    tags:
-      - Products
-    parameters:
-      $ref: '#/definitions/GetQuery'
-    responses:
-      200:
-        description: Success
-        schema:
-          example:
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product created successfully.
+    get:
+      summary: View all products
+      description: Display all products
+      operationId: listProducts
+      tags:
+        - Products
+      parameters:
+        $ref: '#/definitions/GetQuery'
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/Products'
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /products/{productId}:
+    get:
+      summary: Get a single product
+      operationId: viewProduct
+      tags:
+        - Products
+      parameters:
+        $ref: '#/definitions/GetQueryProduct'
+      responses:
+        200:
+          description: success
+          schema:
             type: array
-            message: Products
-      500:
-        description: Unexpected server error
-        schema:
-          example:
-            message: An unexpected error occured
-/products/product_cycle/{productId}:
-  get:
-    summary: Get a single product life cycle
-    operationId: viewProduct
-    tags:
-      - Products
-    parameters:
-      - in: path
-        name: productId
-        description: Product ID
-        required: true
-    responses:
-      200:
-        description: success
-        schema:
-          type: array
-          items:
-            $ref: '#/definitions/ProductLifeCycle'
+            items:
+              $ref: '#/definitions/Product'
 
-      403:
-        description: Not authorized
-        schema:
-          example:
-            message: You are not authorized to access this resource
-      500:
-        description: Unexpected server error
-        schema:
-          example:
-            message: An unexpected error occured
-/products/slots/{productId}:
-  put:
-    summary: Update slot count
-    operationId: updateSlot
-    tags:
-      - Products
-    parameters:
-      - in: path
-        name: productId
-        description: Product ID
-        required: true
-      - in: body
-        name: payload
-        description: Product details
-        required: true
-        schema:
-          $ref: '#/definitions/slot'
-    responses:
-      200:
-        description: success
-        schema:
-          $ref: '#/definitions/slot'
-      403:
-        description: Not authorized
-        schema:
-          example:
-            message: You are not authorized to access this resource
-      500:
-        description: Unexpected server error
-        schema:
-          example:
-            message: An unexpected error occured
-/products/{productId}/purchase-auth:
-  post:
-    summary: Purchase a product as a guest
-    description: Purchase a product as a guest
-    operationId: purchaseProductAsGuest
-    tags:
-      - Products
-    parameters:
-      - in: body
-        name: payload
-        description: Product details
-        required: true
-        schema:
-          type: object
-          properties:
-            amount:
-              type: number
-              required: true
-              description: AMount to be paid
-            currency:
-              type: string
-              description: currency. defaults to usd
-      - in: body
-        name: payload
-        description: New User details
-        required: true
-        schema:
-          $ref: '#/definitions/User'
-    responses:
-      200:
-        description: Success
-        schema:
-          example:
-            message: Product payment initiated successfully.
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+    put:
+      summary: Update product
+      description: Update a particular product
+      operationId: updateProduct
+      tags:
+        - Products
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: productId
+          description: product id to update
+          required: true
+        - in: body
+          name: payload
+          description: product data to update
+          schema:
+            $ref: '#/definitions/Product'
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Membership data successfully updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /products/{productId}/purchase:
+    post:
+      summary: Purchase a product
+      description: Purchase a product
+      operationId: purchaseProduct
+      tags:
+        - Products
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          description: Product details
+          required: true
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: AMount to be paid
+              currency:
+                type: string
+                description: currency. defaults to usd
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product payment initiated successfully.
+  /products/{productId}/priority:
+    put:
+      summary: Update Product Priority (Admin)
+      description: Update a particular product's priority
+      operationId: updateProductPriority
+      tags:
+        - Products
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: productId
+          description: Product id to update
+          required: true
+        - in: body
+          name: priority
+          description: New product priority
+          type: integer
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product priority updated
+        400:
+          description: Bad request
+          schema:
+            example:
+              message: Missing required parameters
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to perform this action
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /products/priority:
+    get:
+      summary: Fetch home page products
+      description: Fetch home page products
+      operationId: fetchHomePageProducts
+      tags:
+        - Products
+      parameters:
+        $ref: '#/definitions/GetQuery'
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              type: array
+              message: Products
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /products/product_cycle/{productId}:
+    get:
+      summary: Get a single product life cycle
+      operationId: viewProduct
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: productId
+          description: Product ID
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProductLifeCycle'
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /products/slots/{productId}:
+    put:
+      summary: Update slot count
+      operationId: updateSlot
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: productId
+          description: Product ID
+          required: true
+        - in: body
+          name: payload
+          description: Product details
+          required: true
+          schema:
+            $ref: '#/definitions/slot'
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/slot'
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+  /products/{productId}/purchase-auth:
+    post:
+      summary: Purchase a product as a guest
+      description: Purchase a product as a guest
+      operationId: purchaseProductAsGuest
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: productId
+          description: Product ID
+          required: true      
+        - in: body
+          name: payload
+          description: Product details
+          required: true
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: AMount to be paid
+              currency:
+                type: string
+                description: currency. defaults to usd
+        - in: body
+          name: user
+          description: New User details
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product payment initiated successfully.
