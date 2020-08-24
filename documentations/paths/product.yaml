@@ -271,7 +271,7 @@
           schema:
             example:
               message: An unexpected error occured
-  /products/{productId}/purchase-auth:
+  /products/{productId}/purchase/guest:
     post:
       summary: Purchase a product as a guest
       description: Purchase a product as a guest

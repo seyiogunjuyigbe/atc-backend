@@ -19,7 +19,7 @@ productRoute.put('/:productId/priority', authenticate, checkIfAdmin, check('prio
 
 //productRoute.delete("/product/:productId",  productCrl.deleteProduct);
 productRoute.post("/:productId/purchase", authenticate, productCrl.purchaseProduct);
-productRoute.post("/:productId/purchase-auth",
+productRoute.post("/:productId/purchase/guest",
     [
         check('email').isEmail().withMessage('Email required'),
         check('password').isLength({ min: 8 }).withMessage('Password must be 8 characters or more')
