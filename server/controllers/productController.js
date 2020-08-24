@@ -280,6 +280,7 @@ module.exports = {
   },
   async purchaseProductWithoutAuth(req, res) {
     const { email } = req.body
+    console.log(req.body)
     try {
       const product = await Product.findById(req.params.productId);
       if (!product) {
@@ -343,9 +344,7 @@ module.exports = {
           transactionId: newTransaction.id,
         });
     } catch (err) {
-      return res
-        .status(500)
-        .send(responses.error(500, `Error updating an record ${err.message}`));
+      return error(res, 500, err.message);
     }
   },
 };
