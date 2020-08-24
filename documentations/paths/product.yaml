@@ -297,12 +297,18 @@
               currency:
                 type: string
                 description: currency. defaults to usd
-        - in: body
-          name: user
-          description: New User details
-          required: true
-          schema:
-            $ref: '#/definitions/User'
+              email:
+                type: string
+                description: user email
+              password:
+                type: string
+                description: user password                  
+              firstName:
+                type: string
+                description: user first name
+              lastName:
+                type: string
+                description: user last name                                              
       responses:
         200:
           description: Success
