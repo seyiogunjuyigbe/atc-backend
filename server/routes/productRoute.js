@@ -1,9 +1,7 @@
 const express = require("express");
 const productCrl = require("../controllers/productController");
 const productRoute = express.Router();
-const {
-    check
-} = require('express-validator');
+const { check } = require('express-validator');
 const validate = require('../middlewares/validate');
 const authenticate = require('../middlewares/authentication')
 const { checkIfAdmin } = require('../middlewares/access')
@@ -21,6 +19,13 @@ productRoute.put('/:productId/priority', authenticate, checkIfAdmin, check('prio
 
 //productRoute.delete("/product/:productId",  productCrl.deleteProduct);
 productRoute.post("/:productId/purchase", authenticate, productCrl.purchaseProduct);
+productRoute.post("/:productId/purchase-auth",
+    [
+        check('email').isEmail().withMessage('Email required'),
+        check(req.body.password).isLength({ min: 8 }).withMessage('Password must be 8 characters or more')
+    ]
+    , productCrl.purchaseProductWithoutAuth);
+
 productRoute.post("/:productId/refund", authenticate, check('refundOption').isIn(['wallet', 'points']).withMessage("Invalid refund option"),
 
     validate, productCrl.refundProductPayment)
