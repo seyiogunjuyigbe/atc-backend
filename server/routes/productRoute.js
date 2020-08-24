@@ -22,7 +22,7 @@ productRoute.post("/:productId/purchase", authenticate, productCrl.purchaseProdu
 productRoute.post("/:productId/purchase-auth",
     [
         check('email').isEmail().withMessage('Email required'),
-        check(req.body.password).isLength({ min: 8 }).withMessage('Password must be 8 characters or more')
+        check('password').isLength({ min: 8 }).withMessage('Password must be 8 characters or more')
     ]
     , productCrl.purchaseProductWithoutAuth);
 
