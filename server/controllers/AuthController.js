@@ -7,7 +7,7 @@ const responses = require('../helper/responses');
 const hash = require('hashids');
 const getJWT = require('../services/jwtService');
 const jwt = require('jsonwebtoken');
-const uuidv1 = require('uuid/v1'); 7
+const uuidv1 = require('uuid/v1');
 const { check, validationResult } = require('express-validator');
 const generalFunctions = require('../helper/util');
 const credential = require('../config/local');
@@ -239,7 +239,6 @@ module.exports = {
 
   login: async (req, res, next) => {
     try {
-      console.log(req.body)
       if (
         ['facebook', 'google'].includes(req.body.strategy) &&
         !req.body.access_token

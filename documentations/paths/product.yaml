@@ -298,7 +298,7 @@
         description: New User details
         required: true
         schema:
-          $ref: '#/definitions/user'
+          $ref: '#/definitions/User'
     responses:
       200:
         description: Success
