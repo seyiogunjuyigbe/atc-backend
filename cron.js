@@ -17,7 +17,7 @@ module.exports = class Cron {
       const data = allProducts[product];
       const cycle = await ProductCycle.findOne({ product: data._id })
       if (!cycle) return;
-      if (moment(moment().startOf('day')).isSame(data.endDate, 'day')) {
+      if (moment(moment().startOf('day')).isSame(data.endDate, 'day') || cycle.availableSlots === cycle.slotsUsed) {
         cycle.status = "expired"
         data.status = "expired"
         await cycle.save()
