@@ -24,7 +24,7 @@ module.exports = {
     }
     const { sellingCycle, waitingCycle } = req.body
     try {
-      const adminUser = await User.findOne({role: "admin"})
+      const adminUser = await User.findOne({ role: "admin" })
       const packages = await Package.findOne({ name: req.body.packageName })
       if (packages) {
         return res
@@ -177,6 +177,12 @@ module.exports = {
     }
   },
   purchaseProduct: async (req, res) => {
+    let { adultQty, childQty } = req.body;
+    let amount,
+      childAmount,
+      adultAmount,
+      childRange,
+      adultRange;
     try {
       const product = await Product.findById(req.params.productId);
       if (!product) {
@@ -184,10 +190,28 @@ module.exports = {
           responses.error(404, 'Product not found'),
         );
       }
-
+      if (product.customPrices.length > 0) {
+        childRange = product.customPrices.find(price => {
+          return price.range.includes(childQty)
+        });
+        adultRange = product.customPrices.find(price => {
+          return price.range.includes(adultQty)
+        });
+      }
+      if (childRange) {
+        childAmount = childRange.price * (childQty || 0)
+      } else {
+        childAmount = product.price.childrenPrice * (childQty || 0)
+      }
+      if (adultRange) {
+        adultAmount = adultRange.price * (adultQty || 0)
+      } else {
+        adultAmount = product.price.productAdultPrice * (adultQty || 0)
+      }
+      amount = childAmount + adultAmount
       const newTransaction = await Transaction.create({
         reference: createReference('payment'),
-        amount: req.body.amount,
+        amount,
         currency: req.body.currency || 'usd',
         activeCycle: product.activeCycle,
         initiatedBy: req.user.id,
