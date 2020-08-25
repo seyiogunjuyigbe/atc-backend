@@ -144,6 +144,8 @@ module.exports = {
     async fetchActivity(req, res) {
         try {
             let activity = await Queryservice.findOne(Activity, req);
+            activity.stats.views += 1;
+            await activity.save()
             return success(res, 200, activity)
 
         } catch (err) {

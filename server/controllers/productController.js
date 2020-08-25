@@ -28,6 +28,7 @@ module.exports = {
     }
     const { sellingCycle, waitingCycle } = req.body
     try {
+      const adminUser = await User.findOne({ role: "admin" })
       const packages = await Package.findOne({ name: req.body.packageName })
       if (packages) {
         return res
@@ -54,7 +55,7 @@ module.exports = {
       const endDate = moment(new Date(), "DD-MM-YYYY").add(req.body.sellingCycle, 'days')
       await Product.create(productList.filter(({ isMainProduct }) => !isMainProduct));
       const mainProductInfo = await Product.create({ ...mainProductObject, sellingCycle, waitingCycle, endDate, startDate: new Date(), });
-      const activeCycle = await ProductCycle.create({ startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate, totalSlots: req.body.totalSlots, slotsUsed: req.body.slotsUsed })
+      const activeCycle = await ProductCycle.create({ startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate, totalSlots: req.body.totalSlots, availableSlots: adminUser.availableSlots || req.body.totalSlots })
       mainProductInfo.activeCycle = activeCycle._id
       await mainProductInfo.save()
       return success(res, 200, "Product created successfully");
@@ -118,6 +119,8 @@ module.exports = {
   viewProduct: async (req, res) => {
     try {
       const product = await Queryservice.findOne(Product, req);
+      product.stats.views += 1;
+      await product.save()
       return success(res, 200, product)
     } catch (err) {
       return error(res, 500, err.message);
