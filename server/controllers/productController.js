@@ -7,7 +7,11 @@ const { createReference } = require('../services/paymentService');
 const moment = require('moment')
 const StripeService = require('../services/stripeService');
 const Queryservice = require("../services/queryService");
-const { refundPaymentToWallet } = require('../services/walletService');
+const { refundPaymentToWallet, createUserWallet } = require('../services/walletService');
+const { defaultMembership } = require('../middlewares/membership')
+const uuidv1 = require('uuid/v1');
+const jwt = require('jsonwebtoken');
+const credential = require('../config/local');
 
 module.exports = {
   create: async (req, res) => {
@@ -24,7 +28,7 @@ module.exports = {
     }
     const { sellingCycle, waitingCycle } = req.body
     try {
-      const adminUser = await User.findOne({role: "admin"})
+      const adminUser = await User.findOne({ role: "admin" })
       const packages = await Package.findOne({ name: req.body.packageName })
       if (packages) {
         return res
@@ -276,6 +280,75 @@ module.exports = {
       }
     } catch (err) {
       return error(res, 500, err.message)
+    }
+  },
+  async purchaseProductWithoutAuth(req, res) {
+    const { email } = req.body
+    console.log(req.body)
+    try {
+      const product = await Product.findById(req.params.productId);
+      if (!product) {
+        return error(res, 404, 'Product not found')
+
+      }
+      // register user
+      let existingUser = await User.findOne({ email })
+      if (existingUser) {
+        return error(res, 400, 'An account with similar credentials already exists');
+      }
+      const newUser = await User.create({
+        ...req.body, token: uuidv1(), isActive: false, lastLoginAt: new Date()
+      });
+      if (newUser) {
+        let customerDetails = await StripeService.createCustomer(newUser);
+        if (customerDetails && customerDetails.id) {
+          newUser.stripeCustomerId = customerDetails.id
+        };
+        newUser.memberships.push(await defaultMembership());
+        newUser.wallet = await createUserWallet()
+        await newUser.save()
+      }
+      const newTransaction = await Transaction.create({
+        reference: createReference('payment'),
+        amount: req.body.amount,
+        currency: req.body.currency || 'usd',
+        activeCycle: product.activeCycle,
+        initiatedBy: newUser.id,
+        customer: newUser,
+        vendor: product.owner,
+        transactableType: 'Product',
+        transactable: product.id,
+        description: `Payment for ${product.name}`,
+      });
+
+      const paymentIntent = await StripeService.createPaymentIntent(
+        newTransaction, newUser
+      );
+      if (paymentIntent && paymentIntent.id) {
+        newTransaction.stripePaymentId = paymentIntent.id;
+        await newTransaction.save()
+      }
+
+      let token = jwt.sign({
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+      },
+        credential.jwtSecret, {
+        expiresIn: 604800, // expires in 7 days
+      },
+      );
+      return success(res, 200,
+        {
+          success: true,
+          message: 'Product payment initiated successfully',
+          token,
+          clientSecret: paymentIntent.client_secret,
+          transactionId: newTransaction.id,
+        });
+    } catch (err) {
+      return error(res, 500, err.message);
     }
   },
 };
