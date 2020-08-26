@@ -1,5 +1,5 @@
 # Recommendation Definitions
-  Recommendation:
+  Recommendations:
     type: object
     properties:
       featureType:
