@@ -1,4 +1,4 @@
-const { Product, Package, ProductCycle, Transaction, User } = require('../models');
+const { Product, Package, ProductCycle, Transaction, User, WatchNotification } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response')
@@ -87,6 +87,23 @@ module.exports = {
       return res
         .status(500)
         .send(responses.error(500, `Error viewing a product ${error.message}`));
+    }
+  },
+  addToWatchList: async (req, res) => {
+    try {
+      await WatchNotification.create({ product: req.params.productId,clientId: req.query.clientId })
+        return res
+          .status(200)
+          .send(
+            responses.success(
+              200,
+              'Record was created successfully'
+            ) ,
+          );
+    } catch (error) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error creating a Record ${error.message}`));
     }
   },
   updateSlot: async (req, res) => {

@@ -15,6 +15,7 @@ const BankAccount = require('./bankaccount');
 const Wallet = require("./wallet");
 const WalletHistory = require("./walletHistory");
 const Recommendation = require("./recommendation")
+const WatchNotification = require("./watchNotification")
 module.exports = {
   ProductCycle,
   Category,
@@ -32,5 +33,6 @@ module.exports = {
   BankAccount,
   Wallet,
   WalletHistory,
-  Recommendation
+  Recommendation,
+  WatchNotification
 };
