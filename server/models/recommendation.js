@@ -19,6 +19,10 @@ const recommendationSchema = new Schema({
         ref: 'User',
         required: true,
     },
-    comment: String
+    comment: String,
+    date: {
+        type: Date,
+        default: new Date()
+    }
 })
 module.exports = mongoose.model('Recommendation', recommendationSchema)

@@ -1,4 +1,4 @@
-const { Product, Package, ProductCycle, Transaction, User, WatchNotification } = require('../models');
+const { Product, Package, ProductCycle, Transaction, Recommendation, User, WatchNotification } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response')
@@ -91,15 +91,15 @@ module.exports = {
   },
   addToWatchList: async (req, res) => {
     try {
-      await WatchNotification.create({ product: req.params.productId,clientId: req.query.clientId })
-        return res
-          .status(200)
-          .send(
-            responses.success(
-              200,
-              'Record was created successfully'
-            ) ,
-          );
+      await WatchNotification.create({ product: req.params.productId, clientId: req.query.clientId })
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was created successfully'
+          ) ,
+        );
     } catch (error) {
       return res
         .status(500)
@@ -134,18 +134,20 @@ module.exports = {
     }
   },
   viewProduct: async (req, res) => {
+    let { hours } = req.query;
     try {
       const product = await Queryservice.findOne(Product, req);
       product.stats.views += 1;
-      await product.save()
-      return success(res, 200, product)
+      await product.save();
+      let result = await fetchWithStats(model = "Product", product, hours)
+      return success(res, 200, result)
     } catch (err) {
       return error(res, 500, err.message);
     }
   },
   listProduct: async (req, res) => {
     try {
-      let products = await Queryservice.find(Product, req)
+      let products = await Queryservice.find(Product, req);
       return success(res, 200, products)
     } catch (err) {
       return error(res, 500, err.message);
@@ -384,4 +386,33 @@ function calc(obj) {
     paidMembershipDiscountedPrice: Math.round((calcPrice(obj.adult) / 3) + (calcPrice(obj.adult) * 0.05)) || 0,
     oneOffMembershipFee: 0.21 * obj.adult || 0,
   }
+
+}
+async function fetchWithStats(model, doc, hours) {
+  let purchases;
+  try {
+    let recommendations = await Recommendation.find({ featureType: model, featureId: doc.id });
+    let sales = await Transaction.find({
+      type: "payment", transactableType: model, transactable: doc.id, $or: [{ status: "successful" }, { status: "settled" }]
+    })
+    if (hours) {
+      purchases = sales.filter(purchase => {
+        return Math.round(moment.duration(moment().diff(moment(purchase.paidAt))).asHours()) <= Number(hours)
+      });
+      recommendations = recommendations.filter(recommendation => {
+        return Math.round(moment.duration(moment().diff(moment(recommendation.date))).asHours()) <= Number(hours)
+      });
+    } else {
+      purchases = sales
+    }
+    return {
+      doc,
+      recommendations: recommendations.length,
+      purchases: purchases.length,
+      sales: sales.length
+    }
+  } catch (err) {
+    return err
+  }
+
 }

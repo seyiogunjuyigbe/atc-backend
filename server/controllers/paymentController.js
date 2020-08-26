@@ -74,7 +74,6 @@ module.exports = {
       })
       purchases = purchases.filter(purchase => {
         return Math.round(moment.duration(moment().diff(moment(purchase.paidAt))).asHours()) <= Number(hours)
-
       })
       return success(res, 200, {
         count: purchases.length
