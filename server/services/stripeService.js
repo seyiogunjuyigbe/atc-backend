@@ -1,6 +1,4 @@
-const {
-  STRIPE_SECRET_KEY
-} = process.env
+const { STRIPE_SECRET_KEY, FRONTEND_URL } = process.env
 const stripe = require("stripe")(STRIPE_SECRET_KEY);
 const { User } = require('../models')
 module.exports = {
@@ -68,6 +66,25 @@ module.exports = {
       } else {
         return res.status(500).json({ error: 'An unknown error occurred.' });
       }
+    }
+  },
+  async createWebhookEndpoint() {
+    try {
+      let endpoint = await stripe.webhookEndpoints.create(
+        {
+          url: FRONTEND_URL + '/payments/webhook',
+          enabled_events: [
+            'payment_intent.amount_capturable_updated',
+            'payment_intent.canceled',
+            'payment_intent.created',
+            'payment_intent.payment_failed',
+            'payment_intent.processing',
+            'payment_intent.succeeded'
+          ],
+        });
+      return endpoint;
+    } catch (err) {
+      return err
     }
   }
 }

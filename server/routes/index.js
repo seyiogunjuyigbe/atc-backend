@@ -11,7 +11,9 @@ const packageRoutes = require('./packageRoutes')
 const categoryRoutes = require('./categoryRoutes');
 const stateRoutes = require('./stateRoutes')
 const paymentRoute = require('./paymentRoute')
-const memberReviewRoute = require('./memberReviewRoute')
+const memberReviewRoute = require('./memberReviewRoute');
+const bankRoutes = require("./bankRoute");
+const recRoutes = require("./recommendationRoutes")
 indexRoute.use("/auth", authRoute);
 indexRoute.use("/chat", chatRoute);
 indexRoute.use("/memberships", membershipRoute);
@@ -23,5 +25,7 @@ indexRoute.use('/contents', contentRoutes);
 indexRoute.use('/categories', categoryRoutes)
 indexRoute.use('/activities', activityRoute);
 indexRoute.use('', stateRoutes)
-indexRoute.use('/payments', paymentRoute)
+indexRoute.use('/payments', paymentRoute);
+indexRoute.use("", bankRoutes);
+indexRoute.use("/recommendations", recRoutes)
 module.exports = indexRoute;

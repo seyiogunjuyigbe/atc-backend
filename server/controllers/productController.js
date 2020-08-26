@@ -1,4 +1,4 @@
-const { Product, Package, ProductCycle, Transaction } = require('../models');
+const { Product, Package, ProductCycle, Transaction, User, WatchNotification } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response')
@@ -6,6 +6,12 @@ const { check, validationResult } = require('express-validator');
 const { createReference } = require('../services/paymentService');
 const moment = require('moment')
 const StripeService = require('../services/stripeService');
+const Queryservice = require("../services/queryService");
+const { refundPaymentToWallet, createUserWallet } = require('../services/walletService');
+const { defaultMembership } = require('../middlewares/membership')
+const uuidv1 = require('uuid/v1');
+const jwt = require('jsonwebtoken');
+const credential = require('../config/local');
 
 module.exports = {
   create: async (req, res) => {
@@ -22,6 +28,7 @@ module.exports = {
     }
     const { sellingCycle, waitingCycle } = req.body
     try {
+      const adminUser = await User.findOne({ role: "admin" })
       const packages = await Package.findOne({ name: req.body.packageName })
       if (packages) {
         return res
@@ -30,7 +37,7 @@ module.exports = {
       }
       const createdPackage = await Package.create({ name: req.body.packageName, length: req.body.length })
       const productList = req.body.products.map((data) => ({
-        ...data, packageID: createdPackage._id,
+        ...data, package: createdPackage._id,
         owner: req.user._id,
         price: calc(data.price),
         sellingCycle: data.sellingCycle,
@@ -46,9 +53,9 @@ module.exports = {
           responses.error(500, `Error creating a Product No Main product provided`) ,
         );
       const endDate = moment(new Date(), "DD-MM-YYYY").add(req.body.sellingCycle, 'days')
-      const product = await Product.create(productList.filter(({ isMainProduct }) => !isMainProduct));
-      const mainProductInfo = await Product.create({ ...mainProductObject, sellingCycle, waitingCycle, endDate, startDate: new Date() });
-      const activeCycle = await ProductCycle.create({ startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate })
+      await Product.create(productList.filter(({ isMainProduct }) => !isMainProduct));
+      const mainProductInfo = await Product.create({ ...mainProductObject, sellingCycle, waitingCycle, endDate, startDate: new Date(), });
+      const activeCycle = await ProductCycle.create({ startDate: new Date(), product: mainProductInfo._id, sellingCycle, waitingCycle, endDate, totalSlots: req.body.totalSlots, availableSlots: adminUser.availableSlots || req.body.totalSlots })
       mainProductInfo.activeCycle = activeCycle._id
       await mainProductInfo.save()
       return success(res, 200, "Product created successfully");
@@ -82,92 +89,82 @@ module.exports = {
         .send(responses.error(500, `Error viewing a product ${error.message}`));
     }
   },
-  viewProduct: async (req, res) => {
+  addToWatchList: async (req, res) => {
     try {
-      const product = await Product.findById(req.params.productId).populate('owner contents').populate({
-        path: 'activities',
-        populate: {
-          path: 'countries sightCategories adventureCategories mainDestination.city mainDestination.country contents',
-
-        }
-      })
-      if (!product) {
-        return res.status(400).send(responses.error(400, 'Product not found'));
-      } else {
+      await WatchNotification.create({ product: req.params.productId,clientId: req.query.clientId })
         return res
           .status(200)
           .send(
             responses.success(
               200,
-              'Record was retreived successfully',
-              { product, prices: calc(product.price) }
+              'Record was created successfully'
             ) ,
           );
+    } catch (error) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error creating a Record ${error.message}`));
+    }
+  },
+  updateSlot: async (req, res) => {
+    try {
+      const productCycle = await ProductCycle.findOne({ product: req.params.productId, status: "active" }, { sort: { createdAt: -1 } });
+      if (!productCycle) {
+        return res.status(400).send(responses.error(400, 'Product not found'));
       }
+      if (productCycle.slotsUsed > req.body.totalSlots) {
+        return res
+          .status(500)
+          .send(responses.error(500, 'Product slot cannot be less than slots already purchased'));
+      }
+      productCycle.totalSlots = req.body.totalSlots
+      await productCycle.save();
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was updated successfully'
+          ) ,
+        );
     } catch (error) {
       return res
         .status(500)
         .send(responses.error(500, `Error viewing a product ${error.message}`));
     }
   },
-  listProduct: async (req, res) => {
-    let offset = req.query.offset ? req.query.offset : 0;
-    let limit = req.query.limit ? req.query.limit : 20;
-    let orderBy = req.query.orderBy ? req.query.orderBy : 'id';
-    let order = req.query.order ? req.query.order : 'asc';
-    const filter = {}
-    if (req.query.status) {
-      filter.status = req.query.status
-    }
-    let ordering = [
-      [orderBy, order]
-    ];
+  viewProduct: async (req, res) => {
     try {
-      let products = await Product
-        .find({}).populate('activities owner contents')
-        .limit(limit)
-        .skip(offset)
-      // .sort({
-      //   ordering
-      // })
-
-      await Product.countDocuments().exec()
-      let result = []
-      products.forEach(product => {
-        result.push({ product, prices: calc(product.price) })
-      })
-      return res
-        .status(200)
-        .send(
-          responses.success(
-            200,
-            'Record was retreived successfully',
-            result ,
-          ) ,
-        );
-
+      const product = await Queryservice.findOne(Product, req);
+      product.stats.views += 1;
+      await product.save()
+      return success(res, 200, product)
     } catch (err) {
-      return res.status(500).json({ error: true, message: err.message })
+      return error(res, 500, err.message);
     }
-
-
+  },
+  listProduct: async (req, res) => {
+    try {
+      let products = await Queryservice.find(Product, req)
+      return success(res, 200, products)
+    } catch (err) {
+      return error(res, 500, err.message);
+    }
   },
   updateProduct: async (req, res) => {
     try {
       const result = await Product.findByIdAndUpdate(req.params.productId, {
         ...req.body,
-        price:
-          { adult: req.body.adultPrice, children: req.body.childrenPrice, actual: calcPrice(req.body.adultPrice) },
-
       });
-      if (req.body.customPrices.length >= 1) {
-        result.set({
-          customPrices: req.body.customPrices.map(price => ({
+      if (req.body.price) result.price = calc(req.body.price);
+      if (req.body.customPrices) {
+        if (req.body.customPrices.length >= 1) {
+          result.customPrices = req.body.customPrices.map(price => ({
             range: price.range, prices: calc(price.prices)
           }))
-        })
+        }
       }
-      result.save()
+      await result.save()
       return res
         .status(200)
         .send(
@@ -262,19 +259,115 @@ module.exports = {
     }
   },
   async fetchHomePageProducts(req, res) {
-    const { sort, status } = req.query;
-    if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"');
-    if (!["active", "waiting", "expired"].includes(status)) return error(res, 400, "Status must be active, waiting or expired")
     let today = new Date();
-    let searchObj = { marketingExpiryDate: { $gte: today } };
-    if (status); searchObj.status = status
     try {
-      let products = await Product.find(searchObj).populate('activities owner contents').sort({ marketingPriority: sort });
+      let products = await Queryservice.find(Product, req, { marketingExpiryDate: { $gte: today } });
       return success(res, 200, products)
     } catch (err) {
       return error(res, 500, err.message)
     }
-  }
+  },
+  async refundProductPayment(req, res) {
+    const { refundOption } = req.body;
+
+    try {
+      let user = await User.findById(req.user.id)
+      let transactions = await Transaction.find({
+        type: "payment",
+        transactable: req.params.productId,
+        transactableType: "Product",
+        customer: req.user.id,
+      });
+      if (transactions.length == 0) return error(res, 400, 'Sorry, no refundable transaction found for this product');
+      let transaction = transactions.find(tr => {
+        return (tr.status == "successful" && moment().isBefore(tr.settleDate))
+      })
+      if (!transaction) {
+        return error(res, 400, 'Sorry, no refundable transaction found for this product');
+      }
+      else {
+        let refund;
+        if (refundOption == "wallet") {
+          refund = await refundPaymentToWallet(user, transaction)
+        }
+        else if (refundOption == "points") {
+          refund = await refundPaymentToPoints(user, transaction)
+        }
+        return success(res, 200, refund)
+      }
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
+  },
+  async purchaseProductWithoutAuth(req, res) {
+    const { email } = req.body
+    console.log(req.body)
+    try {
+      const product = await Product.findById(req.params.productId);
+      if (!product) {
+        return error(res, 404, 'Product not found')
+
+      }
+      // register user
+      let existingUser = await User.findOne({ email })
+      if (existingUser) {
+        return error(res, 400, 'An account with similar credentials already exists');
+      }
+      const newUser = await User.create({
+        ...req.body, token: uuidv1(), isActive: false, lastLoginAt: new Date()
+      });
+      if (newUser) {
+        let customerDetails = await StripeService.createCustomer(newUser);
+        if (customerDetails && customerDetails.id) {
+          newUser.stripeCustomerId = customerDetails.id
+        };
+        newUser.memberships.push(await defaultMembership());
+        newUser.wallet = await createUserWallet()
+        await newUser.save()
+      }
+      const newTransaction = await Transaction.create({
+        reference: createReference('payment'),
+        amount: req.body.amount,
+        currency: req.body.currency || 'usd',
+        activeCycle: product.activeCycle,
+        initiatedBy: newUser.id,
+        customer: newUser,
+        vendor: product.owner,
+        transactableType: 'Product',
+        transactable: product.id,
+        description: `Payment for ${product.name}`,
+      });
+
+      const paymentIntent = await StripeService.createPaymentIntent(
+        newTransaction, newUser
+      );
+      if (paymentIntent && paymentIntent.id) {
+        newTransaction.stripePaymentId = paymentIntent.id;
+        await newTransaction.save()
+      }
+
+      let token = jwt.sign({
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+      },
+        credential.jwtSecret, {
+        expiresIn: 604800, // expires in 7 days
+      },
+      );
+      return success(res, 200,
+        {
+          success: true,
+          message: 'Product payment initiated successfully',
+          token,
+          clientSecret: paymentIntent.client_secret,
+          transactionId: newTransaction.id,
+        });
+    } catch (err) {
+      return error(res, 500, err.message);
+    }
+  },
 };
 function calcPrice(adult) {
   if (adult == undefined || isNaN(Number(adult) == true)) return 0

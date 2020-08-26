@@ -27,13 +27,15 @@ module.exports = {
                     url,
                     type
                 });
-                let doc = await models[contentFor].findById(contentForId);
-                doc.contents.addToSet(newContent.id);
-                await doc.save()
-                if (!newContent) return res.status(400).json({
-                    error: true,
-                    message: 'Error creating content'
-                })
+                if(contentForId) {
+                    let doc = await models[contentFor].findById(contentForId);
+                    doc.contents.addToSet(newContent.id);
+                    await doc.save()
+                    if (!newContent) return res.status(400).json({
+                        error: true,
+                        message: 'Error creating content'
+                    })
+                }
                 else {
                     newContent.save((err, content) => {
                         return res.status(200).json({

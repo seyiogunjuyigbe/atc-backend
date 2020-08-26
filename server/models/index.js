@@ -13,6 +13,11 @@ const Country = require('./country');
 const Transaction = require('./transaction')
 const Chats = require('./chats')
 const Messages = require('./messages')
+const BankAccount = require('./bankaccount');
+const Wallet = require("./wallet");
+const WalletHistory = require("./walletHistory");
+const Recommendation = require("./recommendation")
+const WatchNotification = require("./watchNotification")
 
 module.exports = {
   Chats,
@@ -28,5 +33,11 @@ module.exports = {
   State,
   Messages,
   MemberReview,
-  Country, Transaction
+  Country,
+  Transaction,
+  BankAccount,
+  Wallet,
+  WalletHistory,
+  Recommendation,
+  WatchNotification
 };

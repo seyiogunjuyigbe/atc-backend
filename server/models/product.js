@@ -33,10 +33,13 @@ const ProductSchema = new Schema({
   endDate: { type: Date, required: true },
   startDate: { type: Date, default: new Date() },
   status: { type: String, enum: ["active", "waiting", "expired"], default: "active" },
-  packageID: {
+  package: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Package',
-    required: true
+    ref: 'Package'
+  },
+  activeCycle: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Product_cycle'
   },
   cancellationDaysLimit: {
     type: Number,
@@ -71,6 +74,12 @@ const ProductSchema = new Schema({
     paidMembershipDiscountedPrice: Number,
     oneOffMembershipFee: Number,
     annualMembershipFee: { type: Number, default: 200 }
+  },
+  stats: {
+    views: {
+      type: Number,
+      default: 0
+    }
   }
 },
 

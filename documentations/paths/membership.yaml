@@ -157,3 +157,47 @@
           schema:
             example:
               message: An unexpected error occured
+  /memberships/{membershipId}/refund:
+    post:
+      summary: Refund Membership
+      operationId: refundMembership
+      tags:
+        - Memberships
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: membershipId
+          description: Membership ID
+          required: true
+        - in: body
+          name: customerId
+          description: Customer ID (Only to be filled if refund is initiated by ADMIN)
+      responses:
+        200:
+          description: success
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Product payment initiated successfully
+              clientSecret: 
+                type: string 
+                example: payment_intent_client_secret,
+              transactionId: 
+                type: string 
+                example: new_transaction_id,
+
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

@@ -8,10 +8,14 @@ const TransactionSchema = new Schema({
     default: 'payment',
     enum: ['payment', 'subscription', 'refund', 'payout'],
   },
+  refund: {
+    type: Schema.Types.ObjectId,
+    ref: "Transaction"
+  },
   status: {
     type: String,
     default: 'pending',
-    enum: ['pending', 'successful', 'cancelled', 'failed', 'refunded'],
+    enum: ['pending', 'successful', 'cancelled', 'failed', 'refunded', "settled"],
   },
   reference: {
     type: String,
@@ -47,12 +51,12 @@ const TransactionSchema = new Schema({
   activeCycle: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product_cycle',
-    required: true,
+    // required: true,
   },
   customer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    // required: true,
   },
   vendor: {
     type: mongoose.Schema.Types.ObjectId,
@@ -63,28 +67,34 @@ const TransactionSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Card',
     required: true,
-  },
-  bankAcount: {
+  },*/
+  bankAccount: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'BankAccount',
-    required: true,
-  }, */
+    // required: true,
+  },
+  wallet: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wallet'
+  },
   transactableType: {
     type: String,
     enum: ['Product', 'Membership'],
-    required: true,
+    // required: true,
   },
   transactable: {
     type: mongoose.Schema.Types.ObjectId,
     refPath: 'transactableType',
-    required: true,
+    // required: true,
   },
   description: {
     type: String
   },
   stripePaymentId: {
     type: String
-  }
+  },
+  transferwiseId: String,
+  settleDate: Date
 },
   {
     timestamps: true

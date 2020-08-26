@@ -25,6 +25,10 @@ const userSchema = new Schema({
   city: {
     type: String
   },
+  lastSeen: {
+    type: Date,
+    default: new Date()
+  },
   password: String,
   country: {
     type: String
@@ -43,9 +47,18 @@ const userSchema = new Schema({
   },
   stripeCustomerId: String,
   memberships: [{ type: Schema.Types.ObjectId, ref: "Membership" }],
+  availableSlots: {type: Number},
   role: {
     type: String,
     enum: ['admin', 'vendor', 'customer']
+  },
+  bankAccount: {
+    type: Schema.Types.ObjectId,
+    ref: "BankAccount"
+  },
+  wallet: {
+    type: Schema.Types.ObjectId,
+    ref: "Wallet"
   },
   passwordResetExpires: {
     type: String

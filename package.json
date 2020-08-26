@@ -20,6 +20,7 @@
   "author": "Afeez Awotundun",
   "license": "ISC",
   "dependencies": {
+    "@pusher/push-notifications-server": "^1.2.0",
     "axios": "^0.19.0",
     "bcryptjs": "^2.4.3",
     "blueimp-md5": "^2.10.0",
@@ -59,6 +60,7 @@
     "sequelize": "^6.3.3",
     "sequelize-cli": "^6.2.0",
     "stripe": "^8.78.0",
+    "transferwise": "^1.0.2",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

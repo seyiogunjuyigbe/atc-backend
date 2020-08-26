@@ -1,6 +1,6 @@
 const { Activity, Country, State, Product } = require('../models');
 const { success, error } = require("../middlewares/response");
-
+const Queryservice = require("../services/queryService")
 module.exports = {
     async createActivity(req, res) {
         const {
@@ -22,12 +22,12 @@ module.exports = {
         if (sightCategories && Array.isArray(sightCategories) == false) return error(res, 400, 'Sight categories must be an array');
         if (adventureCategories && Array.isArray(adventureCategories) == false) return error(res, 400, 'Adventure categories must be an array')
         if (countries && Array.isArray(countries) == false) return error(res, 400, 'Countries must be an array')
-        if (calendarStatus && calendarStatus.length > 0) {
-            let wrongEntry = calendarStatus.find(entry => {
-                return checkIfObj(entry) == false
-            })
-            if (wrongEntry) return error(res, 400, "Calendar status must be an array of objects")
-        }
+        // if (calendarStatus && calendarStatus.length > 0) {
+        //     let wrongEntry = calendarStatus.find(entry => {
+        //         return checkIfObj(entry) == false
+        //     })
+        //     if (wrongEntry) return error(res, 400, "Calendar status must be an array of objects")
+        // }
         try {
             let country = await Country.findById(countryId);
             let city = await State.findById(cityId)
@@ -134,9 +134,8 @@ module.exports = {
     },
     async fetchAllActivities(req, res) {
         try {
-            let activities = await Activity.find({}).populate('countries sightCategories adventureCategories mainDestination.city mainDestination.country contents vendor')
-            if (!activities || activities.length == 0) return success(res, 200, 'No activities created yet');
-            else return success(res, 200, activities)
+            let activities = await Queryservice.find(Activity, req)
+            return success(res, 200, activities)
 
         } catch (err) {
             return error(res, 500, err.message)
@@ -144,9 +143,10 @@ module.exports = {
     },
     async fetchActivity(req, res) {
         try {
-            let activity = await Activity.findById(req.params.activityId).populate('countries sightCategories adventureCategories mainDestination.city mainDestination.country contents vendor')
-            if (!activity) return success(res, 204, 'Activity not found');
-            else return success(res, 200, activity)
+            let activity = await Queryservice.findOne(Activity, req);
+            activity.stats.views += 1;
+            await activity.save()
+            return success(res, 200, activity)
 
         } catch (err) {
             return error(res, 500, err.message)
@@ -177,17 +177,9 @@ module.exports = {
         }
     },
     async fetchHomePageActivities(req, res) {
-        const { sort, category } = req.query;
-        if (sort && sort !== "asc" && sort !== "desc") return error(res, 400, 'Sort can only be "asc" or "desc"')
         let today = new Date();
         try {
-
-            let activities = await Activity.find({ marketingExpiryDate: { $gte: today } }).populate('countries sightCategories adventureCategories mainDestination.city mainDestination.country contents vendor').sort({ marketingPriority: sort });
-            if (category) activities = activities.filter(x => {
-                return x.sightCategories.filter(cat => {
-                    return String(cat._id) === String(category)
-                })
-            });
+            let activities = await Queryservice.find(Activity, req, { marketingExpiryDate: { $gte: today } });
             return success(res, 200, activities)
         } catch (err) {
             return error(res, 500, err.message)
