@@ -16,13 +16,13 @@
           description: recommendation details
           required: true
           schema:
-            $ref: '#/definitions/Recommendations'
+            $ref: '#/definitions/Recommendation'
       responses:
         200:
           description: Success
           schema:
             example:
-             $ref: "#/definitions/Recommendations"
+             $ref: "#/definitions/Recommendation"
     get:
       summary: Fetch Recommendations
       description:  Fetch Recommendations
