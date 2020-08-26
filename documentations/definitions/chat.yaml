@@ -1,0 +1,36 @@
+# Chat Definitions
+  Chat:
+    type: object
+    properties:
+      participants:
+        type: array
+        items:
+          type: string
+          description: Should include the array of users you want to chat with it can also serve as a group chat function
+          required: true
+      message:
+        type: string
+        description: chat message
+        required: true
+
+  ActiveChat:
+    type: object
+    properties:
+      _id:
+        type: string
+      participants:
+        type: array
+        items:
+          $ref: "#/definitions/User"
+  ChatMessages:
+    type: object
+    properties:
+      _id:
+        type: string
+      message:
+        type: string
+        description: message sent or recived
+      sentBy:
+        type: string
+        description: id of the message sender
+        
