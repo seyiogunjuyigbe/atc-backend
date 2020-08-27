@@ -282,7 +282,7 @@
         - in: path
           name: productId
           description: Product ID
-          required: true      
+          required: true
         - in: body
           name: payload
           description: Product details
@@ -302,16 +302,39 @@
                 description: user email
               password:
                 type: string
-                description: user password                  
+                description: user password
               firstName:
                 type: string
                 description: user first name
               lastName:
                 type: string
-                description: user last name                                              
+                description: user last name
       responses:
         200:
           description: Success
           schema:
             example:
               message: Product payment initiated successfully.
+
+  /products/add-to-watch/{productId}:
+    post:
+      summary: add product to watch list notification
+      description: Add Product to watch list
+      operationId: watchList
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: productId
+          description: Product ID
+          required: true
+        - in: query
+          name: clientId
+          description: guest or users client id
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product is added to watch list.

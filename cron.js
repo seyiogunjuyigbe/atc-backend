@@ -1,6 +1,7 @@
 const { ProductCycle, Product, Transaction } = require('./server/models')
 const moment = require('moment');
 const twService = require("./server/services/twservice");
+const NotificationService = require("./server/services/notificationService");
 const walletService = require("./server/services/walletService")
 module.exports = class Cron {
   async runAllCron() {
@@ -17,9 +18,17 @@ module.exports = class Cron {
       const data = allProducts[product];
       const cycle = await ProductCycle.findOne({ product: data._id })
       if (!cycle) return;
+      const notice = {product: data, productCycle: cycle}
+      const current = moment().startOf('day');
+      const given = moment(data.endDate, "YYYY-MM-DD");
+      const waiting = moment(data.waitingCycle, "YYYY-MM-DD");
+      if (moment.duration(current.diff(given)).asDays() === 2) {
+        Cron.NotificationCron(notice, "soonExpired")
+      }
       if (moment(moment().startOf('day')).isSame(data.endDate, 'day') || cycle.availableSlots === cycle.slotsUsed) {
         cycle.status = "expired"
         data.status = "expired"
+        Cron.NotificationCron(notice, "expired")
         await cycle.save()
         await data.save()
         return;
@@ -27,13 +36,16 @@ module.exports = class Cron {
       if (moment(new Date()).isAfter(data.endDate)) {
         cycle.status = "expired"
         data.status = "waiting"
+        Cron.NotificationCron(notice, "waiting")
         await data.save();
         await cycle.save()
       }
-      const current = moment().startOf('day');
-      const given = moment(data.endDate, "YYYY-MM-DD");
+      if (moment.duration(current.diff(waiting)).asDays() === 2) {
+        Cron.NotificationCron(notice, "soonBeActive")
+      }
       if (moment.duration(current.diff(given)).asDays() >= data.waitingCycle) {
         const endDate = moment(new Date(), "DD-MM-YYYY").add(data.sellingCycle, 'days')
+        Cron.NotificationCron(notice, "active")
         data.status = "active"
         data.endDate = endDate
         data.startDate = new Date();
@@ -49,6 +61,22 @@ module.exports = class Cron {
         await data.save()
       }
     }
+  }
+  static NotificationCron (data, status ) {
+    let newMessage
+    switch (status) {
+      case "active" :  newMessage = `${data.product.name} is currently on available for purchase`
+        break
+      case "soonBeActive" :  newMessage = `${data.product.name} is will be available in two days for purchase`
+        break
+      case "expired" : newMessage =  `${data.product.name} has expired`
+        break
+      case "soonExpired" : newMessage =  `${data.product.name} will soon expire in two days`
+        break
+      case "waiting" : newMessage =  `${data.product.name} is coming soon`
+        break
+    }
+    new NotificationService().sendNotificationList(data.product._id, message).catch((error)=> console.log('Error With notification: ', error))
   }
   static async payoutCron() {
     let pendingPayouts = await Transaction.find({ status: "successful", type: 'payment', transactableType: "Product" }).populate('vendor vendor.wallet');
