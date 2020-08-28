@@ -6,21 +6,24 @@ let beamsClient = new PushNotifications({
   secretKey: PUSHERSECRETKEY
 });
 class NotificationService {
-  async sendNotificationList (_id, message) {
+  async sendNotificationList (_id, message,status, condition) {
    const productToPublish = await Notification.findOne({product: _id })
    if(!message || !productToPublish) return null;
-    beamsClient.publishToInterests([productToPublish.clientId], {
-      web: {
-        notification: {
-          title: 'Product Updates',
-          body: message
-        }
-      }
-    }).then((publishResponse) => {
-      console.log('published:', publishResponse.publishId);
-    }).catch((error) => {
-      console.error('Error:', error);
-    });
+   if(status === "soonExpired" && productToPublish.claim <= condition) {
+     beamsClient.publishToInterests([productToPublish.clientId], {
+       web: {
+         notification: {
+           title: 'Product Updates',
+           body: message
+         }
+       }
+     }).then((publishResponse) => {
+       console.log('published:', publishResponse.publishId);
+     }).catch((error) => {
+       console.error('Error:', error);
+     });
+    }
+
   }
 }
 
