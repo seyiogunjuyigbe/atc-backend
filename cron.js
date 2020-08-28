@@ -81,7 +81,7 @@ module.exports = class Cron {
         newMessage = `${data.product.name} is coming soon`
         break
     }
-    new NotificationService().sendNotificationList(data.product._id, message, status, condition).catch((error) => console.log('Error With notification: ', error))
+    new NotificationService().sendNotificationList(data.product._id, newMessage, status, condition).catch((error) => console.log('Error With notification: ', error))
   }
 
   static async payoutCron() {

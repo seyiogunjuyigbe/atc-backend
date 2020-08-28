@@ -26,5 +26,16 @@ class NotificationService {
 
   }
 }
-
+// beamsClient.publishToInterests(["web-13d00b76-6063-437c-9b23-b1b3416795c1"], {
+//   web: {
+//     notification: {
+//       title: 'Product Updates',
+//       body: "message"
+//     }
+//   }
+// }).then((publishResponse) => {
+//   console.log('published:', publishResponse.publishId);
+// }).catch((error) => {
+//   console.error('Error:', error);
+// });
 module.exports = NotificationService
