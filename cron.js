@@ -1,4 +1,4 @@
-const { ProductCycle, Product, Transaction } = require('./server/models')
+const {ProductCycle, Product, Transaction} = require('./server/models')
 const moment = require('moment');
 const twService = require("./server/services/twservice");
 const NotificationService = require("./server/services/notificationService");
@@ -13,18 +13,17 @@ module.exports = class Cron {
   }
 
   static async productCron() {
-    const allProducts = await Product.find({ isMainProduct: true, status: { $ne: "canceled" } });
+    const allProducts = await Product.find({isMainProduct: true, status: {$ne: "canceled"}});
     for (let product = 0; product < allProducts.length; product++) {
       const data = allProducts[product];
-      const cycle = await ProductCycle.findOne({ product: data._id })
+      const cycle = await ProductCycle.findOne({product: data._id})
       if (!cycle) return;
       const notice = {product: data, productCycle: cycle}
       const current = moment().startOf('day');
       const given = moment(data.endDate, "YYYY-MM-DD");
       const waiting = moment(data.waitingCycle, "YYYY-MM-DD");
-      if (moment.duration(current.diff(given)).asDays() === 2) {
-        Cron.NotificationCron(notice, "soonExpired")
-      }
+      Cron.NotificationCron(notice, "soonExpired", moment.duration(current.diff(given)).asDays())
+
       if (moment(moment().startOf('day')).isSame(data.endDate, 'day') || cycle.availableSlots === cycle.slotsUsed) {
         cycle.status = "expired"
         data.status = "expired"
@@ -62,24 +61,35 @@ module.exports = class Cron {
       }
     }
   }
-  static NotificationCron (data, status ) {
+
+  static NotificationCron(data, status, condition) {
     let newMessage
     switch (status) {
-      case "active" :  newMessage = `${data.product.name} is currently on available for purchase`
+      case "active" :
+        newMessage = `${data.product.name} is currently on available for purchase`
         break
-      case "soonBeActive" :  newMessage = `${data.product.name} is will be available in two days for purchase`
+      case "soonBeActive" :
+        newMessage = `${data.product.name} is will be available in two days for purchase`
         break
-      case "expired" : newMessage =  `${data.product.name} has expired`
+      case "expired" :
+        newMessage = `${data.product.name} has expired`
         break
-      case "soonExpired" : newMessage =  `${data.product.name} will soon expire in two days`
+      case "soonExpired" :
+        newMessage = `${data.product.name} will soon expire in two days`
         break
-      case "waiting" : newMessage =  `${data.product.name} is coming soon`
+      case "waiting" :
+        newMessage = `${data.product.name} is coming soon`
         break
     }
-    new NotificationService().sendNotificationList(data.product._id, message).catch((error)=> console.log('Error With notification: ', error))
+    new NotificationService().sendNotificationList(data.product._id, message, status, condition).catch((error) => console.log('Error With notification: ', error))
   }
+
   static async payoutCron() {
-    let pendingPayouts = await Transaction.find({ status: "successful", type: 'payment', transactableType: "Product" }).populate('vendor vendor.wallet');
+    let pendingPayouts = await Transaction.find({
+      status: "successful",
+      type: 'payment',
+      transactableType: "Product"
+    }).populate('vendor vendor.wallet');
     if (!pendingPayouts) console.log("No pending payouts");
     else {
       pendingPayouts = pendingPayouts.filter(pay => {
@@ -88,13 +98,13 @@ module.exports = class Cron {
       if (pendingPayouts.length == 0) console.log("No pending payouts")
       else {
         pendingPayouts.forEach(async payoutTransaction => {
-          let { vendor } = payoutTransaction;
+          let {vendor} = payoutTransaction;
           if (!vendor) console.log("No vendor found for this transaction");
           else {
             let payout = await walletService.creditWallet(vendor, payoutTransaction.amount);
             payoutTransaction.status = "settled"
             await payoutTransaction.save()
-            console.log({ message: "Payout done for " + vendor.email, payout })
+            console.log({message: "Payout done for " + vendor.email, payout})
           }
 
         })

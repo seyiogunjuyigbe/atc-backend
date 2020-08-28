@@ -332,6 +332,14 @@
           name: clientId
           description: guest or users client id
           required: true
+        - in: query
+          name: claim
+          description: percantage claim limit
+          required: true
+        - in: query
+          name: dayslimit
+          description: days limit
+          required: true
       responses:
         200:
           description: Success
