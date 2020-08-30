@@ -32,12 +32,6 @@ module.exports = {
           currentTransaction.set({ status: "successful", paidAt: new Date() });
           if (currentTransaction.transactableType == "Product" && currentTransaction.type == "payment") {
             currentTransaction.settleDate = moment().add(currentTransaction.transactable.cancellationDaysLimit, 'days');
-            await MemberProduct.create({
-              user: currentTransaction.customer,
-              product: currentTransaction.product,
-              activeCycle: currentTransaction.product.activeCycle,
-              status: "completePayment"
-            })
           }
           if (currentTransaction.transactableType === "Membership" && currentTransaction.type == "subscription") {
             await subscribeMembership(currentTransaction.transactable, req.user.id);

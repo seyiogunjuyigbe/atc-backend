@@ -33,7 +33,7 @@ exports.subscribeMembership = async (membershipId, userId) => {
       memberships.length = 0;
       memberships.push(membership);
       user.activeMembership = membership;
-      user, membershipExpiry = moment().add(30, 'days');
+      user.membershipExpiry = moment().add(30, 'days');
     } else {
       memberships.push(membership)
     }
