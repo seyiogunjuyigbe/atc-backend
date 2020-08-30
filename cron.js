@@ -22,9 +22,8 @@ module.exports = class Cron {
       const current = moment().startOf('day');
       const given = moment(data.endDate, "YYYY-MM-DD");
       const waiting = moment(data.waitingCycle, "YYYY-MM-DD");
-      if (moment.duration(current.diff(given)).asDays() === 2) {
-        Cron.NotificationCron(notice, "soonExpired")
-      }
+      Cron.NotificationCron(notice, "soonExpired", moment.duration(current.diff(given)).asDays())
+
       if (moment(moment().startOf('day')).isSame(data.endDate, 'day') || cycle.availableSlots === cycle.slotsUsed) {
         cycle.status = "expired"
         data.status = "expired"
@@ -62,24 +61,35 @@ module.exports = class Cron {
       }
     }
   }
-  static NotificationCron(data, status) {
+
+  static NotificationCron(data, status, condition) {
     let newMessage
     switch (status) {
-      case "active": newMessage = `${data.product.name} is currently on available for purchase`
+      case "active":
+        newMessage = `${data.product.name} is currently on available for purchase`
         break
-      case "soonBeActive": newMessage = `${data.product.name} is will be available in two days for purchase`
+      case "soonBeActive":
+        newMessage = `${data.product.name} is will be available in two days for purchase`
         break
-      case "expired": newMessage = `${data.product.name} has expired`
+      case "expired":
+        newMessage = `${data.product.name} has expired`
         break
-      case "soonExpired": newMessage = `${data.product.name} will soon expire in two days`
+      case "soonExpired":
+        newMessage = `${data.product.name} will soon expire in two days`
         break
-      case "waiting": newMessage = `${data.product.name} is coming soon`
+      case "waiting":
+        newMessage = `${data.product.name} is coming soon`
         break
     }
-    new NotificationService().sendNotificationList(data.product._id, message).catch((error) => console.log('Error With notification: ', error))
+    new NotificationService().sendNotificationList(data.product._id, newMessage, status, condition).catch((error) => console.log('Error With notification: ', error))
   }
+
   static async payoutCron() {
-    let pendingPayouts = await Transaction.find({ status: "successful", type: 'payment', transactableType: "Product" }).populate('vendor vendor.wallet');
+    let pendingPayouts = await Transaction.find({
+      status: "successful",
+      type: 'payment',
+      transactableType: "Product"
+    }).populate('vendor vendor.wallet');
     if (!pendingPayouts) console.log("No pending payouts");
     else {
       pendingPayouts = pendingPayouts.filter(pay => {
