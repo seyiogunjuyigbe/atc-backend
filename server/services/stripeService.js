@@ -25,7 +25,6 @@ module.exports = {
         }
       };
       if (amount_capturable) {
-        obj.amount_capturable = amount_capturable;
         obj.setup_future_usage = "off_session";
       }
       return await stripe.paymentIntents.create(obj);
