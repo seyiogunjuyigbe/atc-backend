@@ -8,6 +8,7 @@ const membershipsSchema = new Schema({
     type: String,
     enum: ['default', 'one-off', 'annual']
   },
+  duration: Number,
   name: {
     type: String
   },
@@ -26,7 +27,3 @@ const membershipsSchema = new Schema({
 const memberships = mongoose.model('Membership', membershipsSchema);
 
 module.exports = memberships;
-
-// const
-
-

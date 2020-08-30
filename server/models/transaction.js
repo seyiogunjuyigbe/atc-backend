@@ -94,7 +94,8 @@ const TransactionSchema = new Schema({
     type: String
   },
   transferwiseId: String,
-  settleDate: Date
+  settleDate: Date,
+  meta: Object
 },
   {
     timestamps: true

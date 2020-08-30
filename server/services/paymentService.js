@@ -31,7 +31,9 @@ exports.subscribeMembership = async (membershipId, userId) => {
     if (membership.type == "one-off") memberships.push(membership)
     else if (membership.type == "annual") {
       memberships.length = 0;
-      memberships.push(membership)
+      memberships.push(membership);
+      user.activeMembership = membership;
+      user, membershipExpiry = moment().add(30, 'days');
     } else {
       memberships.push(membership)
     }

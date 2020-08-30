@@ -2,7 +2,7 @@ const { STRIPE_SECRET_KEY, FRONTEND_URL } = process.env
 const stripe = require("stripe")(STRIPE_SECRET_KEY);
 const { User } = require('../models')
 module.exports = {
-  async createPaymentIntent(transaction, user) {
+  async createPaymentIntent(transaction, user, amount_capturable) {
     let { amount, currency, description, transactableType, transactable } = transaction
     try {
       if (!user.stripeCustomerId) {
@@ -13,8 +13,7 @@ module.exports = {
         await user.save()
         user = await User.findById(user.id); // to reload
       }
-
-      return await stripe.paymentIntents.create({
+      let obj = {
         amount,
         currency,
         description,
@@ -24,7 +23,12 @@ module.exports = {
           id: transactable.toString(),
           ref: transaction.reference
         }
-      });
+      };
+      if (amount_capturable) {
+        obj.amount_capturable = amount_capturable;
+        obj.setup_future_usage = "off_session";
+      }
+      return await stripe.paymentIntents.create(obj);
     } catch (err) {
       return err
     }
@@ -86,5 +90,34 @@ module.exports = {
     } catch (err) {
       return err
     }
-  }
+  },
+  // async createReusableIntent(transaction, user, amount_capturable) {
+  //   let { amount, currency, description, transactableType, transactable } = transaction
+  //   try {
+  //     if (!user.stripeCustomerId) {
+  //       let customerDetails = await this.createCustomer(user);
+  //       if (customerDetails && customerDetails.id) {
+  //         user.stripeCustomerId = customerDetails.id
+  //       }
+  //       await user.save()
+  //       user = await User.findById(user.id); // to reload
+  //     }
+
+  //     return await stripe.paymentIntents.create({
+  //       amount,
+  //       currency,
+  //       description,
+  //       setup_future_usage: "off_session",
+  //       amount_capturable,
+  //       customer: user.stripeCustomerId,
+  //       metadata: {
+  //         type: transactableType,
+  //         id: transactable.toString(),
+  //         ref: transaction.reference
+  //       }
+  //     });
+  //   } catch (err) {
+  //     return err
+  //   }
+  // }
 }

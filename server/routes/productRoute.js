@@ -19,12 +19,30 @@ productRoute.put('/:productId/priority', authenticate, checkIfAdmin, check('prio
     validate, productCrl.updateProductPriority)
 
 //productRoute.delete("/product/:productId",  productCrl.deleteProduct);
-productRoute.post("/:productId/purchase", authenticate, productCrl.purchaseProduct);
+productRoute.post("/:productId/purchase", authenticate,
+    [
+        check('adultQty').not().isEmpty().withMessage('Required field'),
+        check('childQty').not().isEmpty().withMessage('Required field'),
+        check('paymentType').isIn(["one-off", "flexi"]).withMessage('Valid membership type values: "one-off", "flexi"'),
+        check('membershipType').isIn(["free", "one-off", "annual"]).withMessage('Valid membership type values: "free", "one-off", "annual"'),
+        check('membershipId').not().isEmpty().withMessage('Required field'),
+        check('paymentTime').isIn(["now", "later"]).withMessage('Valid payment time values: now, later'),
+        check('installments').not().isEmpty().withMessage('Required field'),
+
+    ], validate,
+    productCrl.purchaseProduct);
 productRoute.post("/:productId/purchase/guest",
     [
         check('email').isEmail().withMessage('Email required'),
-        check('password').isLength({ min: 8 }).withMessage('Password must be 8 characters or more')
-    ]
+        check('password').isLength({ min: 8 }).withMessage('Password must be 8 characters or more'),
+        check('adultQty').not().isEmpty().withMessage('Required field'),
+        check('childQty').not().isEmpty().withMessage('Required field'),
+        check('paymentType').isIn(["one-off", "flexi"]).withMessage('Valid membership type values: "one-off", "flexi"'),
+        check('membershipType').isIn(["free", "one-off", "annual"]).withMessage('Valid membership type values: "free", "one-off", "annual"'),
+        check('membershipId').not().isEmpty().withMessage('Required field'),
+        check('paymentTime').isIn(["now", "later"]).withMessage('Valid payment time values: now, later'),
+        check('installments').not().isEmpty().withMessage('Required field'),
+    ], validate
     , productCrl.purchaseProductWithoutAuth);
 
 productRoute.post("/:productId/refund", authenticate, check('refundOption').isIn(['wallet', 'points']).withMessage("Invalid refund option"),
