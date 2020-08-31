@@ -79,8 +79,11 @@ app.use((err, req, res, next) => {
   });
 });
 cron.schedule("0 1 * * *", () => {
-  console.log("Initiating payouts for the day")
+  console.log("Initiating jobs for the day")
   Cron.payoutCron().catch(e => console.log(e))
+  Cron.chargeInstallments().catch(e => console.log(e))
+  Cron.chargeSchedules().catch(e => console.log(e))
+
 }, {
   scheduled: true,
   timezone: "Africa/Algiers"
