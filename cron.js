@@ -1,8 +1,10 @@
-const { ProductCycle, Product, Transaction } = require('./server/models')
+const { ProductCycle, Product, Transaction, PaymentSchedule, Installment } = require('./server/models')
 const moment = require('moment');
 const twService = require("./server/services/twservice");
 const NotificationService = require("./server/services/notificationService");
-const walletService = require("./server/services/walletService")
+const walletService = require("./server/services/walletService");
+const stripeService = require('./server/services/stripeService');
+const { createReference } = require('./server/services/paymentService');
 module.exports = class Cron {
   async runAllCron() {
     console.log('Started Cron Jobs')
@@ -114,8 +116,63 @@ module.exports = class Cron {
 
   }
   static async chargeInstallments() {
+    try {
+      let installments = await Installment.find({}).populate('user product').filter(installment => {
+        return moment(installment.nextChargeDate).startOf('day').isSame(moment().startOf('day'))
+      });
+      if (!installments || installments.length == 0) console.log("No payment installments for today");
+      else {
+        installments.forEach(installment => {
+          let { amount, user, product } = installment
+          let transaction = await Transaction.create({
+            reference: createReference('payment'),
+            amount,
+            currency: currency || 'usd',
+            activeCycle: product.activeCycle,
+            initiatedBy: user.id,
+            customer: user,
+            vendor: product.owner,
+            transactableType: 'Product',
+            transactable: product.id,
+            description: `Payment for (${product.name})`,
 
+          })
+          let intent = await stripeService.createOfflineIntent(transaction, user);
+          console.log(`payment for installment (${user.email}) ${intent.status}`)
+        })
+      }
+    } catch (err) {
+      console.log({ err })
+    }
   }
-  static chargeSchedules() {
+  static async chargeSchedules() {
+    try {
+      let schedules = await PaymentSchedule.find({}).populate('user product').filter(schedule => {
+        return moment(schedule.chargeDate).startOf('day').isSame(moment().startOf('day'))
+      });
+      if (!schedules || schedules.length == 0) console.log("No payment schedules for today");
+      else {
+        schedules.forEach(schedule => {
+          let { amount, user, product } = schedule
+          let transaction = await Transaction.create({
+            reference: createReference('payment'),
+            amount,
+            currency: currency || 'usd',
+            activeCycle: product.activeCycle,
+            initiatedBy: user.id,
+            customer: user,
+            vendor: product.owner,
+            transactableType: 'Product',
+            transactable: product.id,
+            description: `Payment for (${product.name})`,
+
+          })
+          let intent = await stripeService.createOfflineIntent(transaction, user);
+          console.log(`payment for schedule (${user.email}) ${intent.status}`)
+        })
+      }
+    } catch (err) {
+      console.log({ err })
+    }
   }
 }

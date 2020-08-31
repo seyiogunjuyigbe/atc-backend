@@ -25,6 +25,7 @@ module.exports = {
       }
       let event = stripe.webhooks.constructEvent(req.body, sig, WEBHOOK_SECRET);
       let currentTransaction = await Transaction.findOne({ stripePaymentId: event.data.object.id })
+      console.log({ event })
       let intent;
       if (event && event.data && event.data.object) {
         if (event['type'] === 'payment_intent.succeeded') {

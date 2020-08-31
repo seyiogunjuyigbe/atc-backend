@@ -25,7 +25,7 @@ module.exports = {
         }
       };
       if (amount_capturable) {
-        obj.setup_future_usage = "off_session";
+        obj.amount = amount_capturable;
       }
       return await stripe.paymentIntents.create(obj);
     } catch (err) {
@@ -90,33 +90,32 @@ module.exports = {
       return err
     }
   },
-  // async createReusableIntent(transaction, user, amount_capturable) {
-  //   let { amount, currency, description, transactableType, transactable } = transaction
-  //   try {
-  //     if (!user.stripeCustomerId) {
-  //       let customerDetails = await this.createCustomer(user);
-  //       if (customerDetails && customerDetails.id) {
-  //         user.stripeCustomerId = customerDetails.id
-  //       }
-  //       await user.save()
-  //       user = await User.findById(user.id); // to reload
-  //     }
+  async createOfflineIntent(transaction, user) {
+    let { amount, currency, description, transactableType, transactable } = transaction
+    try {
+      if (!user.stripeCustomerId) {
+        let customerDetails = await this.createCustomer(user);
+        if (customerDetails && customerDetails.id) {
+          user.stripeCustomerId = customerDetails.id
+        }
+        await user.save()
+        user = await User.findById(user.id); // to reload
+      }
 
-  //     return await stripe.paymentIntents.create({
-  //       amount,
-  //       currency,
-  //       description,
-  //       setup_future_usage: "off_session",
-  //       amount_capturable,
-  //       customer: user.stripeCustomerId,
-  //       metadata: {
-  //         type: transactableType,
-  //         id: transactable.toString(),
-  //         ref: transaction.reference
-  //       }
-  //     });
-  //   } catch (err) {
-  //     return err
-  //   }
-  // }
+      return await stripe.paymentIntents.create({
+        amount,
+        currency,
+        description,
+        setup_future_usage: "off_session",
+        customer: user.stripeCustomerId,
+        metadata: {
+          type: transactableType,
+          id: transactable.toString(),
+          ref: transaction.reference
+        }
+      });
+    } catch (err) {
+      return err
+    }
+  }
 }
