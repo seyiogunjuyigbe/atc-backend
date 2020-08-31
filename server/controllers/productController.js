@@ -205,7 +205,7 @@ module.exports = {
     }
   },
   purchaseProduct: async (req, res) => {
-    let { adultQty, childQty, paymentType, startDate, chargeDate, membershipId, paymentTime, installments, currency, customer } = req.body;
+    let { adultQty, childQty, paymentType, startDate, membershipId, paymentTime, installments, currency, customer } = req.body;
     let amount,
       childAmount,
       adultAmount,
@@ -217,10 +217,13 @@ module.exports = {
       spreadFee;
     try {
       let product = await Product.findById(req.params.productId);
-      let membership = await Membership.findById(membershipId);
+      if (membershipId) {
+        let membership = await Membership.findById(membershipId);
+        if (!membership) return error(res, 404, "Selected membership not found");
+        if (membership.cost == 0 && paymentType !== "one-off") return error(res, 400, "Can only pay one-off for free membership");
+
+      }
       let user = await User.findById(req.user.id).populate("memberships")
-      if (!membership) return error(res, 404, "Selected membership not found");
-      if (membership.cost == 0 && paymentType !== "one-off") return error(res, 400, "Can only pay one-off for free membership");
       if ((paymentType == "flexi") && (Number(installments) < 2 || isNaN(Number(installments)) == true)) return error(res, 400, "Invalid number of installments for flexi payment");
       if (paymentTime == "later") {
         if (!startDate || moment(startDate) <= moment()) return error(res, 400, "Valid start date required for later payment");
@@ -363,7 +366,7 @@ module.exports = {
                 product,
                 activeCycle: product.activeCycle,
                 amount,
-                chargeDate,
+                chargeDate: startDate,
                 paymentIntent,
                 amountCapturable
               })
@@ -443,7 +446,7 @@ module.exports = {
     }
   },
   async purchaseProductWithoutAuth(req, res) {
-    const { email } = req.body
+    const { email, adultQty, childQty, paymentType, startDate, membershipId, paymentTime, installments, currency, customer } = req.body
 
     try {
       const product = await Product.findById(req.params.productId);
@@ -624,7 +627,7 @@ module.exports = {
                 product,
                 activeCycle: product.activeCycle,
                 amount,
-                chargeDate,
+                chargeDate: startDate,
                 paymentIntent,
                 amountCapturable
               })
@@ -632,7 +635,6 @@ module.exports = {
               done.push("Membership payment initiated successfully", "Payment schedule created")
               break;
           }
-
       }
       return success(res, 200,
         {
