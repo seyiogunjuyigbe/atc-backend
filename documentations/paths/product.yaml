@@ -160,11 +160,7 @@
               startDate:
                 type: string
                 required: false
-                description: start date for future payments(pay later)
-              currency: 
-                type: string
-                required: false
-                description: currency, defaults to usd                                  
+                description: start date for future payments(pay later)                                  
       responses:
         200:
           description: Success
@@ -361,11 +357,7 @@
               startDate:
                 type: string
                 required: false
-                description: start date for future payments(pay later)
-              currency: 
-                type: string
-                required: false
-                description: currency, defaults to usd                 
+                description: start date for future payments(pay later)                 
       responses:
         200:
           description: Success
