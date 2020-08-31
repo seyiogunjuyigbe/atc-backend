@@ -444,7 +444,7 @@ module.exports = {
   },
   async purchaseProductWithoutAuth(req, res) {
     const { email } = req.body
-    console.log(req.body)
+
     try {
       const product = await Product.findById(req.params.productId);
       if (!product) {
@@ -468,27 +468,6 @@ module.exports = {
         newUser.wallet = await createUserWallet()
         await newUser.save()
       }
-      const newTransaction = await Transaction.create({
-        reference: createReference('payment'),
-        amount: req.body.amount,
-        currency: req.body.currency || 'usd',
-        activeCycle: product.activeCycle,
-        initiatedBy: newUser.id,
-        customer: newUser,
-        vendor: product.owner,
-        transactableType: 'Product',
-        transactable: product.id,
-        description: `Payment for ${product.name}`,
-      });
-
-      const paymentIntent = await StripeService.createPaymentIntent(
-        newTransaction, newUser
-      );
-      if (paymentIntent && paymentIntent.id) {
-        newTransaction.stripePaymentId = paymentIntent.id;
-        await newTransaction.save()
-      }
-
       let token = jwt.sign({
         id: newUser.id,
         firstName: newUser.firstName,
@@ -499,13 +478,169 @@ module.exports = {
         expiresIn: 604800, // expires in 7 days
       },
       );
+      let membership = await Membership.findById(membershipId);
+      let user = await User.findById(req.user.id).populate("memberships")
+      if (!membership) return error(res, 404, "Selected membership not found");
+      if (membership.cost == 0 && paymentType !== "one-off") return error(res, 400, "Can only pay one-off for free membership");
+      if ((paymentType == "flexi") && (Number(installments) < 2 || isNaN(Number(installments)) == true)) return error(res, 400, "Invalid number of installments for flexi payment");
+      if (paymentTime == "later") {
+        if (!startDate || moment(startDate) <= moment()) return error(res, 400, "Valid start date required for later payment");
+      }
+      if (moment.duration(moment(product.cancellationDaysLimit).diff(moment().add(installments, 'months'))).asDays() > 0) {
+        return error(res, 409, "Installment cannot exceed product cancellation limit")
+      }
+      if (!product) {
+        return error(res, 404, 'Product not found');
+      }
+      if (product.customPrices.length > 0) {
+        range = product.customPrices.find(price => {
+          return (((childQty + adultQty) >= Math.min(...price.range) && ((childQty + adultQty) <= Math.max(...price.range))))
+        });
+      }
+      if (range) {
+        console.log("within range")
+        adultAmount = range.prices.productAdultPrice * (adultQty || 0)
+        childAmount = range.prices.childrenPrice * (childQty || 0)
+      } else {
+        console.log("not within range")
+        childAmount = product.price.childrenPrice * (childQty || 0)
+        adultAmount = product.price.productAdultPrice * (adultQty || 0)
+      }
+      switch (paymentTime) {
+        case ("now"):
+          switch (paymentType) {
+            case ("one-off"):
+              // check if user has active annual membership
+              if ((user.memberships.find(x => {
+                return x.type == "annual"
+              })) && moment(user.membershipExpiry) > moment()) {
+                amount = childAmount + adultAmount;
+              } else {
+                amount = childAmount + adultAmount + membership.cost;
+              }
+              // charge for both membership and product
+              console.log({ amount, childAmount, adultAmount })
+              purchaseTransaction = await buyProductAndMembership(product, membership, amount, req.user, customer = customer || req.user.id, currency);
+              paymentIntent = await StripeService.createPaymentIntent(purchaseTransaction, user);
+              if (paymentIntent && paymentIntent.id) {
+                purchaseTransaction.stripePaymentId = paymentIntent.id;
+                await purchaseTransaction.save()
+              }
+              // User has now bought product and has access to it
+              done.push("Payment initiated successfully")
+              break;
+
+            case ("flexi"):
+              // spread product fee only
+              spreadFee = (childAmount + adultAmount) / Number(installments);
+              if ((user.memberships.find(x => {
+                return x.type == "annual"
+              })) && moment(user.membershipExpiry) > moment()) {
+                amount = spreadFee;
+                amountCapturable = childAmount + adultAmount;
+              } else {
+                amount = spreadFee + membership.cost;
+                amountCapturable = childAmount + adultAmount + membership.cost
+              }
+              purchaseTransaction = await buyProductAndMembership(product, membership, amount, req.user, customer = customer || req.user.id, currency)
+              paymentIntent = await StripeService.createPaymentIntent(purchaseTransaction, user, amountCapturable);
+              if (paymentIntent && paymentIntent.id) {
+                purchaseTransaction.stripePaymentId = paymentIntent.id;
+                await purchaseTransaction.save()
+              }
+              // create installments, set recurrring count to 1 since first installment has been paid
+              await Installment.create({
+                user: customer || req.user.id,
+                recurringAmount: spreadFee,
+                recurrentCount: 1,
+                maxNoOfInstallments: installments,
+                isCompleted: false,
+                lastChargeDate: new Date(), //today
+                nextChargeDate: moment().add(30, 'days'), //a month from now,
+                transactions: [purchaseTransaction],
+                paymentIntent,
+                amountCapturable
+
+              })
+              done.push("Membership payment initiated successfully", "First product installment charged", "Installment schedule created")
+              break;
+          }
+
+
+        case ("later"):
+          switch (paymentType) {
+
+            case ("flexi"):
+              spreadFee = (childAmount + adultAmount) / Number(installments);
+              // charge for membership only
+              if ((user.memberships.find(x => {
+                return x.type == "annual"
+              })) && moment(user.membershipExpiry) > moment()) {
+                amount = 0;
+                amountCapturable = childAmount + adultAmount;
+              } else {
+                amount = membership.cost
+                amountCapturable = childAmount + adultAmount + membership.cost
+              }
+              purchaseTransaction = await buyMembership(membership, amount, req.user, customer = customer || req.user.id, currency)
+              paymentIntent = await StripeService.createPaymentIntent(purchaseTransaction, user, amountCapturable);
+              if (paymentIntent && paymentIntent.id) {
+                purchaseTransaction.stripePaymentId = paymentIntent.id;
+                await purchaseTransaction.save()
+              }
+              // create installments
+              await Installment.create({
+                user: customer || req.user.id,
+                recurringAmount: spreadFee,
+                recurrentCount: 0,
+                maxNoOfInstallments: installments,
+                isCompleted: false,
+                nextChargeDate: startDate,
+                paymentIntent,
+                amountCapturable
+              })
+              done.push("Membership payment initiated successfully", "Installment schedule created")
+              break;
+            case ("one-off"):
+              // charge for membership only
+              if ((user.memberships.find(x => {
+                return x.type == "annual"
+              })) && moment(user.membershipExpiry) > moment()) {
+                amount = 0;
+                amountCapturable = childAmount + adultAmount;
+              } else {
+                amount = membership.cost
+                amountCapturable = childAmount + adultAmount + membership.cost
+              }
+              purchaseTransaction = await buyMembership(membership, amount, req.user, customer = customer || req.user.id, currency)
+              paymentIntent = await StripeService.createPaymentIntent(purchaseTransaction, user, amountCapturable);
+              if (paymentIntent && paymentIntent.id) {
+                purchaseTransaction.stripePaymentId = paymentIntent.id;
+                await purchaseTransaction.save()
+              }
+              // create payment schedule
+              let schedule = await PaymentSchedule.create({
+                user: customer || req.user.id,
+                product,
+                activeCycle: product.activeCycle,
+                amount,
+                chargeDate,
+                paymentIntent,
+                amountCapturable
+              })
+              console.log({ schedule })
+              done.push("Membership payment initiated successfully", "Payment schedule created")
+              break;
+          }
+
+      }
       return success(res, 200,
         {
           success: true,
           message: 'Product payment initiated successfully',
           token,
           clientSecret: paymentIntent.client_secret,
-          transactionId: newTransaction.id,
+          transactionId: purchaseTransaction.id,
         });
     } catch (err) {
       return error(res, 500, err.message);

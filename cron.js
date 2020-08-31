@@ -122,7 +122,7 @@ module.exports = class Cron {
       });
       if (!installments || installments.length == 0) console.log("No payment installments for today");
       else {
-        installments.forEach(installment => {
+        installments.forEach(async installment => {
           let { amount, user, product } = installment
           let transaction = await Transaction.create({
             reference: createReference('payment'),
@@ -152,7 +152,7 @@ module.exports = class Cron {
       });
       if (!schedules || schedules.length == 0) console.log("No payment schedules for today");
       else {
-        schedules.forEach(schedule => {
+        schedules.forEach(async schedule => {
           let { amount, user, product } = schedule
           let transaction = await Transaction.create({
             reference: createReference('payment'),
