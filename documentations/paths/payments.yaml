@@ -40,3 +40,29 @@
           schema:
             example:
               message: An unexpected error occured
+
+  /payments/purchase-stats:
+    get:
+      summary: Fetch Purchase stats for feature(e.g product)
+      description:  Fetch Purchase stats for feature(e.g product)
+      operationId:  fetchPurchaseStats
+      tags:
+      -  Purchase
+      parameters:
+        - in: query
+          name: featureType
+          description: Feature type(Product,Activity,Membership)
+          required: true
+        - in: query
+          name: featureId
+          description: ID of product or activity
+          required: true
+        - in: query
+          name: hours
+          description: No of hours to filter
+          required: true
+      responses:
+        200:
+          description: Success
+          example: 20
+                         

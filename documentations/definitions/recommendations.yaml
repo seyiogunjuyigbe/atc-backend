@@ -1,0 +1,18 @@
+# Recommendation Definitions
+  Recommendations:
+    type: object
+    properties:
+      featureType:
+        type: string
+        description: Feature model recommended
+        example: Product, Activity
+      featureId:
+        type: string
+        description: Model ID
+      user:
+        type: object
+        description: logged in user who gave the recommendation
+      comment:
+        type: string
+        description: comment on recommendation
+        example: Such a nice product

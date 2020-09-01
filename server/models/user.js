@@ -47,6 +47,7 @@ const userSchema = new Schema({
   },
   stripeCustomerId: String,
   memberships: [{ type: Schema.Types.ObjectId, ref: "Membership" }],
+  availableSlots: {type: Number},
   role: {
     type: String,
     enum: ['admin', 'vendor', 'customer']

@@ -80,6 +80,12 @@ const activitySchema = new Schema({
     meal: String
   }],
   marketingExpiryDate: Date,
-  marketingPriority: Number
+  marketingPriority: Number,
+  stats: {
+    views: {
+      type: Number,
+      default: 0
+    }
+  }
 });
 module.exports = mongoose.model('Activity', activitySchema)

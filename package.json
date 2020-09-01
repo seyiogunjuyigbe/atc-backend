@@ -20,6 +20,7 @@
   "author": "Afeez Awotundun",
   "license": "ISC",
   "dependencies": {
+    "@pusher/push-notifications-server": "^1.2.0",
     "axios": "^0.19.0",
     "bcryptjs": "^2.4.3",
     "blueimp-md5": "^2.10.0",

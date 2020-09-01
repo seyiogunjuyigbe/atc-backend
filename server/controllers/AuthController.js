@@ -239,7 +239,6 @@ module.exports = {
 
   login: async (req, res, next) => {
     try {
-      console.log(req.body)
       if (
         ['facebook', 'google'].includes(req.body.strategy) &&
         !req.body.access_token

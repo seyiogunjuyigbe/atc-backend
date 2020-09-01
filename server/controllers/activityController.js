@@ -1,4 +1,4 @@
-const { Activity, Country, State, Product } = require('../models');
+const { Activity, Country, Transaction, Recommendation, State, Product } = require('../models');
 const { success, error } = require("../middlewares/response");
 const Queryservice = require("../services/queryService")
 module.exports = {
@@ -142,9 +142,14 @@ module.exports = {
         }
     },
     async fetchActivity(req, res) {
+        let { hours } = req.query
         try {
             let activity = await Queryservice.findOne(Activity, req);
-            return success(res, 200, activity)
+            activity.stats.views += 1;
+            await activity.save();
+            let result = await fetchWithStats(model = "Activity", activity, hours)
+            return success(res, 200, result)
+            // return success(res, 200, activity)
 
         } catch (err) {
             return error(res, 500, err.message)
@@ -188,4 +193,32 @@ module.exports = {
 
 function checkIfObj(x) {
     return typeof (x) == 'object' && x !== null && Array.isArray(x) == false
+}
+async function fetchWithStats(model, doc, hours) {
+    let purchases;
+    try {
+        let recommendations = await Recommendation.find({ featureType: model, featureId: doc.id });
+        let sales = await Transaction.find({
+            type: "payment", transactableType: model, transactable: doc.id, $or: [{ status: "successful" }, { status: "settled" }]
+        })
+        if (hours) {
+            purchases = sales.filter(purchase => {
+                return Math.round(moment.duration(moment().diff(moment(purchase.paidAt))).asHours()) <= Number(hours)
+            });
+            recommendations = recommendations.filter(recommendation => {
+                return Math.round(moment.duration(moment().diff(moment(recommendation.date))).asHours()) <= Number(hours)
+            });
+        } else {
+            purchases = sales
+        }
+        return {
+            doc,
+            recommendations: recommendations.length,
+            purchases: purchases.length,
+            sales: sales.length
+        }
+    } catch (err) {
+        return err
+    }
+
 }

@@ -1,4 +1,4 @@
-# Product Paths
+  # Product Paths
 
   /products:
     post:
@@ -31,7 +31,7 @@
       tags:
         - Products
       parameters:
-        $ref: "#/definitions/GetQuery"
+        $ref: '#/definitions/GetQuery'
       responses:
         200:
           description: Success
@@ -54,7 +54,7 @@
       tags:
         - Products
       parameters:
-       $ref: "#/definitions/GetQueryProduct"
+        $ref: '#/definitions/GetQueryProduct'
       responses:
         200:
           description: success
@@ -152,7 +152,7 @@
       description: Update a particular product's priority
       operationId: updateProductPriority
       tags:
-      - Products
+        - Products
       parameters:
         - in: header
           name: Authorization
@@ -195,9 +195,9 @@
       description: Fetch home page products
       operationId: fetchHomePageProducts
       tags:
-      - Products
+        - Products
       parameters:
-        $ref: "#/definitions/GetQuery"
+        $ref: '#/definitions/GetQuery'
       responses:
         200:
           description: Success
@@ -271,3 +271,78 @@
           schema:
             example:
               message: An unexpected error occured
+  /products/{productId}/purchase/guest:
+    post:
+      summary: Purchase a product as a guest
+      description: Purchase a product as a guest
+      operationId: purchaseProductAsGuest
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: productId
+          description: Product ID
+          required: true
+        - in: body
+          name: payload
+          description: Product details
+          required: true
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: AMount to be paid
+              currency:
+                type: string
+                description: currency. defaults to usd
+              email:
+                type: string
+                description: user email
+              password:
+                type: string
+                description: user password
+              firstName:
+                type: string
+                description: user first name
+              lastName:
+                type: string
+                description: user last name
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product payment initiated successfully.
+
+  /products/add-to-watch/{productId}:
+    post:
+      summary: add product to watch list notification
+      description: Add Product to watch list
+      operationId: watchList
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: productId
+          description: Product ID
+          required: true
+        - in: query
+          name: clientId
+          description: guest or users client id
+          required: true
+        - in: query
+          name: claim
+          description: percantage claim limit
+          required: true
+        - in: query
+          name: dayslimit
+          description: days limit
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product is added to watch list.

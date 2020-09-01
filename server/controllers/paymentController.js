@@ -64,6 +64,23 @@ module.exports = {
       return error(res, 401, 'Invalid signature')
     }
 
+  },
+  async fetchPurchaseStats(req, res) {
+    let { featureType, featureId, hours } = req.query;
+    console.log(hours)
+    try {
+      let purchases = await Transaction.find({
+        type: "payment", transactableType: featureType, transactable: featureId, $or: [{ status: "successful" }, { status: "settled" }]
+      })
+      purchases = purchases.filter(purchase => {
+        return Math.round(moment.duration(moment().diff(moment(purchase.paidAt))).asHours()) <= Number(hours)
+      })
+      return success(res, 200, {
+        count: purchases.length
+      })
+    } catch (err) {
+      return error(res, 500, err.message)
+    }
   }
 }
 
