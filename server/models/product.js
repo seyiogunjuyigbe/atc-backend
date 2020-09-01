@@ -32,9 +32,10 @@ const ProductSchema = new Schema(
     waitingCycle: { type: Number, required: true },
     endDate: { type: Date, required: true },
     startDate: { type: Date, default: new Date() },
+    pauseDate: { type: Date },
     status: {
       type: String,
-      enum: ['active', 'waiting', 'expired'],
+      enum: ['active', 'waiting', 'expired', 'paused', 'canceled'],
       default: 'active',
     },
     package: {
@@ -66,20 +67,10 @@ const ProductSchema = new Schema(
           freeMembershipDiscountedPrice: Number,
           paidMembershipDiscountedPrice: Number,
           oneOffMembershipFee: Number,
+          annualMembershipFee: { type: Number, default: 200 },
         },
       },
     ],
-    marketingExpiryDate: Date,
-    marketingPriority: Number,
-    price: {
-      vendorPrice: Number,
-      childrenPrice: Number,
-      productAdultPrice: Number,
-      freeMembershipDiscountedPrice: Number,
-      paidMembershipDiscountedPrice: Number,
-      oneOffMembershipFee: Number,
-      annualMembershipFee: { type: Number, default: 200 },
-    },
     stats: {
       views: {
         type: Number,
@@ -87,7 +78,6 @@ const ProductSchema = new Schema(
       },
     },
   },
-
   {
     timestamps: true,
   }
