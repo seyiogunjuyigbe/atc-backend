@@ -339,7 +339,6 @@
         - in: query
           name: dayslimit
           description: days limit
-          required: true
       responses:
         200:
           description: Success
