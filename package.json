@@ -89,7 +89,7 @@
     }
   },
   "lint-staged": {
-    "./server/**/*.{js,jsx,ts,tsx}": [
+    "./server/**/*.js": [
       "npx prettier --write",
       "npx eslint server/**/*.js --fix"
     ]
