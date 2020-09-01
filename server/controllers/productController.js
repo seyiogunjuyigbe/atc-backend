@@ -118,7 +118,7 @@ module.exports = {
       const product = await Product.findOne({ product: req.params.productId })
       if(!product) return res
         .status(500)
-        .send(responses.error(500, `Product not found`));
+        .send(responses.error(404, `Product not found`));
       product.status = status;
       await product.save()
       return res
