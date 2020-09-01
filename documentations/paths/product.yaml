@@ -189,7 +189,7 @@
           schema:
             example:
               message: An unexpected error occured
-  /products/priority:
+  /products/priority/{days}:
     get:
       summary: Fetch home page products
       description: Fetch home page products
@@ -197,7 +197,7 @@
       tags:
         - Products
       parameters:
-        $ref: '#/definitions/GetQuery'
+        $ref: '#/definitions/GetQueryProductPriority'
       responses:
         200:
           description: Success

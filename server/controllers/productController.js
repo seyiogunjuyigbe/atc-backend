@@ -290,9 +290,8 @@ module.exports = {
     }
   },
   async fetchHomePageProducts(req, res) {
-    let today = new Date();
     try {
-      let products = await Queryservice.find(Product, req, { marketingExpiryDate: { $gte: today } });
+      let products = await Queryservice.find(Product, req, { marketingExpiryDate: moment(new Date(), "DD-MM-YYYY").add(req.params.days, 'days') });
       return success(res, 200, products)
     } catch (err) {
       return error(res, 500, err.message)
