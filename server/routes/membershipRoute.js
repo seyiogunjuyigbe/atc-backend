@@ -3,7 +3,6 @@ const membershipCrl = require('../controllers/membershipController');
 
 const membershipRoute = express.Router();
 const authenticate = require('../middlewares/authentication');
-const { checkIfAdmin } = require('../middlewares/access');
 
 membershipRoute.post('/', authenticate, membershipCrl.create);
 membershipRoute.get('/', membershipCrl.listMembership);

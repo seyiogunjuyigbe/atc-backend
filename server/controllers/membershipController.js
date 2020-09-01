@@ -1,10 +1,10 @@
-const { check, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 const { Membership, User, Transaction } = require('../models/index');
-const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response');
 const { createReference } = require('../services/paymentService');
 const StripeService = require('../services/stripeService');
+const Queryservice = require('../services/queryService');
 
 module.exports = {
   create: async (req, res) => {
@@ -53,10 +53,10 @@ module.exports = {
             'membership with similar credentials already exists'
           )
         );
-    } catch (error) {
+    } catch (err) {
       return res
         .status(500)
-        .send(responses.error(500, `Error creating a user ${error.message}`));
+        .send(responses.error(500, `Error creating a user ${err.message}`));
     }
   },
   viewMembership: async (req, res) => {
@@ -76,38 +76,15 @@ module.exports = {
             membership
           )
         );
-    } catch (error) {
+    } catch (err) {
       return res
         .status(500)
-        .send(responses.error(500, `Error viewing a user ${error.message}`));
+        .send(responses.error(500, `Error viewing a user ${err.message}`));
     }
   },
-  listMembership: (req, res) => {
-    const offset = req.query.offset ? req.query.offset : 0;
-    const limit = req.query.limit ? req.query.limit : 20;
-    const orderBy = req.query.orderBy ? req.query.orderBy : 'id';
-    const order = req.query.order ? req.query.order : 'ASC';
-    const ordering = [[orderBy, order]];
-
-    Membership.find({})
-      .limit(limit)
-      .skip(offset)
-      // .sort({
-      //   ordering
-      // })
-      .then(function (membership) {
-        Membership.find({}).exec((err, memberships) => {
-          return res
-            .status(200)
-            .send(
-              responses.success(
-                200,
-                'Record was retreived successfully',
-                memberships
-              )
-            );
-        });
-      });
+  listMembership: async (res, req) => {
+    const memberships = await Queryservice.find(Membership, req);
+    return responses.success(res, 200, memberships);
   },
   updateMembership: async (req, res) => {
     try {
@@ -157,26 +134,26 @@ module.exports = {
       if (!membership) {
         return error(res, 404, 'Membership not found');
       }
-      if (membership.type == 'default') {
+      if (membership.type === 'default') {
         return error(res, 409, 'User already subscribed to free membership');
       }
       const user = await User.findById(req.user.id).populate('memberships');
       const { memberships } = user;
       const checkIfFree = memberships.find(x => {
-        return x.type == 'default';
+        return x.type === 'default';
       });
       const checkIfOneOff = memberships.filter(x => {
-        return x.type == 'one-off';
+        return x.type === 'one-off';
       });
       const checkIfAnnual = memberships.find(x => {
-        return x.type == 'annual';
+        return x.type === 'annual';
       });
       if (checkIfFree) {
         // if current plan is free, remove free from array and overrride with plan
         subscription = membership;
       } else if (checkIfOneOff) {
         // if  plan is a one-off membrship and current plans are one-off membeships, add membership to array;
-        if (membership.type == 'one-off' || membership.type == 'annual')
+        if (membership.type === 'one-off' || membership.type === 'annual')
           subscription = membership;
         else {
           return error(
@@ -187,7 +164,7 @@ module.exports = {
         }
       }
       if (checkIfAnnual) {
-        if (membership.type == 'annual') {
+        if (membership.type === 'annual') {
           subscription = membership;
         } else {
           return error(
@@ -251,10 +228,10 @@ module.exports = {
       // let transaction = transactions.find(x => {
       //   return x.activeCycle.endDate > new Date()
       // })
-      if (!transactions || transactions.length == 0)
+      if (!transactions || transactions.length === 0)
         return error(res, 400, 'No refundable transaction');
       if (!customer.bankAcount)
-        return res, 400, 'Bank account required for succesful refund';
+        return error(res, 400, 'Bank account required for succesful refund');
 
       const refund = await Transaction.create({
         type: 'refund',

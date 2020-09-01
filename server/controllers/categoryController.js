@@ -26,7 +26,7 @@ module.exports = {
       if (req.files && req.files.length) {
         contents = await Promise.all(
           req.files.map(async file => {
-            return await Content.create({
+            return Content.create({
               url: file.path,
               forType: 'category',
               contentFor: category.id,
@@ -75,7 +75,7 @@ module.exports = {
         */
     try {
       const categories = await Category.find({});
-      if (!categories || categories.length == 0)
+      if (!categories || categories.length === 0)
         return success(res, 204, 'No categories found');
       return success(res, 200, categories);
     } catch (err) {

@@ -1,5 +1,4 @@
-const moment = require('moment');
-const { Recommendation, User, Transaction } = require('../models');
+const { Recommendation, User } = require('../models');
 const { error, success } = require('../middlewares/response');
 const models = require('../models');
 
@@ -18,7 +17,7 @@ module.exports = {
       if (existingRec)
         return error(res, 409, 'You already recommended this feature');
 
-      const recommendation = await Recommendation.create({
+      await Recommendation.create({
         featureId,
         featureType,
         comment,

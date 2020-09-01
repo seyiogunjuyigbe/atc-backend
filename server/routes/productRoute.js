@@ -1,11 +1,12 @@
 const express = require('express');
-const productCrl = require('../controllers/productController');
-
-const productRoute = express.Router();
 const { check } = require('express-validator');
+
+const productCrl = require('../controllers/productController');
 const validate = require('../middlewares/validate');
 const authenticate = require('../middlewares/authentication');
 const { checkIfAdmin } = require('../middlewares/access');
+
+const productRoute = express.Router();
 
 productRoute.post('/', authenticate, productCrl.create);
 productRoute.get('/priority', productCrl.fetchHomePageProducts);

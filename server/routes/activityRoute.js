@@ -7,11 +7,10 @@ const {
   updateActivity,
   deleteActivity,
   upadteActivityPriority,
-  fetchActivitiesByPriority,
   fetchHomePageActivities,
 } = require('../controllers/activityController');
 const authenticate = require('../middlewares/authentication');
-const { checkIfAdmin, checkIfVendor } = require('../middlewares/access');
+const { checkIfAdmin } = require('../middlewares/access');
 
 const validate = require('../middlewares/validate');
 const { multiParser } = require('../middlewares/multer');

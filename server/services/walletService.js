@@ -53,7 +53,7 @@ module.exports = {
         wallet: userWallet,
       });
       // create wallet history
-      const walletHistory = await WalletHistory.create({
+      await WalletHistory.create({
         balance: userWallet.balance,
         previousBalance: userWallet.previousBalance,
         amount,
@@ -88,7 +88,7 @@ module.exports = {
         description: 'Withdrawal from wallet to bank account',
       });
       // create wallet history
-      const walletHistory = await WalletHistory.create({
+      await WalletHistory.create({
         balance: userWallet.balance,
         previousBalance: userWallet.previousBalance,
         amount: transaction.amount,

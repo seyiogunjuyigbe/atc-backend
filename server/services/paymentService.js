@@ -1,10 +1,4 @@
-const {
-  User,
-  Membership,
-  Transaction,
-  Product,
-  ProductCycle,
-} = require('../models');
+const { User, Membership, ProductCycle } = require('../models');
 
 exports.createReference = type => {
   const randomChars = Math.random().toString(32).substr(8);
@@ -18,6 +12,7 @@ exports.createReference = type => {
       break;
     case 'refund':
       prefix += 'RFD';
+      break;
     case 'payout':
       prefix += 'PYT';
       break;
@@ -35,8 +30,8 @@ exports.subscribeMembership = async (membershipId, userId) => {
     const membership = await Membership.findById(membershipId);
     const user = await User.findById(userId).populate('memberships');
     const { memberships } = user;
-    if (membership.type == 'one-off') memberships.push(membership);
-    else if (membership.type == 'annual') {
+    if (membership.type === 'one-off') memberships.push(membership);
+    else if (membership.type === 'annual') {
       memberships.length = 0;
       memberships.push(membership);
     } else {

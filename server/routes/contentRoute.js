@@ -9,7 +9,7 @@ const {
 const models = require('../models');
 const authenticate = require('../middlewares/authentication');
 const { parser } = require('../middlewares/multer');
-const getJWT = require('../middlewares/authentication');
+// const getJWT = require('../middlewares/authentication');
 const validate = require('../middlewares/validate');
 
 router.post(

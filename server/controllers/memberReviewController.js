@@ -1,4 +1,4 @@
-const { check, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 const { MemberReview } = require('../models/index');
 const __Product = require('../models/product');
 const __Activity = require('../models/activity');

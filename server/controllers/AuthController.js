@@ -1,6 +1,5 @@
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-const hash = require('hashids');
 const jwt = require('jsonwebtoken');
 const uuidv1 = require('uuid/v1');
 const { check, validationResult } = require('express-validator');
@@ -8,7 +7,6 @@ const { createCustomer } = require('../services/stripeService');
 const { User } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
-const getJWT = require('../services/jwtService');
 const generalFunctions = require('../helper/util');
 const credential = require('../config/local');
 const { defaultMembership } = require('../middlewares/membership');
@@ -17,11 +15,11 @@ const { createUserWallet } = require('../services/walletService');
 module.exports = {
   createUser: async (req, res) => {
     // username must be an email
-    check(req.body.email).isEmail(),
-      // password must be at least 8 chars long
-      check(req.body.password).isLength({
-        min: 8,
-      });
+    check(req.body.email).isEmail();
+    // password must be at least 8 chars long
+    check(req.body.password).isLength({
+      min: 8,
+    });
     const result = validationResult(req);
     const hasErrors = !result.isEmpty();
 
@@ -38,7 +36,7 @@ module.exports = {
       // models.users
       User.findOne({
         email: req.body.email,
-      }).then(async function (user) {
+      }).then(async user => {
         if (user !== null) {
           return res
             .status(400)
@@ -76,7 +74,7 @@ module.exports = {
           };
           const MailRecipient = newUser.email;
           const MailSubject = `Account verification - African Travel Club`;
-          const sendMail = _email.sendTemplatedMail(
+          _email.sendTemplatedMail(
             MailTemplateName,
             MailData,
             MailRecipient,
@@ -112,7 +110,7 @@ module.exports = {
     const { email } = req.params;
     User.findOne({
       email,
-    }).then(async function (user) {
+    }).then(async user => {
       if (!user)
         return res
           .status(400)
@@ -149,7 +147,7 @@ module.exports = {
         const MailRecipient = email;
         const MailSubject = `Account verification -  AfricanTravelclub account`;
 
-        const sendMail = _email.sendTemplatedMail(
+        _email.sendTemplatedMail(
           MailTemplateName,
           MailData,
           MailRecipient,
@@ -177,7 +175,7 @@ module.exports = {
     User.findOne({
       id,
       token,
-    }).then(async function (user) {
+    }).then(async user => {
       if (!user)
         return res
           .status(201)
@@ -196,7 +194,7 @@ module.exports = {
         const MailData = {
           name: user.firstName,
         };
-        const MailRecipient = email;
+        const MailRecipient = user.email;
         const MailSubject = 'Welcome to African Trade Invest';
         _email.sendTemplatedMail(
           MailTemplateName,
@@ -207,14 +205,14 @@ module.exports = {
       }
       User.findByIdAndUpdate(user.id, {
         ...data,
-      }).then(function (updatedUser) {
+      }).then(updatedUser => {
         return res
           .status(200)
           .send(
             responses.success(
               200,
               'Your account was successfully activated.',
-              user
+              updatedUser
             )
           );
       });
@@ -300,7 +298,6 @@ module.exports = {
   forgotPassword: async (req, res) => {
     try {
       const { email } = req.query;
-      const address = req.headers.host;
       const user = await User.findOne({
         email,
       });
@@ -348,14 +345,14 @@ module.exports = {
       }
       User.findByIdAndUpdate(user.id, {
         ...data,
-      }).then(function (updatedUser) {
+      }).then(updatedUser => {
         return res
           .status(200)
           .send(
             responses.success(
               200,
               `An e-mail has been sent to ${email} with further instructions.`,
-              user
+              updatedUser
             )
           );
       });
@@ -394,7 +391,7 @@ module.exports = {
 
     User.findByIdAndUpdate(user.id, {
       ...data,
-    }).then(function (updatedUser) {
+    }).then(updatedUser => {
       return res
         .status(200)
         .send(
@@ -407,7 +404,7 @@ module.exports = {
     });
   },
 
-  getReset: async (req, res, next) => {
+  getReset: async (req, res) => {
     const { userId } = req.params;
     const user = User.findOne({
       id: userId,

@@ -10,7 +10,7 @@ const path = require('path');
 const ejs = require('ejs');
 
 const app = express();
-const db = require('./db/index');
+const DB = require('./db/index');
 
 const PORT = process.env.PORT || 3000;
 const { createStates } = require('./seeders/country');
@@ -24,7 +24,7 @@ passport();
 const { MONGO_URL } = process.env;
 const { loadDefinitions, loadPaths } = require('../documentations');
 
-new db().connect(MONGO_URL);
+new DB().connect(MONGO_URL);
 app.use(cors());
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(
@@ -39,7 +39,7 @@ app.use(
     extended: true,
   })
 );
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header(
     'Access-Control-Allow-Headers',
@@ -78,7 +78,7 @@ app.all('*', (req, res) => {
   });
 });
 // error handling middleware
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.error(err.stack || err.message || err);
   res.status(500).json({
     error: 'Something went wrong!',

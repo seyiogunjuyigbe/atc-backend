@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const {
   Activity,
   Country,
@@ -9,35 +11,81 @@ const {
 const { success, error } = require('../middlewares/response');
 const Queryservice = require('../services/queryService');
 
+// function checkIfObj(x) {
+//   return typeof x === 'object' && x !== null && Array.isArray(x) === false;
+// }
+
+async function fetchWithStats(model, doc, hours) {
+  let purchases;
+  try {
+    let recommendations = await Recommendation.find({
+      featureType: model,
+      featureId: doc.id,
+    });
+    const sales = await Transaction.find({
+      type: 'payment',
+      transactableType: model,
+      transactable: doc.id,
+      $or: [{ status: 'successful' }, { status: 'settled' }],
+    });
+    if (hours) {
+      purchases = sales.filter(purchase => {
+        return (
+          Math.round(
+            moment.duration(moment().diff(moment(purchase.paidAt))).asHours()
+          ) <= Number(hours)
+        );
+      });
+      recommendations = recommendations.filter(recommendation => {
+        return (
+          Math.round(
+            moment
+              .duration(moment().diff(moment(recommendation.date)))
+              .asHours()
+          ) <= Number(hours)
+        );
+      });
+    } else {
+      purchases = sales;
+    }
+    return {
+      doc,
+      recommendations: recommendations.length,
+      purchases: purchases.length,
+      sales: sales.length,
+    };
+  } catch (err) {
+    return err;
+  }
+}
+
 module.exports = {
   async createActivity(req, res) {
     const {
       dayNumber,
       title,
-      calendarStatus,
       start,
       end,
       product,
       countries,
       adventureCategories,
       sightCategories,
-      marketingExpiryDate,
       cityId,
       countryId,
     } = req.body;
     if (new Date(start) > new Date(end))
       return error(res, 400, 'Wrong start and enddate selection');
-    if (dayNumber && isNaN(Number(dayNumber)) == true)
+    if (dayNumber && Number.isNaN(Number(dayNumber)) === true)
       return error(res, 400, 'Number required for number of days');
-    if (sightCategories && Array.isArray(sightCategories) == false)
+    if (sightCategories && Array.isArray(sightCategories) === false)
       return error(res, 400, 'Sight categories must be an array');
-    if (adventureCategories && Array.isArray(adventureCategories) == false)
+    if (adventureCategories && Array.isArray(adventureCategories) === false)
       return error(res, 400, 'Adventure categories must be an array');
-    if (countries && Array.isArray(countries) == false)
+    if (countries && Array.isArray(countries) === false)
       return error(res, 400, 'Countries must be an array');
     // if (calendarStatus && calendarStatus.length > 0) {
     //     let wrongEntry = calendarStatus.find(entry => {
-    //         return checkIfObj(entry) == false
+    //         return checkIfObj(entry) === false
     //     })
     //     if (wrongEntry) return error(res, 400, "Calendar status must be an array of objects")
     // }
@@ -157,11 +205,7 @@ module.exports = {
       const activity = await Queryservice.findOne(Activity, req);
       activity.stats.views += 1;
       await activity.save();
-      const result = await fetchWithStats(
-        (model = 'Activity'),
-        activity,
-        hours
-      );
+      const result = await fetchWithStats('Activity', activity, hours);
       return success(res, 200, result);
       // return success(res, 200, activity)
     } catch (err) {
@@ -183,7 +227,7 @@ module.exports = {
   async upadteActivityPriority(req, res) {
     const { activityId } = req.params;
     const { priority } = req.body;
-    if (isNaN(Number(priority)) == true)
+    if (Number.isNaN(Number(priority)) === true)
       return error(res, 400, 'Priority must be a valid number');
     try {
       const activity = await Activity.findById(activityId);
@@ -206,50 +250,3 @@ module.exports = {
     }
   },
 };
-
-function checkIfObj(x) {
-  return typeof x === 'object' && x !== null && Array.isArray(x) == false;
-}
-async function fetchWithStats(model, doc, hours) {
-  let purchases;
-  try {
-    let recommendations = await Recommendation.find({
-      featureType: model,
-      featureId: doc.id,
-    });
-    const sales = await Transaction.find({
-      type: 'payment',
-      transactableType: model,
-      transactable: doc.id,
-      $or: [{ status: 'successful' }, { status: 'settled' }],
-    });
-    if (hours) {
-      purchases = sales.filter(purchase => {
-        return (
-          Math.round(
-            moment.duration(moment().diff(moment(purchase.paidAt))).asHours()
-          ) <= Number(hours)
-        );
-      });
-      recommendations = recommendations.filter(recommendation => {
-        return (
-          Math.round(
-            moment
-              .duration(moment().diff(moment(recommendation.date)))
-              .asHours()
-          ) <= Number(hours)
-        );
-      });
-    } else {
-      purchases = sales;
-    }
-    return {
-      doc,
-      recommendations: recommendations.length,
-      purchases: purchases.length,
-      sales: sales.length,
-    };
-  } catch (err) {
-    return err;
-  }
-}

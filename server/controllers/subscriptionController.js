@@ -1,7 +1,7 @@
-const { check, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 const { Subscription } = require('../models');
-const _email = require('../services/emailService');
 const responses = require('../helper/responses');
+const Queryservice = require('../services/queryService');
 
 module.exports = {
   create: async (res, req) => {
@@ -66,32 +66,9 @@ module.exports = {
         );
     }
   },
-  listSubscription: (res, req) => {
-    const offset = req.query.offset ? req.query.offset : 0;
-    const limit = req.query.limit ? req.query.limit : 20;
-    const orderBy = req.query.orderBy ? req.query.orderBy : 'id';
-    const order = req.query.order ? req.query.order : 'ASC';
-    const ordering = [[orderBy, order]];
-
-    Subscription.find({})
-      .limit(limit)
-      .skip(offset)
-      // .sort({
-      //   ordering
-      // })
-      .then(function (subscription) {
-        Subscription.find({}).exec((err, subscriptions) => {
-          return res
-            .status(200)
-            .send(
-              responses.success(
-                200,
-                'Record was retreived successfully',
-                subscriptions
-              )
-            );
-        });
-      });
+  listSubscription: async (res, req) => {
+    const subscriptions = await Queryservice.find(Subscription, req);
+    return responses.success(res, 200, subscriptions);
   },
   updateSubscription: async (res, req) => {
     try {
@@ -135,7 +112,7 @@ module.exports = {
           )
         );
     } catch (err) {
-      return error(res, 500, err.message);
+      return responses.error(res, 500, err.message);
     }
   },
 };

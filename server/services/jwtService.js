@@ -8,7 +8,7 @@ module.exports = {
         expiresIn: credential.tokenExpiresIn,
       });
       return token;
-    } catch (error) {
+    } catch (err) {
       console.log(err);
       return err;
     }
@@ -20,7 +20,7 @@ module.exports = {
         if (err) return callback(err);
         return callback(false, decoded);
       });
-    } catch (error) {
+    } catch (err) {
       console.log(err);
       return err;
     }

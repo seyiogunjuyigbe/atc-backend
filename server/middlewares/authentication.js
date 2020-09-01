@@ -1,15 +1,15 @@
 const getJWT = require('../services/jwtService');
 const { User } = require('../models');
 
-module.exports = function (req, res, next) {
+module.exports = function authenticate(req, res, next) {
   if (req.headers && req.headers.authorization) {
     const parts = req.headers.authorization.split(' ');
-    if (parts.length == 2) {
+    if (parts.length === 2) {
       const scheme = parts[0];
       const credentials = parts[1];
       if (/^Bearer$/i.test(scheme)) {
-        token = credentials;
-        getJWT.decodeToken(token, async function (err, decoded) {
+        const token = credentials;
+        getJWT.decodeToken(token, async (err, decoded) => {
           if (err) {
             // return res.json(401, {response: {message: err.message}});
             return res.status(401).json({

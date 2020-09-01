@@ -1,7 +1,6 @@
 const { success, error } = require('../middlewares/response');
-const { User, BankAccount, Transaction } = require('../models');
+const { User, BankAccount } = require('../models');
 const twService = require('../services/twservice');
-const { createReference } = require('../services/paymentService');
 const { debitWallet, fetchWallet } = require('../services/walletService');
 
 module.exports = {
@@ -52,6 +51,7 @@ module.exports = {
       if (String(thisBank.owner) !== String(req.user.id))
         return error(res, 401, 'Unauthorized access');
 
+      const user = await User.findById(thisBank.owner).populate('bankAccount');
       await twService.deleteRecipientAccount(user.bankAccount.transferWiseId);
       await thisBank.remove();
       return success(res, 200, { success: true, message: 'Account deleted' });
@@ -68,7 +68,7 @@ module.exports = {
       );
       if (String(newBankAccount.owner) !== String(req.user.id))
         return error(res, 401, 'Unauthorized access');
-      const resp = await twService.createRecipient(bankAccount);
+      const resp = await twService.createRecipient(newBankAccount);
       if (resp.error) return error(res, 400, resp.error);
 
       newBankAccount.transferWiseId = resp.id;
@@ -89,7 +89,7 @@ module.exports = {
         return error(res, 400, 'Insuffcient wallet balance');
       if (!user.bankAccount)
         return error(res, 400, 'Bank acount required for payout');
-      if (isNaN(amount))
+      if (Number.isNaN(amount))
         return error(res, 400, 'Valid amount required for payout');
 
       const quote = await twService.createQuote(user.bankAccount, amount);
@@ -111,7 +111,6 @@ module.exports = {
       if (payout.status !== 'COMPLETED') transaction.status = 'failed';
       else transaction.status = 'successful';
       await transaction.save();
-      console.log({ debit });
       return success(res, 200, payout);
     } catch (err) {
       return error(res, 500, err.message);

@@ -10,7 +10,7 @@ const options = {
   useUnifiedTopology: true,
 };
 
-class db {
+class DB {
   connect(DB_URL) {
     mongoose
       .connect(DB_URL, options)
@@ -36,4 +36,4 @@ class db {
   }
 }
 
-module.exports = db;
+module.exports = DB;

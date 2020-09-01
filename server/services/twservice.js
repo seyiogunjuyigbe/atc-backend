@@ -3,7 +3,7 @@ const Transferwise = require('transferwise');
 
 const TwClient = new Transferwise({
   apiKey: TRANSFERWISE_API_KEY,
-  sandbox: TW_MODE == 'sandbox',
+  sandbox: TW_MODE === 'sandbox',
 });
 const uuid = require('uuid');
 

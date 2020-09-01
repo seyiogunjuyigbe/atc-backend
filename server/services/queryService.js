@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const processPopulate = function (query) {
+function processPopulate(query) {
   const paths = query.split('.');
   let currentPopulate;
   while (paths.length) {
@@ -14,13 +14,10 @@ const processPopulate = function (query) {
   }
 
   return currentPopulate;
-};
+}
 
 const get = async (model, req, conditions = {}, multiple = true) => {
-  const {
-    query,
-    params: { id },
-  } = req;
+  const { query } = req;
   const { populate } = query;
   const limit = parseInt(query.limit || '10', 10);
   const offset = parseInt(query.offset || '0', 10);
@@ -62,7 +59,6 @@ const get = async (model, req, conditions = {}, multiple = true) => {
   }
 
   let q = model[multiple ? 'find' : 'findOne'](conditions);
-  const temp = await model[multiple ? 'find' : 'findOne'](conditions);
 
   if (populate) {
     if (Array.isArray(populate) && populate.length) {
@@ -87,11 +83,11 @@ const get = async (model, req, conditions = {}, multiple = true) => {
     };
   }
 
-  return await q;
+  return q;
 };
 
 exports.find = async (model, req, conditions = {}) =>
-  await get(model, req, conditions, true);
+  get(model, req, conditions, true);
 
 exports.findOne = async (model, req, conditions = {}) =>
-  await get(model, req, conditions, false);
+  get(model, req, conditions, false);

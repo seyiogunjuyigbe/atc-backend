@@ -72,11 +72,11 @@ const userSchema = new Schema(
 );
 
 userSchema.statics.comparePassword = async (password, userPassword) =>
-  await bcrypt.compare(password, userPassword);
+  bcrypt.compare(password, userPassword);
 
 //= ============================================================================
 userSchema.options.toJSON = {
-  transform(doc, ret, options) {
+  transform(doc, ret) {
     delete ret.password;
     return ret;
   },
@@ -91,7 +91,7 @@ userSchema.pre('save', function saveHook(next) {
   return next();
 });
 
-userSchema.methods.comparePassword = function (password, cb) {
+userSchema.methods.comparePassword = function comparePassword(password, cb) {
   if (!this.password && cb) {
     return cb(new Error('Registration not complete'), false);
   }

@@ -42,8 +42,8 @@ module.exports = {
           intent = event.data.object;
           currentTransaction.set({ status: 'successful', paidAt: new Date() });
           if (
-            currentTransaction.transactableType == 'Product' &&
-            currentTransaction.type == 'payment'
+            currentTransaction.transactableType === 'Product' &&
+            currentTransaction.type === 'payment'
           ) {
             currentTransaction.settleDate = moment().add(
               currentTransaction.transactable.cancellationDaysLimit,
@@ -52,7 +52,7 @@ module.exports = {
           }
           if (
             currentTransaction.transactableType === 'Membership' &&
-            currentTransaction.type == 'subscription'
+            currentTransaction.type === 'subscription'
           ) {
             await subscribeMembership(
               currentTransaction.transactable,

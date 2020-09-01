@@ -1,4 +1,4 @@
-const { check, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 const moment = require('moment');
 const uuidv1 = require('uuid/v1');
 const jwt = require('jsonwebtoken');
@@ -11,7 +11,6 @@ const {
   User,
   WatchNotification,
 } = require('../models');
-const _email = require('../services/emailService');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response');
 const { createReference } = require('../services/paymentService');
@@ -20,9 +19,71 @@ const Queryservice = require('../services/queryService');
 const {
   refundPaymentToWallet,
   createUserWallet,
+  refundPaymentToPoints,
 } = require('../services/walletService');
 const { defaultMembership } = require('../middlewares/membership');
 const credential = require('../config/local');
+
+function calcPrice(adult) {
+  if (adult === undefined || Number.isNaN(Number(adult) === true)) return 0;
+
+  return Math.round((adult + 0.06 * adult + 0.04 * adult) * 4);
+}
+function calc(obj) {
+  return {
+    vendorPrice: obj.adult,
+    childrenPrice: obj.children,
+    productAdultPrice: calcPrice(obj.adult),
+    freeMembershipDiscountedPrice:
+      Math.round(calcPrice(obj.adult) / 2 + calcPrice(obj.adult) * 0.05) || 0,
+    paidMembershipDiscountedPrice:
+      Math.round(calcPrice(obj.adult) / 3 + calcPrice(obj.adult) * 0.05) || 0,
+    oneOffMembershipFee: 0.21 * obj.adult || 0,
+  };
+}
+async function fetchWithStats(model, doc, hours) {
+  let purchases;
+  try {
+    let recommendations = await Recommendation.find({
+      featureType: model,
+      featureId: doc.id,
+    });
+    const sales = await Transaction.find({
+      type: 'payment',
+      transactableType: model,
+      transactable: doc.id,
+      $or: [{ status: 'successful' }, { status: 'settled' }],
+    });
+    if (hours) {
+      purchases = sales.filter(purchase => {
+        return (
+          Math.round(
+            moment.duration(moment().diff(moment(purchase.paidAt))).asHours()
+          ) <= Number(hours)
+        );
+      });
+      recommendations = recommendations.filter(recommendation => {
+        return (
+          Math.round(
+            moment
+              .duration(moment().diff(moment(recommendation.date)))
+              .asHours()
+          ) <= Number(hours)
+        );
+      });
+    } else {
+      purchases = sales;
+    }
+    return {
+      doc,
+      recommendations: recommendations.length,
+      purchases: purchases.length,
+      sales: sales.length,
+    };
+  } catch (err) {
+    return err;
+  }
+}
 
 module.exports = {
   create: async (req, res) => {
@@ -98,12 +159,10 @@ module.exports = {
       mainProductInfo.activeCycle = activeCycle._id;
       await mainProductInfo.save();
       return success(res, 200, 'Product created successfully');
-    } catch (error) {
+    } catch (err) {
       return res
         .status(500)
-        .send(
-          responses.error(500, `Error creating a Product ${error.message}`)
-        );
+        .send(responses.error(500, `Error creating a Product ${err.message}`));
     }
   },
   viewProductCycle: async (req, res) => {
@@ -121,10 +180,10 @@ module.exports = {
         .send(
           responses.success(200, 'Record was retrieved successfully', product)
         );
-    } catch (error) {
+    } catch (err) {
       return res
         .status(500)
-        .send(responses.error(500, `Error viewing a product ${error.message}`));
+        .send(responses.error(500, `Error viewing a product ${err.message}`));
     }
   },
   addToWatchList: async (req, res) => {
@@ -138,10 +197,10 @@ module.exports = {
       return res
         .status(200)
         .send(responses.success(200, 'Record was created successfully'));
-    } catch (error) {
+    } catch (err) {
       return res
         .status(500)
-        .send(responses.error(500, `Error creating a Record ${error.message}`));
+        .send(responses.error(500, `Error creating a Record ${err.message}`));
     }
   },
   updateSlot: async (req, res) => {
@@ -168,10 +227,10 @@ module.exports = {
       return res
         .status(200)
         .send(responses.success(200, 'Record was updated successfully'));
-    } catch (error) {
+    } catch (err) {
       return res
         .status(500)
-        .send(responses.error(500, `Error viewing a product ${error.message}`));
+        .send(responses.error(500, `Error viewing a product ${err.message}`));
     }
   },
   viewProduct: async (req, res) => {
@@ -180,7 +239,7 @@ module.exports = {
       const product = await Queryservice.findOne(Product, req);
       product.stats.views += 1;
       await product.save();
-      const result = await fetchWithStats((model = 'Product'), product, hours);
+      const result = await fetchWithStats('Product', product, hours);
       return success(res, 200, result);
     } catch (err) {
       return error(res, 500, err.message);
@@ -281,7 +340,7 @@ module.exports = {
   async updateProductPriority(req, res) {
     const { productId } = req.params;
     const { priority } = req.body;
-    if (isNaN(Number(priority)) == true)
+    if (Number.isNaN(Number(priority)) === true)
       return error(res, 400, 'Priority must be a valid number');
     try {
       const product = await Product.findById(productId);
@@ -314,14 +373,14 @@ module.exports = {
         transactableType: 'Product',
         customer: req.user.id,
       });
-      if (transactions.length == 0)
+      if (transactions.length === 0)
         return error(
           res,
           400,
           'Sorry, no refundable transaction found for this product'
         );
       const transaction = transactions.find(tr => {
-        return tr.status == 'successful' && moment().isBefore(tr.settleDate);
+        return tr.status === 'successful' && moment().isBefore(tr.settleDate);
       });
       if (!transaction) {
         return error(
@@ -332,9 +391,9 @@ module.exports = {
       }
 
       let refund;
-      if (refundOption == 'wallet') {
+      if (refundOption === 'wallet') {
         refund = await refundPaymentToWallet(user, transaction);
-      } else if (refundOption == 'points') {
+      } else if (refundOption === 'points') {
         refund = await refundPaymentToPoints(user, transaction);
       }
       return success(res, 200, refund);
@@ -420,63 +479,3 @@ module.exports = {
     }
   },
 };
-function calcPrice(adult) {
-  if (adult == undefined || isNaN(Number(adult) == true)) return 0;
-
-  return Math.round((adult + 0.06 * adult + 0.04 * adult) * 4);
-}
-function calc(obj) {
-  return {
-    vendorPrice: obj.adult,
-    childrenPrice: obj.children,
-    productAdultPrice: calcPrice(obj.adult),
-    freeMembershipDiscountedPrice:
-      Math.round(calcPrice(obj.adult) / 2 + calcPrice(obj.adult) * 0.05) || 0,
-    paidMembershipDiscountedPrice:
-      Math.round(calcPrice(obj.adult) / 3 + calcPrice(obj.adult) * 0.05) || 0,
-    oneOffMembershipFee: 0.21 * obj.adult || 0,
-  };
-}
-async function fetchWithStats(model, doc, hours) {
-  let purchases;
-  try {
-    let recommendations = await Recommendation.find({
-      featureType: model,
-      featureId: doc.id,
-    });
-    const sales = await Transaction.find({
-      type: 'payment',
-      transactableType: model,
-      transactable: doc.id,
-      $or: [{ status: 'successful' }, { status: 'settled' }],
-    });
-    if (hours) {
-      purchases = sales.filter(purchase => {
-        return (
-          Math.round(
-            moment.duration(moment().diff(moment(purchase.paidAt))).asHours()
-          ) <= Number(hours)
-        );
-      });
-      recommendations = recommendations.filter(recommendation => {
-        return (
-          Math.round(
-            moment
-              .duration(moment().diff(moment(recommendation.date)))
-              .asHours()
-          ) <= Number(hours)
-        );
-      });
-    } else {
-      purchases = sales;
-    }
-    return {
-      doc,
-      recommendations: recommendations.length,
-      purchases: purchases.length,
-      sales: sales.length,
-    };
-  } catch (err) {
-    return err;
-  }
-}

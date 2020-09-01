@@ -61,25 +61,6 @@ module.exports = {
       return err;
     }
   },
-  async addVendorAccount(user, code) {
-    try {
-      const response = await stripe.oauth.token({
-        grant_type: 'authorization_code',
-        code,
-      });
-      const connected_account_id = response.stripe_user_id;
-      saveAccountId(connected_account_id);
-      // Render some HTML or redirect to a different page.
-      return res.status(200).json({ success: true });
-    } catch (err) {
-      if (err.type === 'StripeInvalidGrantError') {
-        return res
-          .status(400)
-          .json({ error: `Invalid authorization code: ${code}` });
-      }
-      return res.status(500).json({ error: 'An unknown error occurred.' });
-    }
-  },
   async createWebhookEndpoint() {
     try {
       const endpoint = await stripe.webhookEndpoints.create({
@@ -98,4 +79,29 @@ module.exports = {
       return err;
     }
   },
+  /*
+   * TODO: SEYI
+   * `saveAccountId` is undefined
+   * `res` is undefined
+   */
+  // async addVendorAccount(user, code) {
+  //   try {
+  //     const response = await stripe.oauth.token({
+  //       grant_type: 'authorization_code',
+  //       code,
+  //     });
+  //
+  //     const connected_account_id = response.stripe_user_id;
+  //     saveAccountId(connected_account_id);
+  //     // Render some HTML or redirect to a different page.
+  //     return res.status(200).json({ success: true });
+  //   } catch (err) {
+  //     if (err.type === 'StripeInvalidGrantError') {
+  //       return res
+  //         .status(400)
+  //         .json({ error: `Invalid authorization code: ${code}` });
+  //     }
+  //     return res.status(500).json({ error: 'An unknown error occurred.' });
+  //   }
+  // },
 };

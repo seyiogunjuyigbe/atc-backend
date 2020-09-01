@@ -51,7 +51,7 @@ exports.passport = () => {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       },
-      async function (accessToken, refreshToken, profile, done) {
+      async (accessToken, refreshToken, profile, done) => {
         console.log({ accessToken, refreshToken, profile });
         try {
           const foundUser = await User.findOne({
@@ -84,7 +84,7 @@ exports.passport = () => {
         clientID: process.env.FACEBOOK_CLIENT_ID,
         clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
       },
-      async function (accessToken, refreshToken, profile, done) {
+      async (accessToken, refreshToken, profile, done) => {
         console.log({ accessToken, refreshToken, profile });
         try {
           const foundUser = await User.findOne({

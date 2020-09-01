@@ -1,4 +1,3 @@
-const { Op } = require('sequelize');
 const { Content } = require('../models');
 const models = require('../models');
 
@@ -15,8 +14,8 @@ module.exports = {
         const { mimetype } = req.file;
         let type = mimetype.substring(0, mimetype.indexOf('/'));
         if (
-          type == 'image' &&
-          mimetype.substring(mimetype.indexOf('/') + 1, mimetype.length) ==
+          type === 'image' &&
+          mimetype.substring(mimetype.indexOf('/') + 1, mimetype.length) ===
             'gif'
         )
           type = 'gif';
@@ -125,7 +124,7 @@ params(query): type,forType,contentFor (optional)
           },
         ],
       });
-      if (!content || content.length == 0)
+      if (!content || content.length === 0)
         return res.status(204).json({
           success: true,
           message: 'No content found',

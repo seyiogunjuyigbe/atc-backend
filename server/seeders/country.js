@@ -5,7 +5,7 @@ module.exports = {
   async createStates() {
     try {
       const existingCountries = await Country.find({});
-      if (existingCountries.length == 0) {
+      if (existingCountries.length === 0) {
         countries.forEach(async country => {
           try {
             const newCountry = await Country.create({ name: country.country });
