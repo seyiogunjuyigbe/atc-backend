@@ -1,31 +1,33 @@
-const express = require("express");
+const express = require('express');
+
 const indexRoute = express.Router();
-const authRoute = require("./authRoute");
-const chatRoute = require("./chatRoute");
-const subRoute = require("./subscriptionRoute");
+const authRoute = require('./authRoute');
+const chatRoute = require('./chatRoute');
+const subRoute = require('./subscriptionRoute');
 const membershipRoute = require('./membershipRoute');
 const productRoute = require('./productRoute');
 const contentRoutes = require('./contentRoute');
 const activityRoute = require('./activityRoute');
-const packageRoutes = require('./packageRoutes')
+const packageRoutes = require('./packageRoutes');
 const categoryRoutes = require('./categoryRoutes');
-const stateRoutes = require('./stateRoutes')
-const paymentRoute = require('./paymentRoute')
+const stateRoutes = require('./stateRoutes');
+const paymentRoute = require('./paymentRoute');
 const memberReviewRoute = require('./memberReviewRoute');
-const bankRoutes = require("./bankRoute");
-const recRoutes = require("./recommendationRoutes")
-indexRoute.use("/auth", authRoute);
-indexRoute.use("/chat", chatRoute);
-indexRoute.use("/memberships", membershipRoute);
-indexRoute.use("/members_review", memberReviewRoute);
-indexRoute.use("/subscriptions", subRoute);
-indexRoute.use("/products", productRoute);
-indexRoute.use('/packages', packageRoutes)
+const bankRoutes = require('./bankRoute');
+const recRoutes = require('./recommendationRoutes');
+
+indexRoute.use('/auth', authRoute);
+indexRoute.use('/chat', chatRoute);
+indexRoute.use('/memberships', membershipRoute);
+indexRoute.use('/members_review', memberReviewRoute);
+indexRoute.use('/subscriptions', subRoute);
+indexRoute.use('/products', productRoute);
+indexRoute.use('/packages', packageRoutes);
 indexRoute.use('/contents', contentRoutes);
-indexRoute.use('/categories', categoryRoutes)
+indexRoute.use('/categories', categoryRoutes);
 indexRoute.use('/activities', activityRoute);
-indexRoute.use('', stateRoutes)
+indexRoute.use('', stateRoutes);
 indexRoute.use('/payments', paymentRoute);
-indexRoute.use("", bankRoutes);
-indexRoute.use("/recommendations", recRoutes)
+indexRoute.use('', bankRoutes);
+indexRoute.use('/recommendations', recRoutes);
 module.exports = indexRoute;

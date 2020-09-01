@@ -17,10 +17,10 @@ exports.passport = () => {
         try {
           const foundUser = await User.findOne(query);
           if (!foundUser) {
-            return done(null, null, ({
+            return done(null, null, {
               message: 'Invalid email or password.',
               code: 'invalid_login',
-            }));
+            });
           }
 
           return foundUser.comparePassword(password, (err, isMatch) => {
@@ -29,10 +29,10 @@ exports.passport = () => {
             }
 
             if (!isMatch) {
-              return done(null, null, ({
+              return done(null, null, {
                 message: 'Invalid email or password.',
                 code: 'invalid_login',
-              }));
+              });
             }
 
             return done(null, foundUser);
@@ -40,66 +40,73 @@ exports.passport = () => {
         } catch (err) {
           done(err);
         }
-      }),
+      }
+    )
   );
 
   // Login with Google OAuth
-  Passport.use(new GoogleTokenStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET
-  },
-    async function (accessToken, refreshToken, profile, done) {
-      console.log({ accessToken, refreshToken, profile });
-      try {
-        const foundUser = await User.findOne({
-          googleId: profile.id,
-        });
+  Passport.use(
+    new GoogleTokenStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      },
+      async function (accessToken, refreshToken, profile, done) {
+        console.log({ accessToken, refreshToken, profile });
+        try {
+          const foundUser = await User.findOne({
+            googleId: profile.id,
+          });
 
-        if (foundUser) {
-          return done(null, foundUser);
+          if (foundUser) {
+            return done(null, foundUser);
+          }
+
+          const newUser = await User.create({
+            googleId: profile.id,
+            firstName: profile.name.givenName,
+            lastName: profile.name.familyName,
+            email: profile.emails[0].value,
+          });
+
+          return done(null, newUser);
+        } catch (err) {
+          return done(err);
         }
-
-        const newUser = await User.create({
-          googleId: profile.id,
-          firstName: profile.name.givenName,
-          lastName: profile.name.familyName,
-          email: profile.emails[0].value,
-        });
-
-        return done(null, newUser);
-      } catch (err) {
-        return done(err);
       }
-    }
-  ));
+    )
+  );
 
   // Login with Facebook OAuth
-  Passport.use(new FacebookTokenStrategy({
-    clientID: process.env.FACEBOOK_CLIENT_ID,
-    clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-  },
-    async function (accessToken, refreshToken, profile, done) {
-      console.log({ accessToken, refreshToken, profile });
-      try {
-        const foundUser = await User.findOne({
-          facebookId: profile.id,
-        });
+  Passport.use(
+    new FacebookTokenStrategy(
+      {
+        clientID: process.env.FACEBOOK_CLIENT_ID,
+        clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+      },
+      async function (accessToken, refreshToken, profile, done) {
+        console.log({ accessToken, refreshToken, profile });
+        try {
+          const foundUser = await User.findOne({
+            facebookId: profile.id,
+          });
 
-        if (foundUser) {
-          return done(null, foundUser);
+          if (foundUser) {
+            return done(null, foundUser);
+          }
+
+          const newUser = await User.create({
+            facebookId: profile.id,
+            firstName: profile.name.givenName,
+            lastName: profile.name.familyName,
+            email: profile.emails[0].value,
+          });
+
+          return done(null, newUser);
+        } catch (err) {
+          return done(err);
         }
-
-        const newUser = await User.create({
-          facebookId: profile.id,
-          firstName: profile.name.givenName,
-          lastName: profile.name.familyName,
-          email: profile.emails[0].value,
-        });
-
-        return done(null, newUser);
-      } catch (err) {
-        return done(err);
       }
-    }
-  ));
+    )
+  );
 };

@@ -4,14 +4,18 @@ const sgTransport = require('nodemailer-sendgrid-transport');
 const handlebars = require('handlebars');
 const path = require('path');
 const fs = require('fs');
-const DEFAULT_EMAIL_SENDER = process.env.DEFAULT_EMAIL_SENDER;
+
+const { DEFAULT_EMAIL_SENDER } = process.env;
 const SMTP_USERNAME = process.env.SENDGRID_USER;
 const SMTP_PASSWORD = process.env.SENDGRID_PASSWORD;
 
-let MailController = {};
+const MailController = {};
 
-let readHTMLFile = function (argPath, callback) {
-  fs.readFile(path.join(__dirname, argPath), { encoding: 'utf-8' }, function (err, html) {
+const readHTMLFile = function (argPath, callback) {
+  fs.readFile(path.join(__dirname, argPath), { encoding: 'utf-8' }, function (
+    err,
+    html
+  ) {
     if (err) {
       throw err;
       callback(err);
@@ -25,7 +29,7 @@ MailController.sendTemplatedMail = async function (
   templateName = null,
   data = {},
   recipient = null,
-  subject = null,
+  subject = null
 ) {
   const options = {
     auth: {
@@ -34,37 +38,39 @@ MailController.sendTemplatedMail = async function (
     },
   };
 
-  readHTMLFile('../public/emailtemplates/header.html', function (err, headerHtml) {
-    let header = headerHtml;
+  readHTMLFile('../public/emailtemplates/header.html', function (
+    err,
+    headerHtml
+  ) {
+    const header = headerHtml;
 
     readHTMLFile('../public/emailtemplates/footer.html', function (
       err,
-      footerHtml,
+      footerHtml
     ) {
-      let footer = footerHtml;
+      const footer = footerHtml;
 
       readHTMLFile(`../public/emailtemplates/${templateName}`, async function (
         err,
-        html,
+        html
       ) {
-        let template = handlebars.compile(header + html + footer);
-        let replacements = data;
-        let htmlToSend = template(replacements);
+        const template = handlebars.compile(header + html + footer);
+        const replacements = data;
+        const htmlToSend = template(replacements);
         const mailer = nodemailer.createTransport(sgTransport(options));
-        let mailOptions = {
+        const mailOptions = {
           from: `African Travel Club <${DEFAULT_EMAIL_SENDER}>`,
           to: recipient,
-          subject: subject,
+          subject,
           html: htmlToSend,
         };
 
-        //NEW WAY VIA SENDGRID
+        // NEW WAY VIA SENDGRID
         await mailer.sendMail(mailOptions, (err, response) => {
           if (err) {
             return err;
-          } else {
-            return response;
           }
+          return response;
         });
       });
     });

@@ -1,4 +1,3 @@
-'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('activities', {
@@ -6,83 +5,83 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       vendorId: {
         type: Sequelize.INTEGER,
       },
       dayNumber: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       title: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       description: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       bestVisitTime: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       bestVisitSeason: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       bestVisitWeather: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       calendarStatus: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       hasAccomodation: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
       },
       hasMeals: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
       },
       start: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       end: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       countries: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       adventureCategories: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       sightCategories: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       mainDestinationCity: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       mainDestinationCountry: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       pictures: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       videos: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       route: {
         type: Sequelize.STRING,
-        values: ['start', 'end', 'day']
+        values: ['start', 'end', 'day'],
       },
       stops: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('activities');
-  }
+  },
 };

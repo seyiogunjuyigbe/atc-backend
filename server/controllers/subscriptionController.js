@@ -1,12 +1,7 @@
-const {
-  Subscription
-} = require('../models');
+const { check, validationResult } = require('express-validator');
+const { Subscription } = require('../models');
 const _email = require('../services/emailService');
 const responses = require('../helper/responses');
-const {
-  check,
-  validationResult
-} = require('express-validator');
 
 module.exports = {
   create: async (res, req) => {
@@ -14,41 +9,35 @@ module.exports = {
     const hasErrors = !result.isEmpty();
 
     if (hasErrors) {
-      return res
-        .status(400)
-        .send({
-          error: true,
-          status_code: 400,
-          message: result.array()
-        });
+      return res.status(400).send({
+        error: true,
+        status_code: 400,
+        message: result.array(),
+      });
     }
 
     try {
       const subscription = await Subscription.create(req.body);
       if (subscription) {
-        subscription.save()
+        subscription.save();
         return res
           .status(200)
           .send(
             responses.success(
               200,
               'Your Subscription was successfully created.',
-              subscription,
-            ),
+              subscription
+            )
           );
-      } else {
-        return res
-          .status(400)
-          .send(responses.error(400, 'Unable to create Subscription'));
       }
+      return res
+        .status(400)
+        .send(responses.error(400, 'Unable to create Subscription'));
     } catch (error) {
       return res
         .status(500)
         .send(
-          responses.error(
-            500,
-            `Error creating a Subscription ${error.message}`,
-          ),
+          responses.error(500, `Error creating a Subscription ${error.message}`)
         );
     }
   },
@@ -59,36 +48,32 @@ module.exports = {
         return res
           .status(400)
           .send(responses.error(400, 'Subscription not found'));
-      } else {
-        return res
-          .status(200)
-          .send(
-            responses.success(
-              200,
-              'Record was retreived successfully',
-              subscription,
-            ),
-          );
       }
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was retreived successfully',
+            subscription
+          )
+        );
     } catch (error) {
       return res
         .status(500)
         .send(
-          responses.error(500, `Error viewing a subscription ${error.message}`),
+          responses.error(500, `Error viewing a subscription ${error.message}`)
         );
     }
   },
   listSubscription: (res, req) => {
-    var offset = req.query.offset ? req.query.offset : 0;
-    var limit = req.query.limit ? req.query.limit : 20;
-    var orderBy = req.query.orderBy ? req.query.orderBy : 'id';
-    var order = req.query.order ? req.query.order : 'ASC';
-    var ordering = [
-      [orderBy, order]
-    ];
+    const offset = req.query.offset ? req.query.offset : 0;
+    const limit = req.query.limit ? req.query.limit : 20;
+    const orderBy = req.query.orderBy ? req.query.orderBy : 'id';
+    const order = req.query.order ? req.query.order : 'ASC';
+    const ordering = [[orderBy, order]];
 
-    Subscription
-      .find({})
+    Subscription.find({})
       .limit(limit)
       .skip(offset)
       // .sort({
@@ -102,20 +87,27 @@ module.exports = {
               responses.success(
                 200,
                 'Record was retreived successfully',
-                subscriptions,
-              ),
+                subscriptions
+              )
             );
         });
-      })
+      });
   },
   updateSubscription: async (res, req) => {
     try {
-      const result = await Subscription.findByIdAndUpdate(req.params.subId, req.body);
-      result.save()
+      const result = await Subscription.findByIdAndUpdate(
+        req.params.subId,
+        req.body
+      );
+      result.save();
       return res
         .status(200)
         .send(
-          responses.success(200, 'Subscription was updated successfully', result),
+          responses.success(
+            200,
+            'Subscription was updated successfully',
+            result
+          )
         );
     } catch (err) {
       return res
@@ -125,23 +117,25 @@ module.exports = {
   },
   deleteSubscription: async (res, req) => {
     try {
-      const subscription = await Subscription.findByIdAndDelete(req.params.subId);
+      const subscription = await Subscription.findByIdAndDelete(
+        req.params.subId
+      );
       if (!subscription)
         return res
           .status(400)
-          .send(
-            responses.error(400, 'subscription not found'));
+          .send(responses.error(400, 'subscription not found'));
 
-      else
-
-        return res
-          .status(200)
-          .send(
-            responses.success(200, 'Subscription was deleted successfully', subscription)
-          );
-
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Subscription was deleted successfully',
+            subscription
+          )
+        );
     } catch (err) {
-      return error(res, 500, err.message)
+      return error(res, 500, err.message);
     }
-  }
+  },
 };

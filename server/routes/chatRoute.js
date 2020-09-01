@@ -1,15 +1,14 @@
-const router = require("express").Router();
+const router = require('express').Router();
 const {
-    GetAllActiveChat,
-   sendMessage,
+  GetAllActiveChat,
+  sendMessage,
   GetChatMessages,
-} = require("../controllers/chatsController");
+} = require('../controllers/chatsController');
 
 const authenticate = require('../middlewares/authentication');
 
-router.post('/', authenticate,  sendMessage);
-router.get('/:chatId', authenticate,  GetChatMessages);
-router.get('/', authenticate,  GetAllActiveChat);
-
+router.post('/', authenticate, sendMessage);
+router.get('/:chatId', authenticate, GetChatMessages);
+router.get('/', authenticate, GetAllActiveChat);
 
 module.exports = router;

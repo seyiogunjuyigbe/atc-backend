@@ -1,82 +1,86 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { Schema } = mongoose
+
+const { Schema } = mongoose;
 //= ============================================================================
 /**
  * user Schema
  */
 //= ============================================================================
-const userSchema = new Schema({
-  firstName: {
-    type: String
+const userSchema = new Schema(
+  {
+    firstName: {
+      type: String,
+    },
+    lastName: {
+      type: String,
+    },
+    email: {
+      type: String,
+    },
+    phoneNo: {
+      type: String,
+    },
+    token: {
+      type: String,
+    },
+    city: {
+      type: String,
+    },
+    lastSeen: {
+      type: Date,
+      default: new Date(),
+    },
+    password: String,
+    country: {
+      type: String,
+    },
+    isActive: {
+      type: String,
+    },
+    facebookId: {
+      type: String,
+    },
+    googleId: {
+      type: String,
+    },
+    lastLoginAt: {
+      type: Date,
+    },
+    stripeCustomerId: String,
+    memberships: [{ type: Schema.Types.ObjectId, ref: 'Membership' }],
+    availableSlots: { type: Number },
+    role: {
+      type: String,
+      enum: ['admin', 'vendor', 'customer'],
+    },
+    bankAccount: {
+      type: Schema.Types.ObjectId,
+      ref: 'BankAccount',
+    },
+    wallet: {
+      type: Schema.Types.ObjectId,
+      ref: 'Wallet',
+    },
+    passwordResetExpires: {
+      type: String,
+    },
   },
-  lastName: {
-    type: String
-  },
-  email: {
-    type: String
-  },
-  phoneNo: {
-    type: String
-  },
-  token: {
-    type: String
-  },
-  city: {
-    type: String
-  },
-  lastSeen: {
-    type: Date,
-    default: new Date()
-  },
-  password: String,
-  country: {
-    type: String
-  },
-  isActive: {
-    type: String
-  },
-  facebookId: {
-    type: String
-  },
-  googleId: {
-    type: String
-  },
-  lastLoginAt: {
-    type: Date
-  },
-  stripeCustomerId: String,
-  memberships: [{ type: Schema.Types.ObjectId, ref: "Membership" }],
-  availableSlots: {type: Number},
-  role: {
-    type: String,
-    enum: ['admin', 'vendor', 'customer']
-  },
-  bankAccount: {
-    type: Schema.Types.ObjectId,
-    ref: "BankAccount"
-  },
-  wallet: {
-    type: Schema.Types.ObjectId,
-    ref: "Wallet"
-  },
-  passwordResetExpires: {
-    type: String
-  },
-},
   {
     timestamps: true,
-  });
+  }
+);
 
-userSchema.statics.comparePassword = async (password, userPassword) => await bcrypt.compare(password, userPassword);
+userSchema.statics.comparePassword = async (password, userPassword) =>
+  await bcrypt.compare(password, userPassword);
 
 //= ============================================================================
 userSchema.options.toJSON = {
-  transform: function (doc, ret, options) {
-    delete ret.password
+  transform(doc, ret, options) {
+    delete ret.password;
     return ret;
-  }
-}
+  },
+};
 
 userSchema.pre('save', function saveHook(next) {
   if (!this.isModified('password')) return next();
@@ -101,7 +105,7 @@ userSchema.methods.comparePassword = function (password, cb) {
       cb(err, isMatch);
     });
   }
-}
+};
 /**
  * Compile to Model
  */

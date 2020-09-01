@@ -2,9 +2,9 @@ const _responses = {
   success: (status_code, message, data) => {
     const success_message = {
       error: false,
-      status_code: status_code,
-      message: message,
-      data
+      status_code,
+      message,
+      data,
     };
     return success_message;
   },
@@ -12,8 +12,8 @@ const _responses = {
   error: (status_code, message) => {
     const error_message = {
       error: true,
-      status_code: status_code,
-      message: message
+      status_code,
+      message,
     };
     return error_message;
   },
@@ -21,13 +21,13 @@ const _responses = {
   output: (status_code, message, data, meta) => {
     const output_message = {
       error: false,
-      status_code: status_code,
-      message: message,
+      status_code,
+      message,
       data,
-      meta
+      meta,
     };
     return output_message;
-  }
+  },
 };
 
 module.exports = _responses;

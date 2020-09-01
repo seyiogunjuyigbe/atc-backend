@@ -1,23 +1,23 @@
-const Category = require('./category')
-const Activity = require('./activity')
-const MemberReview = require('./memberReview')
-const Content = require('./content')
-const Membership = require('./membership')
-const Package = require('./package')
-const Product = require('./product')
-const Subscription = require('./subscription')
-const User = require('./user')
-const State = require('./state')
-const ProductCycle = require('./productCycle')
+const Category = require('./category');
+const Activity = require('./activity');
+const MemberReview = require('./memberReview');
+const Content = require('./content');
+const Membership = require('./membership');
+const Package = require('./package');
+const Product = require('./product');
+const Subscription = require('./subscription');
+const User = require('./user');
+const State = require('./state');
+const ProductCycle = require('./productCycle');
 const Country = require('./country');
-const Transaction = require('./transaction')
-const Chats = require('./chats')
-const Messages = require('./messages')
+const Transaction = require('./transaction');
+const Chats = require('./chats');
+const Messages = require('./messages');
 const BankAccount = require('./bankaccount');
-const Wallet = require("./wallet");
-const WalletHistory = require("./walletHistory");
-const Recommendation = require("./recommendation")
-const WatchNotification = require("./watchNotification")
+const Wallet = require('./wallet');
+const WalletHistory = require('./walletHistory');
+const Recommendation = require('./recommendation');
+const WatchNotification = require('./watchNotification');
 
 module.exports = {
   Chats,
@@ -39,5 +39,5 @@ module.exports = {
   Wallet,
   WalletHistory,
   Recommendation,
-  WatchNotification
+  WatchNotification,
 };
