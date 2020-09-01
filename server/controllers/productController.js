@@ -91,8 +91,36 @@ module.exports = {
   },
   addToWatchList: async (req, res) => {
     try {
-      await WatchNotification.create({ product: req.params.productId, clientId: req.query.clientId, claim: req.query.claim,
+      await WatchNotification.create({ product: req.params.productId, clientId: req.user._id, claim: req.query.claim,
         dayslimit: req.query.dayslimit })
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was created successfully'
+          ) ,
+        );
+    } catch (error) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error creating a Record ${error.message}`));
+    }
+  },
+  pauseProduct: async (req, res) => {
+    try {
+      const { status } = req.body
+      if(status !== "paused" || status !== "canceled") {
+        return res
+          .status(500)
+          .send(responses.error(500, `Invalid product status`));
+      }
+      const product = await Product.findOne({ product: req.params.productId })
+      if(!product) return res
+        .status(500)
+        .send(responses.error(404, `Product not found`));
+      product.status = status;
+      await product.save()
       return res
         .status(200)
         .send(
@@ -262,9 +290,8 @@ module.exports = {
     }
   },
   async fetchHomePageProducts(req, res) {
-    let today = new Date();
     try {
-      let products = await Queryservice.find(Product, req, { marketingExpiryDate: { $gte: today } });
+      let products = await Queryservice.find(Product, req, { marketingExpiryDate: moment(new Date(), "DD-MM-YYYY").add(req.params.days, 'days') });
       return success(res, 200, products)
     } catch (err) {
       return error(res, 500, err.message)

@@ -48,7 +48,7 @@
               type: string
               description: product description
             marketingExpiryDate:
-              description: marketing expiry date set by vendor 
+              description: marketing expiry date set by vendor
               type: string
             marketingPriority:
               type: integer
@@ -82,7 +82,7 @@
                         type: integer
                         description: Children price for this range
 
-                                                                     
+
   Products:
     type: array
     items:
@@ -213,3 +213,9 @@
       totalSlots:
         type: number
         description: total avalable slots
+  ProductPriority:
+    type: object
+    properties:
+      days:
+        type: number
+        description: how many days to expiration

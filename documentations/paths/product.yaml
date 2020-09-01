@@ -189,7 +189,7 @@
           schema:
             example:
               message: An unexpected error occured
-  /products/priority:
+  /products/priority/{days}:
     get:
       summary: Fetch home page products
       description: Fetch home page products
@@ -197,7 +197,7 @@
       tags:
         - Products
       parameters:
-        $ref: '#/definitions/GetQuery'
+        $ref: '#/definitions/GetQueryProductPriority'
       responses:
         200:
           description: Success
@@ -335,11 +335,56 @@
         - in: query
           name: claim
           description: percantage claim limit
-          required: true
         - in: query
           name: dayslimit
           description: days limit
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product is added to watch list.
+  /products/update-product-status/{productId}:
+    put:
+      summary: update product status
+      description: update product status
+      operationId: productStatusUpdate
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: productId
+          description: Product ID
           required: true
+        - in: query
+          name: status
+          description: status to update to
+          required: true
+          enum: [paused, canceled]
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product is added to watch list.
+  /products/add-to-watch-for-user/{productId}:
+    post:
+      summary: add product to watch list notification for user
+      description: Add Product to watch list for user
+      operationId: watchList
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: productId
+          description: Product ID
+          required: true
+        - in: query
+          name: claim
+          description: percantage claim limit
+        - in: query
+          name: dayslimit
+          description: days limit
       responses:
         200:
           description: Success
