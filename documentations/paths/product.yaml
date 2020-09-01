@@ -346,3 +346,26 @@
           schema:
             example:
               message: Product is added to watch list.
+  /products/update-product-status/{productId}:
+    put:
+      summary: update product status
+      description: update product status
+      operationId: productStatusUpdate
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: productId
+          description: Product ID
+          required: true
+        - in: query
+          name: status
+          description: status to update to
+          required: true
+          enum: [paused, canceled]
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+              message: Product is added to watch list.

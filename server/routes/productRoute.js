@@ -12,6 +12,7 @@ productRoute.get("/", productCrl.listProduct);
 productRoute.put("/:productId", authenticate, productCrl.updateProduct);
 productRoute.get("/:productId", productCrl.viewProduct);
 productRoute.put("/slots/:productId", productCrl.updateSlot);
+productRoute.put("/update-product-status/:productId", productCrl.pauseProduct);
 productRoute.post("/add-to-watch/:productId", productCrl.addToWatchList);
 productRoute.get('/priority', productCrl.fetchHomePageProducts)
 productRoute.get('/product_cycle/:productId', productCrl.viewProductCycle)

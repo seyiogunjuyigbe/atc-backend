@@ -107,6 +107,34 @@ module.exports = {
         .send(responses.error(500, `Error creating a Record ${error.message}`));
     }
   },
+  pauseProduct: async (req, res) => {
+    try {
+      const { status } = req.body
+      if(status !== "paused" || status !== "canceled") {
+        return res
+          .status(500)
+          .send(responses.error(500, `Invalid product status`));
+      }
+      const product = await Product.findOne({ product: req.params.productId })
+      if(!product) return res
+        .status(500)
+        .send(responses.error(500, `Product not found`));
+      product.status = status;
+      await product.save()
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'Record was created successfully'
+          ) ,
+        );
+    } catch (error) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error creating a Record ${error.message}`));
+    }
+  },
   updateSlot: async (req, res) => {
     try {
       const productCycle = await ProductCycle.findOne({ product: req.params.productId, status: "active" }, { sort: { createdAt: -1 } });
