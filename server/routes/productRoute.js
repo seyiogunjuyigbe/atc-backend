@@ -14,6 +14,7 @@ productRoute.get("/:productId", productCrl.viewProduct);
 productRoute.put("/slots/:productId", productCrl.updateSlot);
 productRoute.put("/update-product-status/:productId", productCrl.pauseProduct);
 productRoute.post("/add-to-watch/:productId", productCrl.addToWatchList);
+productRoute.post("/add-to-watch-for-user/:productId", productCrl.addToWatchList);
 productRoute.get('/priority', productCrl.fetchHomePageProducts)
 productRoute.get('/product_cycle/:productId', productCrl.viewProductCycle)
 productRoute.put('/:productId/priority', authenticate, checkIfAdmin, check('priority').not().isEmpty().withMessage('Priority is required'),

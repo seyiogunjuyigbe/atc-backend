@@ -6,6 +6,7 @@ const Schema = mongoose.Schema;
 const watchSchema = new Schema({
   product: { ref: "Product", type: Schema.Types.ObjectId},
   clientId: { type: String, required: true},
+  type: { enum: ["user", "client"], default: "client"},
   claim: { type: Number},
   dayslimit: { type: Number}
 });

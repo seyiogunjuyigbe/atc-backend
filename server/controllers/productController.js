@@ -91,7 +91,7 @@ module.exports = {
   },
   addToWatchList: async (req, res) => {
     try {
-      await WatchNotification.create({ product: req.params.productId, clientId: req.query.clientId, claim: req.query.claim,
+      await WatchNotification.create({ product: req.params.productId, clientId: req.user._id, claim: req.query.claim,
         dayslimit: req.query.dayslimit })
       return res
         .status(200)
