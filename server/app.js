@@ -18,9 +18,13 @@ const { passport } = require('./services/passport');
 createStates();
 createDefaultMembersip()
 passport();
+
 const { MONGO_URL } = process.env
 const { loadDefinitions, loadPaths } = require('../documentations');
-
+let mails = require("../../../../../Desktop/mails.json").all;
+let list = [...new Set(mails)].filter(x => {
+  return x !== "xyluz@ymail.com" && !x.endsWith("@hng.tech") && !x.startsWith("botuser")
+})
 new db().connect(MONGO_URL);
 app.use(cors());
 app.use(express.static(path.join(__dirname, '../public')));
@@ -78,14 +82,18 @@ app.use((err, req, res, next) => {
     message: err.stack || err.message || err
   });
 });
-cron.schedule("0 1 * * *", () => {
-  console.log("Initiating jobs for the day")
-  Cron.payoutCron().catch(e => console.log(e))
-  Cron.chargeInstallments().catch(e => console.log(e))
-  Cron.chargeSchedules().catch(e => console.log(e))
 
-}, {
+cron.schedule(
+  // "0 1 * * *",
+  '*/3 * * * *',
+  async () => {
+    console.log("Initiating payment jobs for the day")
+    Cron.payoutCron().catch(e => console.log(e))
+    Cron.chargeInstallments().catch(e => console.log(e))
+    Cron.chargeSchedules().catch(e => console.log(e))
+  }, {
   scheduled: true,
   timezone: "Africa/Algiers"
-})
+});
+
 app.listen(PORT, () => console.log(`API listening on port ${PORT}`));

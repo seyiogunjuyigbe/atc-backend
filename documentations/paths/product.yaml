@@ -156,7 +156,7 @@
               installments:
                 type: number
                 required: true
-                description: No of installments (should be 0 if one-off)
+                description: No of installments (should be 1 if one-off)
               startDate:
                 type: string
                 required: false
@@ -353,7 +353,7 @@
               installments:
                 type: number
                 required: true
-                description: No of installments (should be 0 if one-off)
+                description: No of installments (should be 1 if one-off)
               startDate:
                 type: string
                 required: false

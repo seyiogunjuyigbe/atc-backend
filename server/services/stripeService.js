@@ -22,7 +22,8 @@ module.exports = {
           type: transactableType,
           id: transactable.toString(),
           ref: transaction.reference
-        }
+        },
+        setup_future_usage: "off_session",
       };
       if (amount_capturable) {
         obj.amount = amount_capturable;
@@ -93,21 +94,16 @@ module.exports = {
   async createOfflineIntent(transaction, user) {
     let { amount, currency, description, transactableType, transactable } = transaction
     try {
-      if (!user.stripeCustomerId) {
-        let customerDetails = await this.createCustomer(user);
-        if (customerDetails && customerDetails.id) {
-          user.stripeCustomerId = customerDetails.id
-        }
-        await user.save()
-        user = await User.findById(user.id); // to reload
-      }
-
+      let paymentMethod = this.fetchPaymentMethod(user)
       return await stripe.paymentIntents.create({
         amount,
         currency,
         description,
         setup_future_usage: "off_session",
         customer: user.stripeCustomerId,
+        payment_method: paymentMethod.id,
+        off_session: true,
+        confirm: true,
         metadata: {
           type: transactableType,
           id: transactable.toString(),
@@ -116,6 +112,17 @@ module.exports = {
       });
     } catch (err) {
       return err
+    }
+  },
+  async fetchPaymentMethod(user) {
+    try {
+      let paymentMethod = await stripe.paymentMethods.list({
+        customer: user.stripeCustomerId,
+        type: 'card',
+      });
+      return paymentMethod.data[0]
+    } catch (err) {
+      return err.message
     }
   }
 }

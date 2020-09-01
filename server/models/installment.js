@@ -17,8 +17,11 @@ const installmentSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Transaction"
     }],
-    paymentIntent: Object,
-    amountCapturable: Number
+    amountCapturable: Number,
+    failedAttempts: {
+        type: Number,
+        default: 0
+    }
 })
 
 module.exports = mongoose.model("Installment", installmentSchema)

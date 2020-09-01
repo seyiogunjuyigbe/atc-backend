@@ -117,27 +117,70 @@ module.exports = class Cron {
   }
   static async chargeInstallments() {
     try {
-      let installments = await Installment.find({}).populate('user product').filter(installment => {
-        return moment(installment.nextChargeDate).startOf('day').isSame(moment().startOf('day'))
-      });
+      let installments = await
+        Installment
+          .find({ nextChargeDate: moment.utc().startOf('day'), isCompleted: false })
+          .populate('user product')
       if (!installments || installments.length == 0) console.log("No payment installments for today");
       else {
+        console.log("inititating installments")
         installments.forEach(async installment => {
-          let { amount, user, product } = installment
-          let transaction = await Transaction.create({
+          let { recurringAmount, amountCapturable, user, product } = installment
+          let installmentTransaction = await Transaction.create({
             reference: createReference('payment'),
-            amount,
-            currency: currency || 'usd',
+            amount: recurringAmount,
+            currency: 'usd',
             activeCycle: product.activeCycle,
             initiatedBy: user.id,
             customer: user,
             vendor: product.owner,
             transactableType: 'Product',
             transactable: product.id,
-            description: `Payment for (${product.name})`,
-
+            description: `Installment payment for (${product.name})`,
+            installment,
+            meta: {
+              createdAs: "Installment payment transaction",
+              createdBy: "system"
+            }
           })
-          let intent = await stripeService.createOfflineIntent(transaction, user);
+          let intent = await stripeService.createOfflineIntent(installmentTransaction, user);
+          // if failed, reschedule to tomorrow
+          if (intent.status == "requires_payment_method") {
+            installment.failedAttempts++;
+            installment.nextChargeDate = moment.utc().add(1, 'days');
+            installment.transactions.push(installmentTransaction)
+          } else {
+            // set next oayment date
+            installment.set({
+              lastChargeDate: moment.utc(),
+              nextChargeDate: moment.utc().add(30, 'days').startOf('day'),
+              recurringAmount: recurringAmount + recurringAmount,
+              recurrentCount: recurrentCount++,
+            });
+            if (installment.recurrentCount == installment.maxNoOfInstallments) {
+              installment.isCompleted = true;
+              // create a transaction that has amount set to the total installment amounts and set up for vendor payout
+              let completeTransaction = await Transaction.create({
+                reference: createReference('payment'),
+                amount: amountCapturable,
+                currency: 'usd',
+                activeCycle: product.activeCycle,
+                initiatedBy: user.id,
+                customer: user,
+                vendor: product.owner,
+                transactableType: 'Product',
+                transactable: product.id,
+                description: `Complete installment payment for (${product.name})`,
+                installment,
+                settleDate: moment.utc().add(product.cancellationDaysLimit, 'days').startOf('day'),
+                meta: {
+                  createdAs: "Complete installment payment record",
+                  createdBy: "system"
+                }
+              })
+            }
+          }
+          await installment.save()
           console.log(`payment for installment (${user.email}) ${intent.status}`)
         })
       }
@@ -147,28 +190,62 @@ module.exports = class Cron {
   }
   static async chargeSchedules() {
     try {
-      let schedules = await PaymentSchedule.find({}).populate('user product').filter(schedule => {
-        return moment(schedule.chargeDate).startOf('day').isSame(moment().startOf('day'))
-      });
+      let schedules = await
+        PaymentSchedule
+          .find({ chargeDate: moment.utc().startOf('day'), isPaid: false })
+          .populate('user product')
       if (!schedules || schedules.length == 0) console.log("No payment schedules for today");
       else {
+        console.log("initating schedules")
         schedules.forEach(async schedule => {
-          let { amount, user, product } = schedule
-          let transaction = await Transaction.create({
+          let { amountCapturable, user, product } = schedule
+          let scheduleTransaction = await Transaction.create({
             reference: createReference('payment'),
-            amount,
-            currency: currency || 'usd',
+            amount: amountCapturable,
+            currency: 'usd',
             activeCycle: product.activeCycle,
             initiatedBy: user.id,
             customer: user,
             vendor: product.owner,
             transactableType: 'Product',
             transactable: product.id,
-            description: `Payment for (${product.name})`,
-
+            description: `Scheduled payment for (${product.name})`,
+            schedule,
+            meta: {
+              createdAs: "Scheduled payment transaction",
+              createdBy: "system"
+            }
           })
-          let intent = await stripeService.createOfflineIntent(transaction, user);
-          console.log(`payment for schedule (${user.email}) ${intent.status}`)
+          if (scheduleTransaction) console.log("payment transaction created")
+
+          let intent = await stripeService.createOfflineIntent(scheduleTransaction, user);
+          // if failed, reschedule to tomorrow
+          if (intent.status == "requires_payment_method") {
+            schedule.failedAttempts++;
+            schedule.chargeDate = moment.utc().add(1, 'days');
+            schedule.transactions.push(scheduleTransaction)
+          } else {
+            schedule.isPaid = true;
+            // create a transaction that has amount set to the total schedule amount and set up for vendor payout
+            let completeTransaction = await Transaction.create({
+              reference: createReference('payment'),
+              amount: schedule.amountCapturable,
+              currency: 'usd',
+              activeCycle: product.activeCycle,
+              initiatedBy: user.id,
+              customer: user,
+              vendor: product.owner,
+              transactableType: 'Product',
+              transactable: product.id,
+              description: `Successful schedule payment for (${product.name})`,
+              schedule,
+              settleDate: moment.utc().add(product.cancellationDaysLimit, 'days').startOf('day'),
+              meta: {
+                createdAs: "Successful schedule payment record",
+                createdBy: "system"
+              }
+            })
+          }
         })
       }
     } catch (err) {

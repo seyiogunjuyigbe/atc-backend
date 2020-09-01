@@ -17,9 +17,12 @@ const paymentScheduleSchema = new Schema({
     },
     amount: Number,
     chargeDate: Date,
-    paymentIntent: Object,
-    amountCapturable: Number
-
+    amountCapturable: Number,
+    failedAttempts: {
+        type: Number,
+        default: 0
+    },
+    isPaid: { type: Boolean, default: false }
 
 })
 

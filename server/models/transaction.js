@@ -58,6 +58,14 @@ const TransactionSchema = new Schema({
     ref: 'User',
     // required: true,
   },
+  installments: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Installment'
+  },
+  schedule: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PaymentSchedule'
+  },
   vendor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
