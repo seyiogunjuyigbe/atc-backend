@@ -21,7 +21,8 @@ const installmentSchema = new Schema({
     failedAttempts: {
         type: Number,
         default: 0
-    }
+    },
+    paidAt: Date
 })
 
 module.exports = mongoose.model("Installment", installmentSchema)

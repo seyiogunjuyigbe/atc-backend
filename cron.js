@@ -90,13 +90,12 @@ module.exports = class Cron {
     let pendingPayouts = await Transaction.find({
       status: "successful",
       type: 'payment',
-      transactableType: "Product"
+      transactableType: "Product",
+      settleDate: moment.utc().startOf('day')
     }).populate('vendor vendor.wallet');
     if (!pendingPayouts) console.log("No pending payouts");
     else {
-      pendingPayouts = pendingPayouts.filter(pay => {
-        return moment(pay.settleDate).isSameOrBefore(moment().startOf('day'))
-      });
+      console.log("initializing payouts")
       if (pendingPayouts.length == 0) console.log("No pending payouts")
       else {
         pendingPayouts.forEach(async payoutTransaction => {
@@ -157,6 +156,9 @@ module.exports = class Cron {
               recurringAmount: recurringAmount + recurringAmount,
               recurrentCount: recurrentCount++,
             });
+            installmentTransaction.status = "successful";
+            installmentTransaction.paidAt = moment.utc();
+
             if (installment.recurrentCount == installment.maxNoOfInstallments) {
               installment.isCompleted = true;
               // create a transaction that has amount set to the total installment amounts and set up for vendor payout
@@ -180,6 +182,7 @@ module.exports = class Cron {
               })
             }
           }
+          await installmentTransaction.save()
           await installment.save()
           console.log(`payment for installment (${user.email}) ${intent.status}`)
         })
@@ -224,28 +227,15 @@ module.exports = class Cron {
             schedule.failedAttempts++;
             schedule.chargeDate = moment.utc().add(1, 'days');
             schedule.transactions.push(scheduleTransaction)
-          } else {
+          } else if (intent.status == 'succeeded') {
             schedule.isPaid = true;
-            // create a transaction that has amount set to the total schedule amount and set up for vendor payout
-            let completeTransaction = await Transaction.create({
-              reference: createReference('payment'),
-              amount: schedule.amountCapturable,
-              currency: 'usd',
-              activeCycle: product.activeCycle,
-              initiatedBy: user.id,
-              customer: user,
-              vendor: product.owner,
-              transactableType: 'Product',
-              transactable: product.id,
-              description: `Successful schedule payment for (${product.name})`,
-              schedule,
-              settleDate: moment.utc().add(product.cancellationDaysLimit, 'days').startOf('day'),
-              meta: {
-                createdAs: "Successful schedule payment record",
-                createdBy: "system"
-              }
-            })
+            schedule.paidAt = moment.utc()
+            scheduleTransaction.settleDate = moment.utc().add(product.cancellationDaysLimit, 'days').startOf('day');
+            scheduleTransaction.status = "successful"
           }
+          await schedule.save();
+          await scheduleTransaction.save()
+          console.log(`scheduled payment for (${user.email}) ${intent.status}`)
         })
       }
     } catch (err) {

@@ -84,8 +84,8 @@ app.use((err, req, res, next) => {
 });
 
 cron.schedule(
-  // "0 1 * * *",
-  '*/3 * * * *',
+  "0 1 * * *",
+  // '*/1 * * * *',
   async () => {
     console.log("Initiating payment jobs for the day")
     Cron.payoutCron().catch(e => console.log(e))

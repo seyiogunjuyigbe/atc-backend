@@ -22,7 +22,9 @@ const paymentScheduleSchema = new Schema({
         type: Number,
         default: 0
     },
-    isPaid: { type: Boolean, default: false }
+    isPaid: { type: Boolean, default: false },
+    paidAt: Date
+
 
 })
 

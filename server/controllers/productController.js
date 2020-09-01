@@ -236,7 +236,8 @@ module.exports = {
       if (paymentTime == "later") {
         if (!startDate || moment.utc(startDate) <= moment.utc()) return error(res, 400, "Valid start date required for later payment");
       }
-      if (moment.duration(moment.utc(product.cancellationDaysLimit).diff(moment.utc().add(installments, 'months'))).asDays() > 0) {
+      console.log(moment.utc().add(product.cancellationDaysLimit, 'days'), moment.utc().add(installments, 'days'), moment.duration(moment.utc(product.cancellationDaysLimit).diff(moment.utc().add(installments, 'days'))).asDays())
+      if (moment.duration(moment.utc().add(product.cancellationDaysLimit, 'days').diff(moment.utc().add(installments, 'days'))).asDays() < 0) {
         return error(res, 409, "Installment cannot exceed product cancellation limit")
       }
       if (!product) {
@@ -330,7 +331,7 @@ module.exports = {
                 purchaseTransaction.stripePaymentId = paymentIntent.id;
               }
               // create installments, set recurrring count to 1 since first installment has been paid
-              await Installment.create({
+              let installment = await Installment.create({
                 user: customer || req.user.id,
                 recurringAmount: spreadFee,
                 recurrentCount: 1,
@@ -341,7 +342,7 @@ module.exports = {
                 transactions: [purchaseTransaction],
                 amountCapturable
               });
-              purchaseTransaction.installments.push(installment)
+              purchaseTransaction.installment = installment
               await purchaseTransaction.save()
               done.push("Membership payment initiated successfully", "First product installment charged", "Installment schedule created")
               break;
@@ -387,7 +388,7 @@ module.exports = {
                 }
               }
               // create installments
-              await Installment.create({
+              let installment = await Installment.create({
                 user: customer || req.user.id,
                 recurringAmount: spreadFee,
                 recurrentCount: 0,
@@ -396,7 +397,7 @@ module.exports = {
                 nextChargeDate: startDate,
                 amountCapturable,
               })
-              purchaseTransaction.installments.push(installment)
+              purchaseTransaction.installment = installment;
               await purchaseTransaction.save()
 
               done.push("Membership payment initiated successfully", "Installment schedule created")

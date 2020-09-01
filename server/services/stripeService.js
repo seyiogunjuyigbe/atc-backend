@@ -94,23 +94,33 @@ module.exports = {
   async createOfflineIntent(transaction, user) {
     let { amount, currency, description, transactableType, transactable } = transaction
     try {
-      let paymentMethod = this.fetchPaymentMethod(user)
-      return await stripe.paymentIntents.create({
-        amount,
-        currency,
-        description,
-        setup_future_usage: "off_session",
-        customer: user.stripeCustomerId,
-        payment_method: paymentMethod.id,
-        off_session: true,
-        confirm: true,
-        metadata: {
-          type: transactableType,
-          id: transactable.toString(),
-          ref: transaction.reference
-        }
-      });
+      console.log("Creating intent")
+      let paymentMethod = await this.fetchPaymentMethod(user);
+      if (!paymentMethod) {
+        console.log("No payment method found for " + user.email)
+        return null
+      }
+      else {
+        console.log("payment method found for " + user.email);
+        let intent = await stripe.paymentIntents.create({
+          amount,
+          currency,
+          description,
+          customer: user.stripeCustomerId,
+          payment_method: paymentMethod.id,
+          off_session: true,
+          confirm: true,
+          metadata: {
+            type: transactableType,
+            id: transactable.toString(),
+            ref: transaction.reference
+          }
+        });
+        if (intent) console.log("Intent created");
+        return intent
+      }
     } catch (err) {
+      console.log({ err: err.message })
       return err
     }
   },
