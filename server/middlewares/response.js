@@ -2,14 +2,14 @@ module.exports = {
   success(res, status, data) {
     return res.status(status).json({
       status,
-      data
+      data,
     });
   },
 
   error(res, status, message) {
     return res.status(status).json({
       status,
-      message
+      message,
     });
-  }
+  },
 };

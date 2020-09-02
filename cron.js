@@ -18,8 +18,17 @@ module.exports = class Cron {
     const allProducts = await Product.find({ isMainProduct: true, status: { $ne: "canceled" } });
     for (let product = 0; product < allProducts.length; product++) {
       const data = allProducts[product];
-      const cycle = await ProductCycle.findOne({ product: data._id })
+      const cycle = await ProductCycle.findOne({ product: data._id, _id: data.activeCycle })
       if (!cycle) return;
+      if (data.status === "paused" && moment(data.pauseDate).isSameOrAfter(new Date())) {
+        cycle.status = "expired"
+        cycle.endDate = new Date()
+        data.status = "expired"
+        data.endDate = new Date()
+        await data.save()
+        await cycle.save()
+        return;
+      }
       const notice = { product: data, productCycle: cycle }
       const current = moment().startOf('day');
       const given = moment(data.endDate, "YYYY-MM-DD");

@@ -43,10 +43,11 @@
       items:
         type: string
 
-  GetQueryProduct:
+  GetQueryProductPriority:
     - in: path
-      name: productId
-      description: Product ID
+      name: days
+      type: number
+      description: Number of day before expiration
       required: true
     - in: query
       name: limit
@@ -65,4 +66,4 @@
       description: GET api/v1/activities/priority?sightCategories=5f2d6292b8447a166ce62823&populate[]=sightCategories&populate[]=contents&status=active
       type: array
       items:
-        type: string  
+        type: string

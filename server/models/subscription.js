@@ -1,44 +1,42 @@
-'use strict';
-const mongoose = require( 'mongoose' );
+const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
-const SubscriptionSchema = new Schema( {
+const SubscriptionSchema = new Schema(
+  {
     name: {
-      type: String
+      type: String,
     },
     frequency: {
-      type: String
+      type: String,
     },
     type: {
       type: String,
-      enum: ['one-off','annual']
+      enum: ['one-off', 'annual'],
     },
     subscribableId: {
-      type: mongoose.Schema.Types.ObjectId
+      type: mongoose.Schema.Types.ObjectId,
     },
     subscribableType: {
       type: String,
-      enum: ['Subscription','membership']
+      enum: ['Subscription', 'membership'],
     },
     shortName: {
-      type: String
+      type: String,
     },
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId
+      type: mongoose.Schema.Types.ObjectId,
     },
     description: {
-      type: String
-    }
-  } ,
+      type: String,
+    },
+  },
   {
-    timestamps : true
+    timestamps: true,
   }
 );
-const Subscription = mongoose.model( 'Subscription' , SubscriptionSchema );
+const Subscription = mongoose.model('Subscription', SubscriptionSchema);
 
 module.exports = Subscription;
 
 // const
-
-

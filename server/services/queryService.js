@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const processPopulate = function (query) {
+function processPopulate(query) {
   const paths = query.split('.');
   let currentPopulate;
   while (paths.length) {
@@ -17,11 +17,10 @@ const processPopulate = function (query) {
 }
 
 const get = async (model, req, conditions = {}, multiple = true) => {
-
-  const { query, params: { id } } = req;
+  const { query } = req;
   const { populate } = query;
-  const limit = parseInt((query.limit) || '10', 10);
-  const offset = parseInt((query.offset) || '0', 10);
+  const limit = parseInt(query.limit || '10', 10);
+  const offset = parseInt(query.offset || '0', 10);
   const orderBy = query.orderBy ? query.orderBy : 'createdAt';
   const order = query.order ? query.order : 'desc';
 
@@ -33,7 +32,7 @@ const get = async (model, req, conditions = {}, multiple = true) => {
   delete query.hours;
 
   if (!_.isEmpty(query)) {
-    Object.keys(query).forEach((field) => {
+    Object.keys(query).forEach(field => {
       let value = query[field];
       switch (value) {
         case 'true':
@@ -48,22 +47,22 @@ const get = async (model, req, conditions = {}, multiple = true) => {
           break;
       }
       conditions[field] = value;
-    })
+    });
   }
 
   if (!multiple && !conditions._id) {
-    const params = req.params;
-    const paramId = Object.keys(params).find(param => param.toLowerCase().includes('id'));
+    const { params } = req;
+    const paramId = Object.keys(params).find(param =>
+      param.toLowerCase().includes('id')
+    );
     conditions._id = req.params[paramId];
   }
 
   let q = model[multiple ? 'find' : 'findOne'](conditions);
-  const temp = await model[multiple ? 'find' : 'findOne'](conditions);
-
 
   if (populate) {
     if (Array.isArray(populate) && populate.length) {
-      populate.forEach((field) => {
+      populate.forEach(field => {
         q = q.populate(processPopulate(field));
       });
     } else {
@@ -73,21 +72,22 @@ const get = async (model, req, conditions = {}, multiple = true) => {
 
   if (multiple) {
     const total = await model.countDocuments(conditions);
-    q = q.skip(offset).limit(limit).sort({ [orderBy]: order });;
-    let data = await q.skip(offset).limit(limit);
+    q = q
+      .skip(offset)
+      .limit(limit)
+      .sort({ [orderBy]: order });
+    const data = await q.skip(offset).limit(limit);
     return {
       data,
       meta: { limit, offset, total },
     };
   }
 
-  return await q;
+  return q;
 };
 
-exports.find = async (
-  model, req, conditions = {},
-) => await get(model, req, conditions, true);
+exports.find = async (model, req, conditions = {}) =>
+  get(model, req, conditions, true);
 
-exports.findOne = async (
-  model, req, conditions = {},
-) => await get(model, req, conditions, false);
+exports.findOne = async (model, req, conditions = {}) =>
+  get(model, req, conditions, false);

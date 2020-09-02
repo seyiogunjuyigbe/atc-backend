@@ -1,26 +1,25 @@
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-const { createCustomer } = require('../services/stripeService')
-const { User } = require('../models');
-const _email = require('../services/emailService');
-const responses = require('../helper/responses');
-const hash = require('hashids');
-const getJWT = require('../services/jwtService');
 const jwt = require('jsonwebtoken');
 const uuidv1 = require('uuid/v1');
 const { check, validationResult } = require('express-validator');
+const { createCustomer } = require('../services/stripeService');
+const { User } = require('../models');
+const _email = require('../services/emailService');
+const responses = require('../helper/responses');
 const generalFunctions = require('../helper/util');
 const credential = require('../config/local');
-const { defaultMembership } = require('../middlewares/membership')
-const { createUserWallet } = require("../services/walletService")
+const { defaultMembership } = require('../middlewares/membership');
+const { createUserWallet } = require('../services/walletService');
+
 module.exports = {
   createUser: async (req, res) => {
     // username must be an email
-    check(req.body.email).isEmail(),
-      // password must be at least 8 chars long
-      check(req.body.password).isLength({
-        min: 8
-      });
+    check(req.body.email).isEmail();
+    // password must be at least 8 chars long
+    check(req.body.password).isLength({
+      min: 8,
+    });
     const result = validationResult(req);
     const hasErrors = !result.isEmpty();
 
@@ -33,130 +32,135 @@ module.exports = {
     }
 
     try {
-      //find the user by email
-      //models.users
+      // find the user by email
+      // models.users
       User.findOne({
-        email: req.body.email
-      })
-        .then(async function (user) {
-          if (user !== null) {
-            return res.status(400).send(responses.error(400, 'An account with similar credentials already exists'));
-          } else {
-            //create the new user account
-            const newUser = await User.create({
-              ...req.body, token: uuidv1(), isActive: false
-            });
-            if (newUser) {
-              // _email.sendEmailSignUpToken(Newuser, token);
-              let customerDetails = await createCustomer(newUser);
-              if (customerDetails && customerDetails.id) {
-                newUser.stripeCustomerId = customerDetails.id
-              };
-              newUser.memberships.push(await defaultMembership());
-              newUser.wallet = await createUserWallet()
-              await newUser.save()
-              let url = generalFunctions.getURL();
-              let resetURL = url + `auth/${newUser.id}/verify/${newUser.token}`;
-
-              let MailTemplateName = 'account_activation.html';
-              let MailData = {
-                name: newUser.firstName + ' ' + newUser.lastName,
-                email: newUser.email,
-                token: newUser.token,
-                resetURL: resetURL,
-              };
-              let MailRecipient = newUser.email;
-              let MailSubject = `Account verification - African Travel Club`;
-              let sendMail = _email.sendTemplatedMail(
-                MailTemplateName,
-                MailData,
-                MailRecipient,
-                MailSubject,
-              );
-              return res
-                .status(200)
-                .send(
-                  responses.success(
-                    200,
-                    'Your account was successfully created. Please check your mail-box for verification steps',
-                    newUser,
-                  ),
-                );
-            } else {
-              return res
-                .status(400)
-                .send(responses.error(400, 'Unable to create User'));
-            }
-          }
+        email: req.body.email,
+      }).then(async user => {
+        if (user !== null) {
+          return res
+            .status(400)
+            .send(
+              responses.error(
+                400,
+                'An account with similar credentials already exists'
+              )
+            );
+        }
+        // create the new user account
+        const newUser = await User.create({
+          ...req.body,
+          token: uuidv1(),
+          isActive: false,
         });
+        if (newUser) {
+          // _email.sendEmailSignUpToken(Newuser, token);
+          const customerDetails = await createCustomer(newUser);
+          if (customerDetails && customerDetails.id) {
+            newUser.stripeCustomerId = customerDetails.id;
+          }
+          newUser.memberships.push(await defaultMembership());
+          newUser.wallet = await createUserWallet();
+          await newUser.save();
+          const url = generalFunctions.getURL();
+          const resetURL = `${url}auth/${newUser.id}/verify/${newUser.token}`;
+
+          const MailTemplateName = 'account_activation.html';
+          const MailData = {
+            name: `${newUser.firstName} ${newUser.lastName}`,
+            email: newUser.email,
+            token: newUser.token,
+            resetURL,
+          };
+          const MailRecipient = newUser.email;
+          const MailSubject = `Account verification - African Travel Club`;
+          _email.sendTemplatedMail(
+            MailTemplateName,
+            MailData,
+            MailRecipient,
+            MailSubject
+          );
+          return res
+            .status(200)
+            .send(
+              responses.success(
+                200,
+                'Your account was successfully created. Please check your mail-box for verification steps',
+                newUser
+              )
+            );
+        }
+        return res
+          .status(400)
+          .send(responses.error(400, 'Unable to create User'));
+      });
     } catch (error) {
       return res
         .status(500)
         .send(responses.error(500, `Error creating a user ${error.message}`));
     }
   },
-  //resend Email auth token
+  // resend Email auth token
 
   ResendTokenEmail: (req, res) => {
     if (!req.params.email) {
       return res.status(400).send(responses.error(400, 'Please provide Email'));
     }
 
-    var email = req.params.email;
+    const { email } = req.params;
     User.findOne({
-      email
-    })
-      .then(async function (user) {
-        if (!user)
-          return res
-            .status(400)
-            .send(responses.error(400, 'Found no user with these credentials'));
+      email,
+    }).then(async user => {
+      if (!user)
+        return res
+          .status(400)
+          .send(responses.error(400, 'Found no user with these credentials'));
 
-        //check if user is already active
-        if (user.isActive === true)
-          return res
-            .status(400)
-            .send(
-              responses.error(
-                400,
-                'Your account is already active. Token cannot be resent.',
-              ),
-            );
-
-        //check if token exists in the user's data
-        if (!user.token)
-          return res
-            .status(400)
-            .send(responses.error(400, 'Found no token in your account'));
-
-        let url = generalFunctions.getURL();
-        let resetURL = url + `auth/${user.id}/verify/${user.token}`;
-
-        if (email) {
-          // _email.sendEmailResendToken(user, token);
-          let MailTemplateName = 'Resend_Token.html';
-          let MailData = {
-            name: email,
-            token: user.token,
-            resetURL: resetURL,
-          };
-          let MailRecipient = email;
-          let MailSubject = `Account verification -  AfricanTravelclub account`;
-
-          let sendMail = _email.sendTemplatedMail(
-            MailTemplateName,
-            MailData,
-            MailRecipient,
-            MailSubject,
+      // check if user is already active
+      if (user.isActive === true)
+        return res
+          .status(400)
+          .send(
+            responses.error(
+              400,
+              'Your account is already active. Token cannot be resent.'
+            )
           );
-          return res
-            .status(200)
-            .send(responses.success(200, 'Token was Successfully sent', user));
-        }
-      });
+
+      // check if token exists in the user's data
+      if (!user.token)
+        return res
+          .status(400)
+          .send(responses.error(400, 'Found no token in your account'));
+
+      const url = generalFunctions.getURL();
+      const resetURL = `${url}auth/${user.id}/verify/${user.token}`;
+
+      if (email) {
+        // _email.sendEmailResendToken(user, token);
+        const MailTemplateName = 'Resend_Token.html';
+        const MailData = {
+          name: email,
+          token: user.token,
+          resetURL,
+        };
+        const MailRecipient = email;
+        const MailSubject = `Account verification -  AfricanTravelclub account`;
+
+        _email.sendTemplatedMail(
+          MailTemplateName,
+          MailData,
+          MailRecipient,
+          MailSubject
+        );
+        return res
+          .status(200)
+          .send(responses.success(200, 'Token was Successfully sent', user));
+      }
+    });
   },
 
-  //validate Email token to activate account
+  // validate Email token to activate account
   ValidateEmailToken: (req, res) => {
     if (!req.params.userId || !req.params.token) {
       return res
@@ -164,58 +168,55 @@ module.exports = {
         .send(responses.error(201, 'Please provide required fields'));
     }
 
-    let id = req.params.userId;
-    let token = req.body.token;
+    const id = req.params.userId;
+    const { token } = req.body;
 
-    //find the user
+    // find the user
     User.findOne({
       id,
-      token
-    })
-      .then(async function (user) {
-        if (!user)
-          return res
-            .status(201)
-            .send(responses.error(201, 'User does not exist'));
+      token,
+    }).then(async user => {
+      if (!user)
+        return res
+          .status(201)
+          .send(responses.error(201, 'User does not exist'));
 
-        var data = {
-          token: null,
-          isActive: true,
+      const data = {
+        token: null,
+        isActive: true,
+      };
+
+      // send mail notification
+
+      if (user.email) {
+        // _email.sendEmailWelcome(user, token);
+        const MailTemplateName = 'customerWelcomeMessage.html';
+        const MailData = {
+          name: user.firstName,
         };
-
-        //send mail notification
-
-        if (user.email) {
-          //_email.sendEmailWelcome(user, token);
-          var MailTemplateName = 'customerWelcomeMessage.html';
-          var MailData = {
-            name: user.firstName,
-          };
-          var MailRecipient = email;
-          var MailSubject = 'Welcome to African Trade Invest';
-          _email.sendTemplatedMail(
-            MailTemplateName,
-            MailData,
-            MailRecipient,
-            MailSubject,
+        const MailRecipient = user.email;
+        const MailSubject = 'Welcome to African Trade Invest';
+        _email.sendTemplatedMail(
+          MailTemplateName,
+          MailData,
+          MailRecipient,
+          MailSubject
+        );
+      }
+      User.findByIdAndUpdate(user.id, {
+        ...data,
+      }).then(updatedUser => {
+        return res
+          .status(200)
+          .send(
+            responses.success(
+              200,
+              'Your account was successfully activated.',
+              updatedUser
+            )
           );
-        }
-        User
-          .findByIdAndUpdate(user.id, {
-            ...data
-          })
-          .then(function (updatedUser) {
-            return res
-              .status(200)
-              .send(
-                responses.success(
-                  200,
-                  'Your account was successfully activated.',
-                  user,
-                ),
-              );
-          });
       });
+    });
   },
 
   viewUser: (req, res) => {
@@ -223,13 +224,10 @@ module.exports = {
       const user = User.findById(req.params.userId);
       if (!user) {
         return res.status(400).send(responses.error(400, 'User not found'));
-      } else {
-        return res
-          .status(200)
-          .send(
-            responses.success(200, 'User was retreived successfully', user),
-          );
       }
+      return res
+        .status(200)
+        .send(responses.success(200, 'User was retreived successfully', user));
     } catch (error) {
       return res
         .status(500)
@@ -243,54 +241,55 @@ module.exports = {
         ['facebook', 'google'].includes(req.body.strategy) &&
         !req.body.access_token
       ) {
-        return res.status(401).send(
-          responses.error(401, 'Invalid access token'),
-        );
+        return res
+          .status(401)
+          .send(responses.error(401, 'Invalid access token'));
       }
 
-      const strategy = req.body.strategy &&
-        ['facebook', 'google'].includes(req.body.strategy) ?
-        `${req.body.strategy}-token` :
-        'local';
+      const strategy =
+        req.body.strategy && ['facebook', 'google'].includes(req.body.strategy)
+          ? `${req.body.strategy}-token`
+          : 'local';
 
       return passport.authenticate(
-        strategy, { session: false }, async (err, user, info) => {
+        strategy,
+        { session: false },
+        async (err, user, info) => {
           try {
             const errored = err || info;
             if (errored) {
-              return res.status(401).send(
-                responses.error(401, errored),
-              );
+              return res.status(401).send(responses.error(401, errored));
             }
 
             await user.updateOne({ lastLoginAt: new Date() });
 
-            let token = jwt.sign({
-              id: user.id,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-            },
-              credential.jwtSecret, {
-              expiresIn: 604800, // expires in 7 days
-            },
+            const token = jwt.sign(
+              {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+              },
+              credential.jwtSecret,
+              {
+                expiresIn: 604800, // expires in 7 days
+              }
             );
 
-            return res
-              .status(200)
-              .send(
-                responses.success(200, 'Logged in successfully', {
-                  user,
-                  token,
-                  expiresIn: 604800,
-                }),
-              );
+            return res.status(200).send(
+              responses.success(200, 'Logged in successfully', {
+                user,
+                token,
+                expiresIn: 604800,
+              })
+            );
           } catch (error) {
             next(error);
           }
-        })(req, res, next);
+        }
+      )(req, res, next);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return res
         .status(500)
         .send(responses.error(500, `Error getting user ${error}`));
@@ -298,10 +297,9 @@ module.exports = {
   },
   forgotPassword: async (req, res) => {
     try {
-      const email = req.query.email;
-      const address = req.headers.host;
+      const { email } = req.query;
       const user = await User.findOne({
-        email
+        email,
       });
 
       const token = uuidv1();
@@ -309,60 +307,55 @@ module.exports = {
         return res
           .status(400)
           .send(responses.error(400, `User with ${email} doesn't exit`));
-      } else {
-        var data = {
-          token: token,
-          passwordResetExpires: Date.now() + 86400000,
+      }
+      const data = {
+        token,
+        passwordResetExpires: Date.now() + 86400000,
+      };
+      if (email) {
+        const url = generalFunctions.getURL();
+        const resetURL = `${url}/auth/reset-password${token}`;
+
+        const MailTemplateName = 'forgotpassword.html';
+        const MailData = {
+          name: `${user.firstName} ${user.lastName}`,
+          token,
+          resetURL,
         };
-        if (email) {
-          var url = generalFunctions.getURL();
-          var resetURL = url + '/auth/reset-password' + token;
+        const MailRecipient = email;
+        const MailSubject = `Action required: Reset your password`;
 
-          var MailTemplateName = 'forgotpassword.html';
-          var MailData = {
-            name: user.firstName + ' ' + user.lastName,
-            token: token,
-            resetURL: resetURL,
-          };
-          var MailRecipient = email;
-          var MailSubject = `Action required: Reset your password`;
-
-          _email
-            .sendTemplatedMail(
-              MailTemplateName,
-              MailData,
-              MailRecipient,
-              MailSubject,
-            )
-            .then(response => response)
-            .catch(error => {
-              if (error) {
-                return res
-                  .status(500)
-                  .send(
-                    responses.error(
-                      500,
-                      'Forgot e-mail service is not working',
-                    ),
-                  );
-              }
-            });
-        }
-        User.findByIdAndUpdate(user.id, {
-          ...data
-        })
-          .then(function (updatedUser) {
-            return res
-              .status(200)
-              .send(
-                responses.success(
-                  200,
-                  `An e-mail has been sent to ${email} with further instructions.`,
-                  user,
-                ),
-              );
+        _email
+          .sendTemplatedMail(
+            MailTemplateName,
+            MailData,
+            MailRecipient,
+            MailSubject
+          )
+          .then(response => response)
+          .catch(error => {
+            if (error) {
+              return res
+                .status(500)
+                .send(
+                  responses.error(500, 'Forgot e-mail service is not working')
+                );
+            }
           });
       }
+      User.findByIdAndUpdate(user.id, {
+        ...data,
+      }).then(updatedUser => {
+        return res
+          .status(200)
+          .send(
+            responses.success(
+              200,
+              `An e-mail has been sent to ${email} with further instructions.`,
+              updatedUser
+            )
+          );
+      });
     } catch (error) {
       return res
         .status(500)
@@ -371,9 +364,7 @@ module.exports = {
   },
 
   postReset: async (req, res) => {
-    const {
-      userId
-    } = req.params;
+    const { userId } = req.params;
     const user = User.findOne({
       _id: userId,
       passwordResetExpires: {
@@ -385,40 +376,36 @@ module.exports = {
       return res
         .status(400)
         .send(
-          responses.error(400, 'User not found or Password reset has expired.'),
+          responses.error(400, 'User not found or Password reset has expired.')
         );
-    } else {
-      const hashPwd = bcrypt.hashSync(
-        req.body.password,
-        bcrypt.genSaltSync(8),
-        null,
-      );
-      const data = {
-        password: hashPwd,
-        passwordResetExpires: undefined,
-      };
-
-      User.findByIdAndUpdate(user.id, {
-        ...data
-      })
-        .then(function (updatedUser) {
-          return res
-            .status(200)
-            .send(
-              responses.success(
-                200,
-                'You have successfully reset your password',
-                updatedUser,
-              ),
-            );
-        });
     }
+    const hashPwd = bcrypt.hashSync(
+      req.body.password,
+      bcrypt.genSaltSync(8),
+      null
+    );
+    const data = {
+      password: hashPwd,
+      passwordResetExpires: undefined,
+    };
+
+    User.findByIdAndUpdate(user.id, {
+      ...data,
+    }).then(updatedUser => {
+      return res
+        .status(200)
+        .send(
+          responses.success(
+            200,
+            'You have successfully reset your password',
+            updatedUser
+          )
+        );
+    });
   },
 
-  getReset: async (req, res, next) => {
-    const {
-      userId
-    } = req.params;
+  getReset: async (req, res) => {
+    const { userId } = req.params;
     const user = User.findOne({
       id: userId,
       passwordResetExpires: {
@@ -429,14 +416,11 @@ module.exports = {
       return res
         .status(400)
         .send(
-          responses.error(400, 'user not found or Password reset has expired.'),
-        );
-    } else {
-      return res
-        .status(200)
-        .send(
-          responses.success(200, 'Reset Password link is still valid', user),
+          responses.error(400, 'user not found or Password reset has expired.')
         );
     }
+    return res
+      .status(200)
+      .send(responses.success(200, 'Reset Password link is still valid', user));
   },
 };

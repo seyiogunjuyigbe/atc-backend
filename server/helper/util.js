@@ -1,12 +1,12 @@
-const bcrypt = require("bcryptjs");
-const env = process.env.NODE_ENV || "development";
-const uuidv1 = require("uuid/v1");
+const bcrypt = require('bcryptjs');
 
-let utilities = {
+const env = process.env.NODE_ENV || 'development';
+
+const utilities = {
   get_password: () => {
     const password = Math.random()
       .toString(36)
-      .replace(/[^a-z]+/g, "")
+      .replace(/[^a-z]+/g, '')
       .substr(0, 8);
     const hashed_password = bcrypt.hashSync(
       password,
@@ -16,18 +16,16 @@ let utilities = {
 
     return {
       password,
-      hashed_password
+      hashed_password,
     };
   },
 
-
- getURL: () => {
-    if(env == "development"){
-        return "http://localhost:8080/";
-    } else {
-        return "http://africantravelclub.com/";
+  getURL: () => {
+    if (env === 'development') {
+      return 'http://localhost:8080/';
     }
-}
+    return 'http://africantravelclub.com/';
+  },
 };
 
 module.exports = utilities;

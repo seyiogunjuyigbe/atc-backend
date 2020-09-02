@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { Schema } = mongoose
+
+const { Schema } = mongoose;
 //= ============================================================================
 /**
  * user Schema
@@ -68,17 +69,19 @@ const userSchema = new Schema({
 },
   {
     timestamps: true,
-  });
+  }
+);
 
-userSchema.statics.comparePassword = async (password, userPassword) => await bcrypt.compare(password, userPassword);
+userSchema.statics.comparePassword = async (password, userPassword) =>
+  bcrypt.compare(password, userPassword);
 
 //= ============================================================================
 userSchema.options.toJSON = {
-  transform: function (doc, ret, options) {
-    delete ret.password
+  transform(doc, ret) {
+    delete ret.password;
     return ret;
-  }
-}
+  },
+};
 
 userSchema.pre('save', function saveHook(next) {
   if (!this.isModified('password')) return next();
@@ -89,7 +92,7 @@ userSchema.pre('save', function saveHook(next) {
   return next();
 });
 
-userSchema.methods.comparePassword = function (password, cb) {
+userSchema.methods.comparePassword = function comparePassword(password, cb) {
   if (!this.password && cb) {
     return cb(new Error('Registration not complete'), false);
   }
@@ -103,7 +106,7 @@ userSchema.methods.comparePassword = function (password, cb) {
       cb(err, isMatch);
     });
   }
-}
+};
 /**
  * Compile to Model
  */

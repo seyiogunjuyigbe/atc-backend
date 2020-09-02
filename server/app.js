@@ -8,39 +8,46 @@ const { readFileSync } = require('fs');
 const bodyParser = require('body-parser');
 const path = require('path');
 const ejs = require('ejs');
+
 const app = express();
-const db = require('./db/index')
+const DB = require('./db/index');
+
 const PORT = process.env.PORT || 3000;
 const { createStates } = require('./seeders/country');
-const { createDefaultMembersip } = require('./seeders/membership')
-const Cron = require("../cron")
+const { createDefaultMembersip } = require('./seeders/membership');
+const Cron = require('../cron');
 const { passport } = require('./services/passport');
-createStates();
-createDefaultMembersip()
-passport();
 
-const { MONGO_URL } = process.env
+createStates();
+createDefaultMembersip();
+passport();
+const { MONGO_URL } = process.env;
 const { loadDefinitions, loadPaths } = require('../documentations');
-new db().connect(MONGO_URL);
+
+new DB().connect(MONGO_URL);
 app.use(cors());
 app.use(express.static(path.join(__dirname, '../public')));
-app.use(bodyParser.json({
-  limit: '5mb',
-  type: 'application/json'
-}));
-app.use(bodyParser.urlencoded({
-  limit: '5mb',
-  extended: true
-}));
-app.use(function (req, res, next) {
+app.use(
+  bodyParser.json({
+    limit: '5mb',
+    type: 'application/json',
+  })
+);
+app.use(
+  bodyParser.urlencoded({
+    limit: '5mb',
+    extended: true,
+  })
+);
+app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header(
     'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept',
+    'Origin, X-Requested-With, Content-Type, Accept'
   );
   next();
 });
-//log every request to the database
+// log every request to the database
 app.use(morgan('dev'));
 
 app.set('views', path.join(__dirname, '../public'));
@@ -55,7 +62,7 @@ app.get('/swagger.json', (req, res) => {
   };
   const swaggerTemplate = readFileSync(
     path.join(__dirname, '../documentations/swagger.yaml'),
-    'utf8',
+    'utf8'
   );
   const swaggerSchema = ejs.render(swaggerTemplate, data);
 
@@ -67,15 +74,15 @@ app.get('/', (req, res) => res.render('index'));
 app.all('*', (req, res) => {
   return res.status(404).json({
     error: true,
-    message: "Requested route not found"
-  })
-})
-//error handling middleware
-app.use((err, req, res, next) => {
+    message: 'Requested route not found',
+  });
+});
+// error handling middleware
+app.use((err, req, res) => {
   console.error(err.stack || err.message || err);
   res.status(500).json({
-    error: "Something went wrong!",
-    message: err.stack || err.message || err
+    error: 'Something went wrong!',
+    message: err.stack || err.message || err,
   });
 });
 

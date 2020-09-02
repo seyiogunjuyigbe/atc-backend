@@ -1,14 +1,14 @@
-const jwt = require("jsonwebtoken"),
-credential = require("../config/local");
+const jwt = require('jsonwebtoken');
+const credential = require('../config/local');
 
 module.exports = {
   generateToken: payload => {
     try {
       const token = jwt.sign(payload, credential.jwtSecret, {
-        expiresIn: credential.tokenExpiresIn
+        expiresIn: credential.tokenExpiresIn,
       });
       return token;
-    } catch (error) {
+    } catch (err) {
       console.log(err);
       return err;
     }
@@ -20,9 +20,9 @@ module.exports = {
         if (err) return callback(err);
         return callback(false, decoded);
       });
-    } catch (error) {
+    } catch (err) {
       console.log(err);
       return err;
     }
-  }
+  },
 };

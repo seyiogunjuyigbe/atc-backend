@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const TransactionSchema = new Schema({
   type: {
@@ -75,7 +75,7 @@ const TransactionSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Card',
     required: true,
-  },*/
+  }, */
   bankAccount: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'BankAccount',
@@ -83,7 +83,7 @@ const TransactionSchema = new Schema({
   },
   wallet: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Wallet'
+    ref: 'Wallet',
   },
   transactableType: {
     type: String,
@@ -96,17 +96,16 @@ const TransactionSchema = new Schema({
     // required: true,
   },
   description: {
-    type: String
+    type: String,
   },
   stripePaymentId: {
-    type: String
+    type: String,
   },
   transferwiseId: String,
   settleDate: Date,
-  meta: Object
 },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 const Transaction = mongoose.model('Transaction', TransactionSchema);
@@ -114,5 +113,3 @@ const Transaction = mongoose.model('Transaction', TransactionSchema);
 module.exports = Transaction;
 
 // const
-
-
