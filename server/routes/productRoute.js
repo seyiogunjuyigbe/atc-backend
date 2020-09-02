@@ -9,7 +9,7 @@ const { checkIfAdmin } = require('../middlewares/access');
 const productRoute = express.Router();
 
 productRoute.post('/', authenticate, productCrl.create);
-productRoute.get('/priority/:days', productCrl.fetchHomePageProducts);
+productRoute.get('/priority', productCrl.fetchHomePageProducts);
 productRoute.get('/', productCrl.listProduct);
 productRoute.put('/:productId', authenticate, productCrl.updateProduct);
 productRoute.get('/:productId', productCrl.viewProduct);
