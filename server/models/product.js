@@ -38,6 +38,9 @@ const ProductSchema = new Schema(
       enum: ['active', 'waiting', 'expired', 'paused', 'canceled'],
       default: 'active',
     },
+    marketingExpiryDate: {
+      type: Date,
+    },
     package: {
       type: mongoose.Schema.ObjectId,
       ref: 'Package',
