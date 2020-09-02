@@ -150,12 +150,11 @@ module.exports = class Cron {
             installment.transactions.push(installmentTransaction)
           } else {
             // set next oayment date
-            installment.set({
-              lastChargeDate: moment.utc(),
-              nextChargeDate: moment.utc().add(30, 'days').startOf('day'),
-              recurringAmount: recurringAmount + recurringAmount,
-              recurrentCount: recurrentCount++,
-            });
+            installment.lastChargeDate = moment.utc();
+            installment.nextChargeDate = moment.utc().add(30, 'days').startOf('day')
+            installment.recurringAmount += recurringAmount
+            installment.recurrentCount++
+
             installmentTransaction.status = "successful";
             installmentTransaction.paidAt = moment.utc();
 

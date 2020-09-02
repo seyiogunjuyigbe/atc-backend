@@ -21,10 +21,6 @@ passport();
 
 const { MONGO_URL } = process.env
 const { loadDefinitions, loadPaths } = require('../documentations');
-let mails = require("../../../../../Desktop/mails.json").all;
-let list = [...new Set(mails)].filter(x => {
-  return x !== "xyluz@ymail.com" && !x.endsWith("@hng.tech") && !x.startsWith("botuser")
-})
 new db().connect(MONGO_URL);
 app.use(cors());
 app.use(express.static(path.join(__dirname, '../public')));
