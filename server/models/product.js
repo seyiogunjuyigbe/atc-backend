@@ -41,6 +41,7 @@ const ProductSchema = new Schema(
     marketingExpiryDate: {
       type: Date,
     },
+    marketingPriority: Number,
     package: {
       type: mongoose.Schema.ObjectId,
       ref: 'Package',
