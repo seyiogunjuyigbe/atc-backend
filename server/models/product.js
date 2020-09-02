@@ -42,6 +42,15 @@ const ProductSchema = new Schema(
       type: Date,
     },
     marketingPriority: Number,
+    price: {
+      vendorPrice: Number,
+      childrenPrice: Number,
+      productAdultPrice: Number,
+      freeMembershipDiscountedPrice: Number,
+      paidMembershipDiscountedPrice: Number,
+      oneOffMembershipFee: Number,
+      annualMembershipFee: { type: Number, default: 200 },
+    },
     package: {
       type: mongoose.Schema.ObjectId,
       ref: 'Package',
