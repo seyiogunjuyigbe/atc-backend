@@ -1,3 +1,4 @@
+const moment = require('moment');
 const { User, Membership, ProductCycle } = require('../models');
 
 exports.createReference = type => {

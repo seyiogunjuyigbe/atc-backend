@@ -7,66 +7,67 @@ const { Schema } = mongoose;
  * user Schema
  */
 //= ============================================================================
-const userSchema = new Schema({
-  firstName: {
-    type: String
+const userSchema = new Schema(
+  {
+    firstName: {
+      type: String,
+    },
+    lastName: {
+      type: String,
+    },
+    email: {
+      type: String,
+    },
+    phoneNo: {
+      type: String,
+    },
+    token: {
+      type: String,
+    },
+    city: {
+      type: String,
+    },
+    lastSeen: {
+      type: Date,
+      default: new Date(),
+    },
+    password: String,
+    country: {
+      type: String,
+    },
+    isActive: {
+      type: String,
+    },
+    facebookId: {
+      type: String,
+    },
+    googleId: {
+      type: String,
+    },
+    lastLoginAt: {
+      type: Date,
+    },
+    stripeCustomerId: String,
+    memberships: [{ type: Schema.Types.ObjectId, ref: 'Membership' }],
+    activeMembership: { type: Schema.Types.ObjectId, ref: 'Membership' },
+    membershipExpiry: Date,
+    availableSlots: { type: Number },
+    role: {
+      type: String,
+      enum: ['admin', 'vendor', 'customer'],
+    },
+    bankAccount: {
+      type: Schema.Types.ObjectId,
+      ref: 'BankAccount',
+    },
+    wallet: {
+      type: Schema.Types.ObjectId,
+      ref: 'Wallet',
+    },
+    passwordResetExpires: {
+      type: String,
+    },
   },
-  lastName: {
-    type: String
-  },
-  email: {
-    type: String
-  },
-  phoneNo: {
-    type: String
-  },
-  token: {
-    type: String
-  },
-  city: {
-    type: String
-  },
-  lastSeen: {
-    type: Date,
-    default: new Date()
-  },
-  password: String,
-  country: {
-    type: String
-  },
-  isActive: {
-    type: String
-  },
-  facebookId: {
-    type: String
-  },
-  googleId: {
-    type: String
-  },
-  lastLoginAt: {
-    type: Date
-  },
-  stripeCustomerId: String,
-  memberships: [{ type: Schema.Types.ObjectId, ref: "Membership" }],
-  activeMembership: { type: Schema.Types.ObjectId, ref: "Membership" },
-  membershipExpiry: Date,
-  availableSlots: { type: Number },
-  role: {
-    type: String,
-    enum: ['admin', 'vendor', 'customer']
-  },
-  bankAccount: {
-    type: Schema.Types.ObjectId,
-    ref: "BankAccount"
-  },
-  wallet: {
-    type: Schema.Types.ObjectId,
-    ref: "Wallet"
-  },
-  passwordResetExpires: {
-    type: String
-  },
-},
   {
     timestamps: true,
   }

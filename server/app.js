@@ -87,16 +87,18 @@ app.use((err, req, res) => {
 });
 
 cron.schedule(
-  "0 1 * * *",
+  '0 1 * * *',
   // '*/1 * * * *',
   async () => {
-    console.log("Initiating payment jobs for the day")
-    Cron.payoutCron().catch(e => console.log(e))
-    Cron.chargeInstallments().catch(e => console.log(e))
-    Cron.chargeSchedules().catch(e => console.log(e))
-  }, {
-  scheduled: true,
-  timezone: "Africa/Algiers"
-});
+    console.log('Initiating payment jobs for the day');
+    Cron.payoutCron().catch(e => console.log(e));
+    Cron.chargeInstallments().catch(e => console.log(e));
+    Cron.chargeSchedules().catch(e => console.log(e));
+  },
+  {
+    scheduled: true,
+    timezone: 'Africa/Algiers',
+  }
+);
 
 app.listen(PORT, () => console.log(`API listening on port ${PORT}`));

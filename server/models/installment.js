@@ -1,28 +1,30 @@
-'use strict';
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+
+const { Schema } = mongoose;
 
 const installmentSchema = new Schema({
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: "User"
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  recurringAmount: Number,
+  recurrentCount: Number,
+  maxNoOfInstallments: Number,
+  isCompleted: Boolean,
+  lastChargeDate: Date,
+  nextChargeDate: Date,
+  transactions: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Transaction',
     },
-    recurringAmount: Number,
-    recurrentCount: Number,
-    maxNoOfInstallments: Number,
-    isCompleted: Boolean,
-    lastChargeDate: Date,
-    nextChargeDate: Date,
-    transactions: [{
-        type: Schema.Types.ObjectId,
-        ref: "Transaction"
-    }],
-    amountCapturable: Number,
-    failedAttempts: {
-        type: Number,
-        default: 0
-    },
-    paidAt: Date
-})
+  ],
+  amountCapturable: Number,
+  failedAttempts: {
+    type: Number,
+    default: 0,
+  },
+  paidAt: Date,
+});
 
-module.exports = mongoose.model("Installment", installmentSchema)
+module.exports = mongoose.model('Installment', installmentSchema);

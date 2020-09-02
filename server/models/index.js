@@ -14,13 +14,13 @@ const Transaction = require('./transaction');
 const Chats = require('./chats');
 const Messages = require('./messages');
 const BankAccount = require('./bankaccount');
-const Wallet = require("./wallet");
-const WalletHistory = require("./walletHistory");
-const Recommendation = require("./recommendation")
-const WatchNotification = require("./watchNotification")
-const Installment = require("./installment");
-const PaymentSchedule = require("./paymentSchedule")
-const MemberProduct = require("./memberProduct")
+const Wallet = require('./wallet');
+const WalletHistory = require('./walletHistory');
+const Recommendation = require('./recommendation');
+const WatchNotification = require('./watchNotification');
+const Installment = require('./installment');
+const PaymentSchedule = require('./paymentSchedule');
+const MemberProduct = require('./memberProduct');
 
 module.exports = {
   Chats,
@@ -45,5 +45,5 @@ module.exports = {
   WatchNotification,
   MemberProduct,
   Installment,
-  PaymentSchedule
+  PaymentSchedule,
 };

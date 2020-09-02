@@ -3,7 +3,7 @@ const stripe = require('stripe')(STRIPE_SECRET_KEY);
 const { User } = require('../models');
 
 module.exports = {
-  async createPaymentIntent(transaction, user) {
+  async createPaymentIntent(transaction, user, amount_capturable) {
     const {
       amount,
       currency,
@@ -20,7 +20,7 @@ module.exports = {
         await user.save();
         user = await User.findById(user.id); // to reload
       }
-      let obj = {
+      const obj = {
         amount,
         currency,
         description,
@@ -28,9 +28,9 @@ module.exports = {
         metadata: {
           type: transactableType,
           id: transactable.toString(),
-          ref: transaction.reference
+          ref: transaction.reference,
         },
-        setup_future_usage: "off_session",
+        setup_future_usage: 'off_session',
       };
       if (amount_capturable) {
         obj.amount = amount_capturable;
@@ -84,47 +84,52 @@ module.exports = {
     }
   },
   async createOfflineIntent(transaction, user) {
-    let { amount, currency, description, transactableType, transactable } = transaction
+    const {
+      amount,
+      currency,
+      description,
+      transactableType,
+      transactable,
+    } = transaction;
     try {
-      console.log("Creating intent")
-      let paymentMethod = await this.fetchPaymentMethod(user);
+      console.log('Creating intent');
+      const paymentMethod = await this.fetchPaymentMethod(user);
       if (!paymentMethod) {
-        console.log("No payment method found for " + user.email)
-        return null
+        console.log(`No payment method found for ${user.email}`);
+        return null;
       }
-      else {
-        console.log("payment method found for " + user.email);
-        let intent = await stripe.paymentIntents.create({
-          amount,
-          currency,
-          description,
-          customer: user.stripeCustomerId,
-          payment_method: paymentMethod.id,
-          off_session: true,
-          confirm: true,
-          metadata: {
-            type: transactableType,
-            id: transactable.toString(),
-            ref: transaction.reference
-          }
-        });
-        if (intent) console.log("Intent created");
-        return intent
-      }
+
+      console.log(`payment method found for ${user.email}`);
+      const intent = await stripe.paymentIntents.create({
+        amount,
+        currency,
+        description,
+        customer: user.stripeCustomerId,
+        payment_method: paymentMethod.id,
+        off_session: true,
+        confirm: true,
+        metadata: {
+          type: transactableType,
+          id: transactable.toString(),
+          ref: transaction.reference,
+        },
+      });
+      if (intent) console.log('Intent created');
+      return intent;
     } catch (err) {
-      console.log({ err: err.message })
-      return err
+      console.log({ err: err.message });
+      return err;
     }
   },
   async fetchPaymentMethod(user) {
     try {
-      let paymentMethod = await stripe.paymentMethods.list({
+      const paymentMethod = await stripe.paymentMethods.list({
         customer: user.stripeCustomerId,
         type: 'card',
       });
-      return paymentMethod.data[0]
+      return paymentMethod.data[0];
     } catch (err) {
-      return err.message
+      return err.message;
     }
-  }
-}
+  },
+};
