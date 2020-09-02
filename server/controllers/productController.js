@@ -375,12 +375,15 @@ module.exports = {
     }
   },
   async fetchHomePageProducts(req, res) {
-    const query = {};
+    let query = {};
     if (req.query.days) {
-      query.marketingExpiryDate = moment(new Date(), 'DD-MM-YYYY').add(
-        req.query.days,
-        'days'
-      );
+      query = {
+        'marketingExpiryDate ': {
+          $gte: moment(new Date(), 'DD-MM-YYYY').add(2, 'days'),
+          $lt: moment(new Date(), 'DD-MM-YYYY').add(req.query.days, 'days'),
+        },
+      };
+      // query.marketingExpiryDate = moment(new Date(), 'DD-MM-YYYY').add(req.query.days,'days');
     }
     try {
       const products = await Queryservice.find(Product, req, query);
