@@ -154,7 +154,8 @@ module.exports = {
         waitingCycle,
         endDate,
         totalSlots: req.body.totalSlots,
-        availableSlots: adminUser.availableSlots || req.body.totalSlots,
+        availableSlots:
+          (adminUser && adminUser.availableSlots) || req.body.totalSlots,
       });
       mainProductInfo.activeCycle = activeCycle._id;
       await mainProductInfo.save();
@@ -374,13 +375,15 @@ module.exports = {
     }
   },
   async fetchHomePageProducts(req, res) {
+    const query = {};
+    if (req.query.days) {
+      query.marketingExpiryDate = moment(new Date(), 'DD-MM-YYYY').add(
+        req.query.days,
+        'days'
+      );
+    }
     try {
-      const products = await Queryservice.find(Product, req, {
-        marketingExpiryDate: moment(new Date(), 'DD-MM-YYYY').add(
-          req.params.days,
-          'days'
-        ),
-      });
+      const products = await Queryservice.find(Product, req, query);
       return success(res, 200, products);
     } catch (err) {
       return error(res, 500, err.message);

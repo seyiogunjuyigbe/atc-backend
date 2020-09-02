@@ -44,11 +44,10 @@
         type: string
 
   GetQueryProductPriority:
-    - in: path
+    - in: query
       name: days
       type: number
       description: Number of day before expiration
-      required: true
     - in: query
       name: limit
       required: false
