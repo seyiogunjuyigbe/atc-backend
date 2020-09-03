@@ -711,6 +711,7 @@ module.exports = {
       installments,
       currency,
       customer,
+      password,
     } = req.body;
     let amount;
     let annualMembership;
@@ -738,7 +739,8 @@ module.exports = {
       }
       const newUser = await User.create({
         ...req.body,
-        password: customAlphabet('ABCDEFGHJKLMNpqrstuvwxyz23456789', 8),
+        password:
+          password || customAlphabet('ABCDEFGHJKLMNpqrstuvwxyz23456789', 8),
         token: uuidv1(),
         isActive: false,
         lastLoginAt: new Date(),
