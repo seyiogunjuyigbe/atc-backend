@@ -38,6 +38,19 @@ const ProductSchema = new Schema(
       enum: ['active', 'waiting', 'expired', 'paused', 'canceled'],
       default: 'active',
     },
+    marketingExpiryDate: {
+      type: Date,
+    },
+    marketingPriority: Number,
+    price: {
+      vendorPrice: Number,
+      childrenPrice: Number,
+      productAdultPrice: Number,
+      freeMembershipDiscountedPrice: Number,
+      paidMembershipDiscountedPrice: Number,
+      oneOffMembershipFee: Number,
+      annualMembershipFee: { type: Number, default: 200 },
+    },
     package: {
       type: mongoose.Schema.ObjectId,
       ref: 'Package',

@@ -210,7 +210,7 @@
           schema:
             example:
               message: An unexpected error occured
-  /products/priority/{days}:
+  /products/priority:
     get:
       summary: Fetch home page products
       description: Fetch home page products
