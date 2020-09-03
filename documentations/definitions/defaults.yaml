@@ -66,3 +66,27 @@
       type: array
       items:
         type: string
+
+  GetQueryProduct:
+    - in: query
+      name: days
+      type: number
+      description: Number of day before expiration
+    - in: query
+      name: limit
+      required: false
+    - in: query
+      name: offset
+      required: false
+    - in: query
+      name: order
+      required: false
+    - in: query
+      name: orderBy
+      required: false
+    - in: query
+      name: populate
+      description: GET api/v1/activities/priority?sightCategories=5f2d6292b8447a166ce62823&populate[]=sightCategories&populate[]=contents&status=active
+      type: array
+      items:
+        type: string
