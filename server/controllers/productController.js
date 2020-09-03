@@ -191,6 +191,23 @@ module.exports = {
     try {
       await WatchNotification.create({
         product: req.params.productId,
+        clientId: req.user.clientId,
+        claim: req.query.claim,
+        dayslimit: req.query.dayslimit,
+      });
+      return res
+        .status(200)
+        .send(responses.success(200, 'Record was created successfully'));
+    } catch (err) {
+      return res
+        .status(500)
+        .send(responses.error(500, `Error creating a Record ${err.message}`));
+    }
+  },
+  authAddToWatchList: async (req, res) => {
+    try {
+      await WatchNotification.create({
+        product: req.params.productId,
         clientId: req.user._id,
         claim: req.query.claim,
         dayslimit: req.query.dayslimit,
@@ -378,11 +395,11 @@ module.exports = {
     let query = {};
     if (req.query.days) {
       query = {
-        'marketingExpiryDate ': {
-          $gte: moment(new Date(), 'DD-MM-YYYY').add(2, 'days'),
-          $lt: moment(new Date(), 'DD-MM-YYYY').add(req.query.days, 'days'),
+        marketingExpiryDate: {
+          $lte: new Date(Date.now() + req.query.days * 24 * 60 * 60 * 1000),
         },
       };
+      delete req.query.days;
       // query.marketingExpiryDate = moment(new Date(), 'DD-MM-YYYY').add(req.query.days,'days');
     }
     try {

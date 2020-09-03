@@ -18,6 +18,7 @@ productRoute.put('/update-product-status/:productId', productCrl.pauseProduct);
 productRoute.post('/add-to-watch/:productId', productCrl.addToWatchList);
 productRoute.post(
   '/add-to-watch-for-user/:productId',
+  authenticate,
   productCrl.addToWatchList
 );
 productRoute.get('/product_cycle/:productId', productCrl.viewProductCycle);
@@ -36,7 +37,10 @@ productRoute.get('/', productCrl.listProduct);
 productRoute.put('/:productId', authenticate, productCrl.updateProduct);
 productRoute.get('/:productId', productCrl.viewProduct);
 productRoute.put('/slots/:productId', productCrl.updateSlot);
-productRoute.post('/add-to-watch/:productId', productCrl.addToWatchList);
+productRoute.post(
+  '/add-to-watch-for-user/:productId',
+  productCrl.authAddToWatchList
+);
 productRoute.get('/priority', productCrl.fetchHomePageProducts);
 productRoute.get('/product_cycle/:productId', productCrl.viewProductCycle);
 productRoute.put(
