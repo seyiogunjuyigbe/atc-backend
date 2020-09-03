@@ -191,7 +191,7 @@ module.exports = {
     try {
       await WatchNotification.create({
         product: req.params.productId,
-        clientId: req.user.clientId,
+        clientId: req.query.clientId,
         claim: req.query.claim,
         dayslimit: req.query.dayslimit,
       });
