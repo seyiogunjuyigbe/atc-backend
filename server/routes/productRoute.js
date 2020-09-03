@@ -56,16 +56,47 @@ productRoute.put(
 productRoute.post(
   '/:productId/purchase',
   authenticate,
+  [
+    check('adultQty').not().isEmpty().withMessage('Adult quantity required'),
+    check('childQty').not().isEmpty().withMessage('Child quantity required'),
+    check('paymentType')
+      .not()
+      .isEmpty()
+      .withMessage('Payment type values: one-off, flexi'),
+    check('paymentTime')
+      .not()
+      .isEmpty()
+      .withMessage('Payment time values: now, later'),
+    check('installments')
+      .not()
+      .isEmpty()
+      .withMessage('No of installments required, value should be 1 if one-off'),
+    check('membershipId').not().isEmpty().withMessage('Membership ID required'),
+  ],
+  validate,
   productCrl.purchaseProduct
 );
 productRoute.post(
   '/:productId/purchase/guest',
   [
     check('email').isEmail().withMessage('Email required'),
-    check('password')
-      .isLength({ min: 8 })
-      .withMessage('Password must be 8 characters or more'),
+    check('adultQty').not().isEmpty().withMessage('Adult quantity required'),
+    check('childQty').not().isEmpty().withMessage('Child quantity required'),
+    check('paymentType')
+      .not()
+      .isEmpty()
+      .withMessage('Payment type values: one-off, flexi'),
+    check('paymentTime')
+      .not()
+      .isEmpty()
+      .withMessage('Payment time values: now, later'),
+    check('membershipId').not().isEmpty().withMessage('Membership ID required'),
+    check('installments')
+      .not()
+      .isEmpty()
+      .withMessage('No of installments required, value should be 1 if one-off'),
   ],
+  validate,
   productCrl.purchaseProductWithoutAuth
 );
 

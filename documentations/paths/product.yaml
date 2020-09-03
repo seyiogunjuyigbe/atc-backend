@@ -133,13 +133,34 @@
           schema:
             type: object
             properties:
-              amount:
+              adultQty:
                 type: number
                 required: true
-                description: AMount to be paid
-              currency:
+                description: Quantity purchased for adults
+              childQty:
+                type: number
+                required: true
+                description: Quantity purchased for children              
+              paymentType:
                 type: string
-                description: currency. defaults to usd
+                required: true
+                description: Payment type (one-off or flexi)              
+              membershipId:
+                type: string
+                required: false
+                description: ID of membership being purchased with product                 
+              paymentTime:
+                type: string
+                required: true
+                description: Payment time (now or later)                
+              installments:
+                type: number
+                required: true
+                description: No of installments (should be 1 if one-off)
+              startDate:
+                type: string
+                required: false
+                description: start date for future payments(pay later)                                  
       responses:
         200:
           description: Success
@@ -300,15 +321,40 @@
               email:
                 type: string
                 description: user email
-              password:
-                type: string
-                description: user password
               firstName:
                 type: string
                 description: user first name
               lastName:
                 type: string
                 description: user last name
+              adultQty:
+                type: number
+                required: true
+                description: Quantity purchased for adults
+              childQty:
+                type: number
+                required: true
+                description: Quantity purchased for children              
+              paymentType:
+                type: string
+                required: true
+                description: Payment type (one-off or flexi)              
+              membershipId:
+                type: string
+                required: false
+                description: ID of membership being purchased with product                 
+              paymentTime:
+                type: string
+                required: true
+                description: Payment time (now or later)                
+              installments:
+                type: number
+                required: true
+                description: No of installments (should be 1 if one-off)
+              startDate:
+                type: string
+                required: false
+                description: start date for future payments(pay later)                 
       responses:
         200:
           description: Success

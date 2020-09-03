@@ -18,6 +18,9 @@ const Wallet = require('./wallet');
 const WalletHistory = require('./walletHistory');
 const Recommendation = require('./recommendation');
 const WatchNotification = require('./watchNotification');
+const Installment = require('./installment');
+const PaymentSchedule = require('./paymentSchedule');
+const MemberProduct = require('./memberProduct');
 
 module.exports = {
   Chats,
@@ -40,4 +43,7 @@ module.exports = {
   WalletHistory,
   Recommendation,
   WatchNotification,
+  MemberProduct,
+  Installment,
+  PaymentSchedule,
 };

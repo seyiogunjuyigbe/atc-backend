@@ -1,3 +1,4 @@
+const moment = require('moment');
 const { User, Membership, ProductCycle } = require('../models');
 
 exports.createReference = type => {
@@ -34,6 +35,8 @@ exports.subscribeMembership = async (membershipId, userId) => {
     else if (membership.type === 'annual') {
       memberships.length = 0;
       memberships.push(membership);
+      user.activeMembership = membership;
+      user.membershipExpiry = moment().add(30, 'days');
     } else {
       memberships.push(membership);
     }

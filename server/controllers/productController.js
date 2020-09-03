@@ -2,12 +2,16 @@ const { validationResult } = require('express-validator');
 const moment = require('moment');
 const uuidv1 = require('uuid/v1');
 const jwt = require('jsonwebtoken');
+const { customAlphabet } = require('nanoid');
 const {
   Product,
   Package,
   ProductCycle,
   Transaction,
   Recommendation,
+  Installment,
+  PaymentSchedule,
+  Membership,
   User,
   WatchNotification,
 } = require('../models');
@@ -336,46 +340,315 @@ module.exports = {
     }
   },
   purchaseProduct: async (req, res) => {
+    const {
+      adultQty,
+      childQty,
+      paymentType,
+      startDate,
+      membershipId,
+      paymentTime,
+      installments,
+      currency,
+      customer,
+    } = req.body;
+    let amount;
+    let annualMembership;
+    let childAmount;
+    let adultAmount;
+    let range;
+    let purchaseTransaction;
+    const done = [];
+    let paymentIntent;
+    let amountCapturable;
+    let spreadFee;
     try {
       const product = await Product.findById(req.params.productId);
+      let membership = await Membership.findById(membershipId);
+      if (!membership) return error(res, 404, 'Selected membership not found');
+      if (membership.cost === 0 && paymentType !== 'one-off')
+        return error(res, 400, 'Can only pay one-off for free membership');
       if (!product) {
-        return res.status(404).send(responses.error(404, 'Product not found'));
+        return error(res, 404, 'Product not found');
+      }
+      const user = await User.findById(req.user.id).populate('memberships');
+      if (
+        paymentType === 'flexi' &&
+        (Number(installments) < 2 ||
+          Number.isNaN(Number(installments)) === true)
+      )
+        return error(
+          res,
+          400,
+          'Invalid number of installments for flexi payment'
+        );
+      if (paymentTime === 'later') {
+        if (!startDate || moment.utc(startDate) <= moment.utc())
+          return error(res, 400, 'Valid start date required for later payment');
+      }
+      if (
+        moment
+          .duration(
+            moment
+              .utc()
+              .add(product.cancellationDaysLimit, 'days')
+              .diff(moment.utc().add(installments, 'days'))
+          )
+          .asDays() < 0
+      ) {
+        return error(
+          res,
+          409,
+          'Installment cannot exceed product cancellation limit'
+        );
       }
 
-      const newTransaction = await Transaction.create({
-        reference: createReference('payment'),
-        amount: req.body.amount,
-        currency: req.body.currency || 'usd',
-        activeCycle: product.activeCycle,
-        initiatedBy: req.user.id,
-        customer: req.body.customer || req.user.id, // this allows admin make a test purchase for a customer on her behalf
-        vendor: product.owner,
-        transactableType: 'Product',
-        transactable: product.id,
-        description: `Payment for ${product.name}`,
-      });
-
-      const paymentIntent = await StripeService.createPaymentIntent(
-        newTransaction,
-        req.user
-      ); // TODO: modify this to match when the stripe-service method is completed
-
-      if (paymentIntent && paymentIntent.id) {
-        newTransaction.stripePaymentId = paymentIntent.id;
-
-        await newTransaction.save();
+      if (product.customPrices.length > 0) {
+        range = product.customPrices.find(price => {
+          return (
+            childQty + adultQty >= Math.min(...price.range) &&
+            childQty + adultQty <= Math.max(...price.range)
+          );
+        });
+      }
+      if (range) {
+        adultAmount = range.prices.productAdultPrice * (adultQty || 0);
+        childAmount = range.prices.childrenPrice * (childQty || 0);
+      } else {
+        childAmount = product.price.childrenPrice * (childQty || 0);
+        adultAmount = product.price.productAdultPrice * (adultQty || 0);
       }
 
-      res.status(200).send(
-        responses.success(200, 'Product payment initiated successfully', {
-          clientSecret: paymentIntent.client_secret,
-          transactionId: newTransaction.id,
-        })
-      );
+      if (paymentTime === 'now') {
+        if (paymentType === 'one-off') {
+          // check if user has active annual membership
+          annualMembership =
+            user.memberships.find(x => {
+              return x.type === 'annual';
+            }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
+          if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
+            console.log({ annualMembership });
+            amount = childAmount + adultAmount;
+          } else {
+            amount = childAmount + adultAmount + membership.cost;
+          }
+          // charge for both membership and product
+          purchaseTransaction = await Transaction.create({
+            reference: createReference('payment'),
+            amount,
+            currency: currency || 'usd',
+            activeCycle: product.activeCycle,
+            initiatedBy: customer || user.id,
+            customer,
+            vendor: product.owner,
+            transactableType: 'Product',
+            transactable: product.id,
+            description: `Payment for (${product.name})`,
+            meta: {
+              paymentType,
+              paymentTime,
+              membershipPurchased: membership,
+            },
+          });
+          paymentIntent = await StripeService.createPaymentIntent(
+            purchaseTransaction,
+            user
+          );
+          if (paymentIntent && paymentIntent.id) {
+            purchaseTransaction.stripePaymentId = paymentIntent.id;
+            await purchaseTransaction.save();
+          }
+          done.push('Payment initiated successfully');
+        }
+        if (paymentType === 'flexi') {
+          // spread product fee only
+          spreadFee = (childAmount + adultAmount) / Number(installments);
+          annualMembership =
+            user.memberships.find(x => {
+              return x.type === 'annual';
+            }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
+          if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
+            console.log({ annualMembership });
+            amount = spreadFee;
+            amountCapturable = childAmount + adultAmount;
+          } else {
+            amount = spreadFee + membership.cost;
+            amountCapturable = childAmount + adultAmount + membership.cost;
+          }
+          purchaseTransaction = await Transaction.create({
+            reference: createReference('payment'),
+            amount,
+            currency: currency || 'usd',
+            activeCycle: product.activeCycle,
+            initiatedBy: customer || user.id,
+            customer,
+            vendor: product.owner,
+            transactableType: 'Product',
+            transactable: product.id,
+            description: `Payment for (${product.name})`,
+            meta: {
+              paymentType,
+              paymentTime,
+              membershipPurchased: membership,
+            },
+          });
+          paymentIntent = await StripeService.createPaymentIntent(
+            purchaseTransaction,
+            user,
+            amountCapturable
+          );
+          if (paymentIntent && paymentIntent.id) {
+            purchaseTransaction.stripePaymentId = paymentIntent.id;
+          }
+          // create installments, set recurrring count to 1 since first installment has been paid
+          const installment = await Installment.create({
+            user: customer || req.user.id,
+            recurringAmount: spreadFee,
+            recurrentCount: 1,
+            maxNoOfInstallments: installments,
+            isCompleted: false,
+            lastChargeDate: new Date(), // today
+            nextChargeDate: moment.utc().add(30, 'days').startOf('day'), // a month from now,
+            transactions: [purchaseTransaction],
+            amountCapturable,
+            totalPaid: spreadFee,
+          });
+          purchaseTransaction.installment = installment;
+          await purchaseTransaction.save();
+          done.push(
+            'Membership payment initiated successfully',
+            'First product installment charged',
+            'Installment schedule created'
+          );
+        }
+      }
+      if (paymentTime === 'later') {
+        if (paymentType === 'one-off') {
+          annualMembership =
+            user.memberships.find(x => {
+              return x.type === 'annual';
+            }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
+          if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
+            console.log({ annualMembership });
+            amount = 0;
+            amountCapturable = childAmount + adultAmount;
+          } else {
+            amount = membership.cost;
+            amountCapturable = childAmount + adultAmount + membership.cost;
+          }
+          purchaseTransaction = await Transaction.create({
+            reference: createReference('payment'),
+            amount,
+            currency: currency || 'usd',
+            initiatedBy: user.id,
+            customer,
+            transactableType: 'Membership',
+            transactable: membership.id,
+            description: `Payment for membership (${membership.name})`,
+          });
+          /* this will only create payment if amount is zero, thhe only possible scenario of this is if the user has an active annual membership payment, 
+          which implies user has once paid and payment methods have already been saved. Payment intent cannot be created with amount 0,
+          an installment is however created for this user
+          */
+          if (amount > 0) {
+            paymentIntent = await StripeService.createPaymentIntent(
+              purchaseTransaction,
+              user,
+              amountCapturable
+            );
+            if (paymentIntent && paymentIntent.id) {
+              purchaseTransaction.stripePaymentId = paymentIntent.id;
+            }
+
+            await purchaseTransaction.save();
+          }
+          // create payment schedule
+          const schedule = await PaymentSchedule.create({
+            user: customer || req.user.id,
+            product,
+            activeCycle: product.activeCycle,
+            amount,
+            chargeDate: moment.utc(startDate).startOf('day'),
+            amountCapturable,
+          });
+          purchaseTransaction.schedule = schedule;
+          done.push(
+            'Membership payment initiated successfully',
+            'Payment schedule created'
+          );
+        }
+        if (paymentType === 'flexi') {
+          spreadFee = (childAmount + adultAmount) / Number(installments);
+          // charge for membership only
+          annualMembership =
+            user.memberships.find(x => {
+              return x.type === 'annual';
+            }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
+          if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
+            console.log({ annualMembership });
+            amount = 0;
+            amountCapturable = childAmount + adultAmount;
+          } else {
+            amount = membership.cost;
+            amountCapturable = childAmount + adultAmount + membership.cost;
+          }
+          purchaseTransaction = await Transaction.create({
+            reference: createReference('payment'),
+            amount,
+            currency: currency || 'usd',
+            initiatedBy: user.id,
+            customer,
+            transactableType: 'Membership',
+            transactable: membership.id,
+            description: `Payment for membership (${membership.name})`,
+          });
+          /* this will only create payment if amount is zero, thhe only possible scenario of this is if the user has an active annual membership payment, 
+          which implies user has once paid and payment methods have already been saved. Payment intent cannot be created with amount 0,
+          an installment is however created for this user
+          */
+          if (amount > 0) {
+            paymentIntent = await StripeService.createPaymentIntent(
+              purchaseTransaction,
+              user,
+              amountCapturable
+            );
+            if (paymentIntent && paymentIntent.id) {
+              purchaseTransaction.stripePaymentId = paymentIntent.id;
+            }
+          }
+          // create installments
+          const installment = await Installment.create({
+            user: customer || req.user.id,
+            recurringAmount: spreadFee,
+            recurrentCount: 0,
+            maxNoOfInstallments: installments,
+            isCompleted: false,
+            nextChargeDate: startDate,
+            amountCapturable,
+            totalPaid: 0,
+          });
+          purchaseTransaction.installment = installment;
+          await purchaseTransaction.save();
+
+          done.push(
+            'Membership payment initiated successfully',
+            'Installment schedule created'
+          );
+        }
+      }
+
+      const response = { message: done.join(' , ') };
+      if (paymentIntent) response.clientSecret = paymentIntent.client_secret;
+      return success(res, 200, response);
     } catch (err) {
-      return res
-        .status(500)
-        .send(responses.error(500, `Error updating an record ${err.message}`));
+      return error(res, 500, err.message);
     }
   },
   async updateProductPriority(req, res) {
@@ -450,8 +723,29 @@ module.exports = {
     }
   },
   async purchaseProductWithoutAuth(req, res) {
-    const { email } = req.body;
-    console.log(req.body);
+    const {
+      email,
+      adultQty,
+      childQty,
+      paymentType,
+      startDate,
+      membershipId,
+      paymentTime,
+      installments,
+      currency,
+      customer,
+      password,
+    } = req.body;
+    let amount;
+    let annualMembership;
+    let childAmount;
+    let adultAmount;
+    let range;
+    let purchaseTransaction;
+    const done = [];
+    let paymentIntent;
+    let amountCapturable;
+    let spreadFee;
     try {
       const product = await Product.findById(req.params.productId);
       if (!product) {
@@ -468,6 +762,8 @@ module.exports = {
       }
       const newUser = await User.create({
         ...req.body,
+        password:
+          password || customAlphabet('ABCDEFGHJKLMNpqrstuvwxyz23456789', 8),
         token: uuidv1(),
         isActive: false,
         lastLoginAt: new Date(),
@@ -481,28 +777,6 @@ module.exports = {
         newUser.wallet = await createUserWallet();
         await newUser.save();
       }
-      const newTransaction = await Transaction.create({
-        reference: createReference('payment'),
-        amount: req.body.amount,
-        currency: req.body.currency || 'usd',
-        activeCycle: product.activeCycle,
-        initiatedBy: newUser.id,
-        customer: newUser,
-        vendor: product.owner,
-        transactableType: 'Product',
-        transactable: product.id,
-        description: `Payment for ${product.name}`,
-      });
-
-      const paymentIntent = await StripeService.createPaymentIntent(
-        newTransaction,
-        newUser
-      );
-      if (paymentIntent && paymentIntent.id) {
-        newTransaction.stripePaymentId = paymentIntent.id;
-        await newTransaction.save();
-      }
-
       const token = jwt.sign(
         {
           id: newUser.id,
@@ -515,13 +789,288 @@ module.exports = {
           expiresIn: 604800, // expires in 7 days
         }
       );
-      return success(res, 200, {
-        success: true,
-        message: 'Product payment initiated successfully',
-        token,
-        clientSecret: paymentIntent.client_secret,
-        transactionId: newTransaction.id,
-      });
+      let membership = await Membership.findById(membershipId);
+      if (!membership) return error(res, 404, 'Selected membership not found');
+      if (membership.cost === 0 && paymentType !== 'one-off')
+        return error(res, 400, 'Can only pay one-off for free membership');
+
+      const user = await User.findById(req.user.id).populate('memberships');
+      if (
+        paymentType === 'flexi' &&
+        (Number(installments) < 2 ||
+          Number.isNaN(Number(installments)) === true)
+      )
+        return error(
+          res,
+          400,
+          'Invalid number of installments for flexi payment'
+        );
+      if (paymentTime === 'later') {
+        if (!startDate || moment.utc(startDate) <= moment.utc())
+          return error(res, 400, 'Valid start date required for later payment');
+      }
+      if (
+        moment
+          .duration(
+            moment
+              .utc()
+              .add(product.cancellationDaysLimit, 'days')
+              .diff(moment.utc().add(installments, 'days'))
+          )
+          .asDays() < 0
+      ) {
+        return error(
+          res,
+          409,
+          'Installment cannot exceed product cancellation limit'
+        );
+      }
+      if (!product) {
+        return error(res, 404, 'Product not found');
+      }
+      if (product.customPrices.length > 0) {
+        range = product.customPrices.find(price => {
+          return (
+            childQty + adultQty >= Math.min(...price.range) &&
+            childQty + adultQty <= Math.max(...price.range)
+          );
+        });
+      }
+      if (range) {
+        console.log({ range });
+        adultAmount = range.prices.productAdultPrice * (adultQty || 0);
+        childAmount = range.prices.childrenPrice * (childQty || 0);
+      } else {
+        console.log({ range });
+        childAmount = product.price.childrenPrice * (childQty || 0);
+        adultAmount = product.price.productAdultPrice * (adultQty || 0);
+      }
+      if (paymentTime === 'now') {
+        if (paymentType === 'one-off') {
+          // check if user has active annual membership
+          annualMembership =
+            user.memberships.find(x => {
+              return x.type === 'annual';
+            }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
+          if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
+            console.log({ annualMembership });
+            amount = childAmount + adultAmount;
+          } else {
+            amount = childAmount + adultAmount + membership.cost;
+          }
+          // charge for both membership and product
+          purchaseTransaction = await Transaction.create({
+            reference: createReference('payment'),
+            amount,
+            currency: currency || 'usd',
+            activeCycle: product.activeCycle,
+            initiatedBy: customer || user.id,
+            customer,
+            vendor: product.owner,
+            transactableType: 'Product',
+            transactable: product.id,
+            description: `Payment for (${product.name})`,
+            meta: {
+              paymentType,
+              paymentTime,
+              membershipPurchased: membership,
+            },
+          });
+          paymentIntent = await StripeService.createPaymentIntent(
+            purchaseTransaction,
+            user
+          );
+          if (paymentIntent && paymentIntent.id) {
+            purchaseTransaction.stripePaymentId = paymentIntent.id;
+            await purchaseTransaction.save();
+          }
+          done.push('Payment initiated successfully');
+        }
+        if (paymentType === 'flexi') {
+          // spread product fee only
+          spreadFee = (childAmount + adultAmount) / Number(installments);
+          annualMembership =
+            user.memberships.find(x => {
+              return x.type === 'annual';
+            }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
+          if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
+            console.log({ annualMembership });
+            amount = spreadFee;
+            amountCapturable = childAmount + adultAmount;
+          } else {
+            amount = spreadFee + membership.cost;
+            amountCapturable = childAmount + adultAmount + membership.cost;
+          }
+          purchaseTransaction = await Transaction.create({
+            reference: createReference('payment'),
+            amount,
+            currency: currency || 'usd',
+            activeCycle: product.activeCycle,
+            initiatedBy: customer || user.id,
+            customer,
+            vendor: product.owner,
+            transactableType: 'Product',
+            transactable: product.id,
+            description: `Payment for (${product.name})`,
+            meta: {
+              paymentType,
+              paymentTime,
+              membershipPurchased: membership,
+            },
+          });
+          paymentIntent = await StripeService.createPaymentIntent(
+            purchaseTransaction,
+            user,
+            amountCapturable
+          );
+          if (paymentIntent && paymentIntent.id) {
+            purchaseTransaction.stripePaymentId = paymentIntent.id;
+          }
+          // create installments, set recurrring count to 1 since first installment has been paid
+          const installment = await Installment.create({
+            user: customer || req.user.id,
+            recurringAmount: spreadFee,
+            recurrentCount: 1,
+            maxNoOfInstallments: installments,
+            isCompleted: false,
+            lastChargeDate: new Date(), // today
+            nextChargeDate: moment.utc().add(30, 'days').startOf('day'), // a month from now,
+            transactions: [purchaseTransaction],
+            amountCapturable,
+          });
+          purchaseTransaction.installment = installment;
+          await purchaseTransaction.save();
+          done.push(
+            'Membership payment initiated successfully',
+            'First product installment charged',
+            'Installment schedule created'
+          );
+        }
+      }
+      if (paymentTime === 'later') {
+        if (paymentType === 'one-off') {
+          annualMembership =
+            user.memberships.find(x => {
+              return x.type === 'annual';
+            }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
+          if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
+            console.log({ annualMembership });
+            amount = 0;
+            amountCapturable = childAmount + adultAmount;
+          } else {
+            amount = membership.cost;
+            amountCapturable = childAmount + adultAmount + membership.cost;
+          }
+          purchaseTransaction = await Transaction.create({
+            reference: createReference('payment'),
+            amount,
+            currency: currency || 'usd',
+            initiatedBy: user.id,
+            customer,
+            transactableType: 'Membership',
+            transactable: membership.id,
+            description: `Payment for membership (${membership.name})`,
+          });
+          /* this will only create payment if amount is zero, thhe only possible scenario of this is if the user has an active annual membership payment, 
+          which implies user has once paid and payment methods have already been saved. Payment intent cannot be created with amount 0,
+          an installment is however created for this user
+          */
+          if (amount > 0) {
+            paymentIntent = await StripeService.createPaymentIntent(
+              purchaseTransaction,
+              user,
+              amountCapturable
+            );
+            if (paymentIntent && paymentIntent.id) {
+              purchaseTransaction.stripePaymentId = paymentIntent.id;
+            }
+
+            await purchaseTransaction.save();
+          }
+          // create payment schedule
+          const schedule = await PaymentSchedule.create({
+            user: customer || req.user.id,
+            product,
+            activeCycle: product.activeCycle,
+            amount,
+            chargeDate: moment.utc(startDate).startOf('day'),
+            amountCapturable,
+          });
+          purchaseTransaction.schedule = schedule;
+          done.push(
+            'Membership payment initiated successfully',
+            'Payment schedule created'
+          );
+        }
+        if (paymentType === 'flexi') {
+          spreadFee = (childAmount + adultAmount) / Number(installments);
+          // charge for membership only
+          annualMembership =
+            user.memberships.find(x => {
+              return x.type === 'annual';
+            }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
+          if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
+            console.log({ annualMembership });
+            amount = 0;
+            amountCapturable = childAmount + adultAmount;
+          } else {
+            amount = membership.cost;
+            amountCapturable = childAmount + adultAmount + membership.cost;
+          }
+          purchaseTransaction = await Transaction.create({
+            reference: createReference('payment'),
+            amount,
+            currency: currency || 'usd',
+            initiatedBy: user.id,
+            customer,
+            transactableType: 'Membership',
+            transactable: membership.id,
+            description: `Payment for membership (${membership.name})`,
+          });
+          /* this will only create payment if amount is zero, thhe only possible scenario of this is if the user has an active annual membership payment, 
+          which implies user has once paid and payment methods have already been saved. Payment intent cannot be created with amount 0,
+          an installment is however created for this user
+          */
+          if (amount > 0) {
+            paymentIntent = await StripeService.createPaymentIntent(
+              purchaseTransaction,
+              user,
+              amountCapturable
+            );
+            if (paymentIntent && paymentIntent.id) {
+              purchaseTransaction.stripePaymentId = paymentIntent.id;
+            }
+          }
+          // create installments
+          const installment = await Installment.create({
+            user: customer || req.user.id,
+            recurringAmount: spreadFee,
+            recurrentCount: 0,
+            maxNoOfInstallments: installments,
+            isCompleted: false,
+            nextChargeDate: startDate,
+            amountCapturable,
+          });
+          purchaseTransaction.installment = installment;
+          await purchaseTransaction.save();
+
+          done.push(
+            'Membership payment initiated successfully',
+            'Installment schedule created'
+          );
+        }
+      }
+      const response = { message: done.join(' , ') };
+      if (paymentIntent) response.clientSecret = paymentIntent.client_secret;
+      return success(res, 200, { response, token });
     } catch (err) {
       return error(res, 500, err.message);
     }

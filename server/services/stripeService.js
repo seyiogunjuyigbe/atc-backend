@@ -3,7 +3,7 @@ const stripe = require('stripe')(STRIPE_SECRET_KEY);
 const { User } = require('../models');
 
 module.exports = {
-  async createPaymentIntent(transaction, user) {
+  async createPaymentIntent(transaction, user, amount_capturable) {
     const {
       amount,
       currency,
@@ -20,8 +20,7 @@ module.exports = {
         await user.save();
         user = await User.findById(user.id); // to reload
       }
-
-      return await stripe.paymentIntents.create({
+      const obj = {
         amount,
         currency,
         description,
@@ -31,7 +30,12 @@ module.exports = {
           id: transactable.toString(),
           ref: transaction.reference,
         },
-      });
+        setup_future_usage: 'off_session',
+      };
+      if (amount_capturable) {
+        obj.amount = amount_capturable;
+      }
+      return await stripe.paymentIntents.create(obj);
     } catch (err) {
       return err;
     }
@@ -79,29 +83,53 @@ module.exports = {
       return err;
     }
   },
-  /*
-   * TODO: SEYI
-   * `saveAccountId` is undefined
-   * `res` is undefined
-   */
-  // async addVendorAccount(user, code) {
-  //   try {
-  //     const response = await stripe.oauth.token({
-  //       grant_type: 'authorization_code',
-  //       code,
-  //     });
-  //
-  //     const connected_account_id = response.stripe_user_id;
-  //     saveAccountId(connected_account_id);
-  //     // Render some HTML or redirect to a different page.
-  //     return res.status(200).json({ success: true });
-  //   } catch (err) {
-  //     if (err.type === 'StripeInvalidGrantError') {
-  //       return res
-  //         .status(400)
-  //         .json({ error: `Invalid authorization code: ${code}` });
-  //     }
-  //     return res.status(500).json({ error: 'An unknown error occurred.' });
-  //   }
-  // },
+  async createOfflineIntent(transaction, user) {
+    const {
+      amount,
+      currency,
+      description,
+      transactableType,
+      transactable,
+    } = transaction;
+    try {
+      console.log('Creating intent');
+      const paymentMethod = await this.fetchPaymentMethod(user);
+      if (!paymentMethod) {
+        console.log(`No payment method found for ${user.email}`);
+        return null;
+      }
+
+      console.log(`payment method found for ${user.email}`);
+      const intent = await stripe.paymentIntents.create({
+        amount,
+        currency,
+        description,
+        customer: user.stripeCustomerId,
+        payment_method: paymentMethod.id,
+        off_session: true,
+        confirm: true,
+        metadata: {
+          type: transactableType,
+          id: transactable.toString(),
+          ref: transaction.reference,
+        },
+      });
+      if (intent) console.log('Intent created');
+      return intent;
+    } catch (err) {
+      console.log({ err: err.message });
+      return err;
+    }
+  },
+  async fetchPaymentMethod(user) {
+    try {
+      const paymentMethod = await stripe.paymentMethods.list({
+        customer: user.stripeCustomerId,
+        type: 'card',
+      });
+      return paymentMethod.data[0];
+    } catch (err) {
+      return err.message;
+    }
+  },
 };

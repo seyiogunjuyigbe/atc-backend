@@ -21,7 +21,6 @@ module.exports = {
           return x.url.startsWith(String(req.headers.host));
         });
       }
-
       if (!data) {
         const newhook = await stripeService.createWebhookEndpoint();
         WEBHOOK_SECRET = newhook.secret;
@@ -49,6 +48,12 @@ module.exports = {
               currentTransaction.transactable.cancellationDaysLimit,
               'days'
             );
+            if (currentTransaction.meta.membershipPurchased) {
+              await subscribeMembership(
+                currentTransaction.meta.membershipPurchased,
+                req.user.id
+              );
+            }
           }
           if (
             currentTransaction.transactableType === 'Membership' &&
