@@ -61,7 +61,7 @@ MailController.sendTemplatedMail = async (
           // NEW WAY VIA SENDGRID
           await mailer.sendMail(mailOptions, (err3, response) => {
             if (err3) {
-              throw err3;
+              console.log(err3);
             }
             return response;
           });
