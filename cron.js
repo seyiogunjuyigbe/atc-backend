@@ -164,6 +164,7 @@ module.exports = class Cron {
   }
 
   static async chargeInstallments() {
+    let amountPending;
     try {
       const installments = await Installment.find({
         nextChargeDate: moment.utc().startOf('day'),
@@ -180,9 +181,12 @@ module.exports = class Cron {
             user,
             product,
           } = installment;
+          if (maxNoOfInstallments - recurrentCount === 1) {
+            amountPending = Math.max(recurrringAmount, (amountCapturable - totalPaid))
+          }
           const installmentTransaction = await Transaction.create({
             reference: createReference('payment'),
-            amount: recurringAmount,
+            amount: amountPending || recurringAmount,
             currency: 'usd',
             activeCycle: product.activeCycle,
             initiatedBy: user.id,
@@ -202,18 +206,19 @@ module.exports = class Cron {
             user
           );
           // if failed, reschedule to tomorrow
-          if (intent.status === 'requires_payment_method') {
+          if (intent.status !== 'succeeded') {
             installment.failedAttempts += 1;
             installment.nextChargeDate = moment.utc().add(1, 'days');
             installment.transactions.push(installmentTransaction);
-          } else {
+          }
+          else {
             // set next oayment date
             installment.lastChargeDate = moment.utc();
             installment.nextChargeDate = moment
               .utc()
               .add(30, 'days')
               .startOf('day');
-            installment.recurringAmount += recurringAmount;
+            installment.totalPaid += recurringAmount;
             installment.recurrentCount += 1;
 
             installmentTransaction.status = 'successful';
@@ -223,35 +228,23 @@ module.exports = class Cron {
               installment.recurrentCount === installment.maxNoOfInstallments
             ) {
               installment.isCompleted = true;
-              // create a transaction that has amount set to the total installment amounts and set up for vendor payout
-              await Transaction.create({
-                reference: createReference('payment'),
-                amount: amountCapturable,
-                currency: 'usd',
-                activeCycle: product.activeCycle,
-                initiatedBy: user.id,
-                customer: user,
-                vendor: product.owner,
-                transactableType: 'Product',
-                transactable: product.id,
-                description: `Complete installment payment for (${product.name})`,
-                installment,
-                settleDate: moment
-                  .utc()
-                  .add(product.cancellationDaysLimit, 'days')
-                  .startOf('day'),
-                meta: {
-                  createdAs: 'Complete installment payment record',
-                  createdBy: 'system',
-                },
-              });
+              // payout to vendor
+              if (!product.vendor) {
+                console.log('No vendor found for this transaction')
+              }
+              else {
+                const payout = await walletService.creditWallet(
+                  product.vendor,
+                  installment.totalPaid
+                );
+              }
             }
+            await installmentTransaction.save();
+            await installment.save();
+            console.log(
+              `payment for installment (${user.email}) ${intent.status}`
+            );
           }
-          await installmentTransaction.save();
-          await installment.save();
-          console.log(
-            `payment for installment (${user.email}) ${intent.status}`
-          );
         });
       }
     } catch (err) {
@@ -295,16 +288,16 @@ module.exports = class Cron {
             user
           );
           // if failed, reschedule to tomorrow
-          if (intent.status === 'requires_payment_method') {
+          if (intent.status !== 'succeeded') {
             schedule.failedAttempts += 1;
             schedule.chargeDate = moment.utc().add(1, 'days');
             schedule.transactions.push(scheduleTransaction);
-          } else if (intent.status === 'succeeded') {
+          } else {
             schedule.isPaid = true;
             schedule.paidAt = moment.utc();
             scheduleTransaction.settleDate = moment
               .utc()
-              .add(product.cancellationDaysLimit, 'days')
+              .add(1, 'days')
               .startOf('day');
             scheduleTransaction.status = 'successful';
           }

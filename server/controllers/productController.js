@@ -496,6 +496,7 @@ module.exports = {
             nextChargeDate: moment.utc().add(30, 'days').startOf('day'), // a month from now,
             transactions: [purchaseTransaction],
             amountCapturable,
+            totalPaid: spreadFee,
           });
           purchaseTransaction.installment = installment;
           await purchaseTransaction.save();
@@ -613,6 +614,7 @@ module.exports = {
             isCompleted: false,
             nextChargeDate: startDate,
             amountCapturable,
+            totalPaid: 0,
           });
           purchaseTransaction.installment = installment;
           await purchaseTransaction.save();

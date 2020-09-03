@@ -8,6 +8,7 @@ const installmentSchema = new Schema({
     ref: 'User',
   },
   recurringAmount: Number,
+  totalPaid: Number,
   recurrentCount: Number,
   maxNoOfInstallments: Number,
   isCompleted: Boolean,
