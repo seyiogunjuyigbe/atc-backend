@@ -193,6 +193,7 @@ module.exports = {
         product: req.params.productId,
         clientId: req.query.clientId,
         claim: req.query.claim,
+        type: 'user',
         dayslimit: req.query.dayslimit,
       });
       return res
