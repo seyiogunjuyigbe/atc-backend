@@ -48,6 +48,12 @@ module.exports = {
               currentTransaction.transactable.cancellationDaysLimit,
               'days'
             );
+            if (currentTransaction.meta.membershipPurchased) {
+              await subscribeMembership(
+                currentTransaction.meta.membershipPurchased,
+                req.user.id
+              );
+            }
           }
           if (
             currentTransaction.transactableType === 'Membership' &&

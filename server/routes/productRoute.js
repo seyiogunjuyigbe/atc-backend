@@ -67,6 +67,7 @@ productRoute.post(
       .not()
       .isEmpty()
       .withMessage('No of installments required, value should be 1 if one-off'),
+    check('membershipId').not().isEmpty().withMessage('Membership ID required'),
   ],
   validate,
   productCrl.purchaseProduct
@@ -85,6 +86,7 @@ productRoute.post(
       .not()
       .isEmpty()
       .withMessage('Payment time values: now, later'),
+    check('membershipId').not().isEmpty().withMessage('Membership ID required'),
     check('installments')
       .not()
       .isEmpty()

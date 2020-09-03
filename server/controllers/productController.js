@@ -344,11 +344,13 @@ module.exports = {
     let spreadFee;
     try {
       const product = await Product.findById(req.params.productId);
-      const membership = await Membership.findById(membershipId);
+      let membership = await Membership.findById(membershipId);
       if (!membership) return error(res, 404, 'Selected membership not found');
       if (membership.cost === 0 && paymentType !== 'one-off')
         return error(res, 400, 'Can only pay one-off for free membership');
-
+      if (!product) {
+        return error(res, 404, 'Product not found');
+      }
       const user = await User.findById(req.user.id).populate('memberships');
       if (
         paymentType === 'flexi' &&
@@ -364,17 +366,6 @@ module.exports = {
         if (!startDate || moment.utc(startDate) <= moment.utc())
           return error(res, 400, 'Valid start date required for later payment');
       }
-      console.log(
-        moment.utc().add(product.cancellationDaysLimit, 'days'),
-        moment.utc().add(installments, 'days'),
-        moment
-          .duration(
-            moment
-              .utc(product.cancellationDaysLimit)
-              .diff(moment.utc().add(installments, 'days'))
-          )
-          .asDays()
-      );
       if (
         moment
           .duration(
@@ -391,9 +382,7 @@ module.exports = {
           'Installment cannot exceed product cancellation limit'
         );
       }
-      if (!product) {
-        return error(res, 404, 'Product not found');
-      }
+
       if (product.customPrices.length > 0) {
         range = product.customPrices.find(price => {
           return (
@@ -418,6 +407,8 @@ module.exports = {
               return x.type === 'annual';
             }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
           if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
             console.log({ annualMembership });
             amount = childAmount + adultAmount;
           } else {
@@ -459,6 +450,8 @@ module.exports = {
               return x.type === 'annual';
             }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
           if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
             console.log({ annualMembership });
             amount = spreadFee;
             amountCapturable = childAmount + adultAmount;
@@ -519,6 +512,8 @@ module.exports = {
               return x.type === 'annual';
             }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
           if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
             console.log({ annualMembership });
             amount = 0;
             amountCapturable = childAmount + adultAmount;
@@ -575,6 +570,8 @@ module.exports = {
               return x.type === 'annual';
             }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
           if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
             console.log({ annualMembership });
             amount = 0;
             amountCapturable = childAmount + adultAmount;
@@ -766,7 +763,7 @@ module.exports = {
           expiresIn: 604800, // expires in 7 days
         }
       );
-      const membership = await Membership.findById(membershipId);
+      let membership = await Membership.findById(membershipId);
       if (!membership) return error(res, 404, 'Selected membership not found');
       if (membership.cost === 0 && paymentType !== 'one-off')
         return error(res, 400, 'Can only pay one-off for free membership');
@@ -786,17 +783,6 @@ module.exports = {
         if (!startDate || moment.utc(startDate) <= moment.utc())
           return error(res, 400, 'Valid start date required for later payment');
       }
-      console.log(
-        moment.utc().add(product.cancellationDaysLimit, 'days'),
-        moment.utc().add(installments, 'days'),
-        moment
-          .duration(
-            moment
-              .utc(product.cancellationDaysLimit)
-              .diff(moment.utc().add(installments, 'days'))
-          )
-          .asDays()
-      );
       if (
         moment
           .duration(
@@ -825,9 +811,11 @@ module.exports = {
         });
       }
       if (range) {
+        console.log({ range });
         adultAmount = range.prices.productAdultPrice * (adultQty || 0);
         childAmount = range.prices.childrenPrice * (childQty || 0);
       } else {
+        console.log({ range });
         childAmount = product.price.childrenPrice * (childQty || 0);
         adultAmount = product.price.productAdultPrice * (adultQty || 0);
       }
@@ -839,6 +827,8 @@ module.exports = {
               return x.type === 'annual';
             }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
           if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
             console.log({ annualMembership });
             amount = childAmount + adultAmount;
           } else {
@@ -880,6 +870,8 @@ module.exports = {
               return x.type === 'annual';
             }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
           if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
             console.log({ annualMembership });
             amount = spreadFee;
             amountCapturable = childAmount + adultAmount;
@@ -940,6 +932,8 @@ module.exports = {
               return x.type === 'annual';
             }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
           if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
             console.log({ annualMembership });
             amount = 0;
             amountCapturable = childAmount + adultAmount;
@@ -996,6 +990,8 @@ module.exports = {
               return x.type === 'annual';
             }) && moment.utc(user.membershipExpiry).isAfter(moment.utc());
           if (annualMembership) {
+            // user does not need to pay for new mwmbership
+            membership = null;
             console.log({ annualMembership });
             amount = 0;
             amountCapturable = childAmount + adultAmount;
