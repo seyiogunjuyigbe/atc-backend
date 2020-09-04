@@ -21,6 +21,7 @@ const WatchNotification = require('./watchNotification');
 const Installment = require('./installment');
 const PaymentSchedule = require('./paymentSchedule');
 const MemberProduct = require('./memberProduct');
+const Variable = require('./variable');
 
 module.exports = {
   Chats,
@@ -46,4 +47,5 @@ module.exports = {
   MemberProduct,
   Installment,
   PaymentSchedule,
+  Variable,
 };

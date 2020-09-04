@@ -13,13 +13,12 @@ const app = express();
 const DB = require('./db/index');
 
 const PORT = process.env.PORT || 3000;
-const { createStates } = require('./seeders/country');
-const { createDefaultMembersip } = require('./seeders/membership');
+const runSeeders = require('./seeders');
+
+runSeeders();
 const Cron = require('../cron');
 const { passport } = require('./services/passport');
 
-createStates();
-createDefaultMembersip();
 passport();
 const { MONGO_URL } = process.env;
 const { loadDefinitions, loadPaths } = require('../documentations');

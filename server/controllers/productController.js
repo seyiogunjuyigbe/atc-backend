@@ -38,11 +38,17 @@ function calc(obj) {
     vendorPrice: obj.adult,
     childrenPrice: obj.children,
     productAdultPrice: calcPrice(obj.adult),
-    freeMembershipDiscountedPrice:
+    productChildrenPrice: calcPrice(obj.adult),
+    adultFreeMembershipDiscountedPrice:
       Math.round(calcPrice(obj.adult) / 2 + calcPrice(obj.adult) * 0.05) || 0,
-    paidMembershipDiscountedPrice:
+    childrenFreeMembershipDiscountedPrice:
+      Math.round(calcPrice(obj.adult) / 2 + calcPrice(obj.adult) * 0.05) || 0,
+    adultPaidMembershipDiscountedPrice:
       Math.round(calcPrice(obj.adult) / 3 + calcPrice(obj.adult) * 0.05) || 0,
-    oneOffMembershipFee: 0.21 * obj.adult || 0,
+    childrenPaidMembershipDiscountedPrice:
+      Math.round(calcPrice(obj.adult) / 3 + calcPrice(obj.adult) * 0.05) || 0,
+    adultOneOffMembershipFee: 0.21 * obj.adult || 0,
+    childrenOneOffMembershipFee: 0.21 * obj.adult || 0,
   };
 }
 async function fetchWithStats(model, doc, hours) {
