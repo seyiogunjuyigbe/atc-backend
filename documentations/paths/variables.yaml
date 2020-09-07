@@ -53,7 +53,7 @@
       description: Fetch product variables
       operationId: fetchVariables
       tags:
-      - fetchVariables
+      - Variables
       parameters:
         - in: header
           name: Authorization
