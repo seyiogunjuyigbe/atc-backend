@@ -1,0 +1,52 @@
+# Variable Paths
+  /variables:
+    post:
+      summary: Update product variables
+      description: Update product variables
+      operationId: updateVariables
+      tags:
+      - Variables
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: body
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/Variable'          
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+             $ref: "#/definitions/Variable"
+    get:
+      summary: Fetch product variables
+      description: Fetch product variables
+      operationId: fetchVariables
+      tags:
+      - fetchVariables
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+             $ref: "#/definitions/Variable"
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured

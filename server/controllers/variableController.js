@@ -6,16 +6,17 @@ module.exports = {
     try {
       let variable = await Variable.findOneAndUpdate(
         { type: 'default' },
-        req.body
+        { ...req.body }
       );
       if (variable) {
         await variable.save();
       } else {
-        variable = await Variable.create({ ...req.body });
+        variable = await Variable.create({ ...req.body, type: 'default' });
       }
+      const newVariables = await Variable.findOne({ type: 'default' });
       return success(res, 200, {
         message: 'Variables updated',
-        variable,
+        variable: newVariables,
       });
     } catch (err) {
       return error(res, 500, err.message);
@@ -31,12 +32,36 @@ module.exports = {
       return error(res, 500, err.message);
     }
   },
-  async fetchVariablesAsObj() {
-    try {
-      const variable = await Variable.findOne({ type: 'default' });
-      return variable;
-    } catch (err) {
-      return err.message;
-    }
+  fetchVariablesAsObj() {
+    Variable.findOne({ type: 'default' })
+      .then(variables => {
+        const {
+          oneOffMembershipPercent,
+          loyaltyPointAllocation,
+          productTradingValue,
+          productTradingRangeValue,
+          productPriceMultiplier,
+          productTradingPriceMultiplier,
+          transactionFee,
+          freeMembershipDiscountDivisor,
+          paidMembershipDiscountDivisor,
+          annualMembershipFee,
+        } = variables;
+        return {
+          oneOffMembershipPercent,
+          loyaltyPointAllocation,
+          productTradingValue,
+          productTradingRangeValue,
+          productPriceMultiplier,
+          productTradingPriceMultiplier,
+          transactionFee,
+          freeMembershipDiscountDivisor,
+          paidMembershipDiscountDivisor,
+          annualMembershipFee,
+        };
+      })
+      .catch(err => {
+        return err.message;
+      });
   },
 };

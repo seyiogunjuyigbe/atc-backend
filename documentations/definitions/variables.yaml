@@ -1,0 +1,28 @@
+# Variable Definitions
+  Variable:
+    type: object
+    properties:
+      oneOffMembershipPercent:
+        type: number
+      loyaltyPointAllocation:
+        type: number    
+      productTradingValue:
+        type: number      
+      productTradingRangeValue:
+        type: array
+        items:
+          type: number     
+      productPriceMultiplier:
+        type: number      
+      productTradingPriceMultiplier:
+        type: number      
+      transactionFee:
+        type: number      
+      freeMembershipDiscountDivisor:
+        type: number      
+      paidMembershipDiscountDivisor:
+        type: number      
+      annualMembershipFee:
+        type: number      
+      type:
+        type: string     
