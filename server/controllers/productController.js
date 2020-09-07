@@ -31,18 +31,18 @@ const credential = require('../config/local');
 
 function calcPrice(price, point, value, multiplier) {
   if (price === undefined || Number.isNaN(Number(price) === true)) return 0;
-  return Math.round(
+  return Number(
     (price + (point / 100) * price + (value / 100) * price) * multiplier
-  );
+  ).toFixed(2);
 }
 function calcRandomPrice(price, values, points, multiplier) {
   if (price === undefined || Number.isNaN(Number(price) === true)) return 0;
-  return Math.round(
+  return Number(
     (price +
       (points / 100) * price +
       (values[Math.floor(Math.random() * values.length)] / 100) * price) *
       multiplier
-  );
+  ).toFixed(2);
 }
 async function calc(obj) {
   try {
@@ -87,7 +87,7 @@ async function calc(obj) {
         productTradingPriceMultiplier
       ),
       adultFreeMembershipDiscountedPrice:
-        Math.round(
+        Number(
           (calcPrice(
             obj.adult,
             loyaltyPointAllocation,
@@ -96,9 +96,9 @@ async function calc(obj) {
           ) /
             freeMembershipDiscountDivisor) *
             (transactionFee / 100)
-        ) || 0,
+        ).toFixed(2) || 0,
       childrenFreeMembershipDiscountedPrice:
-        Math.round(
+        Number(
           (calcPrice(
             obj.children,
             loyaltyPointAllocation,
@@ -107,9 +107,9 @@ async function calc(obj) {
           ) /
             freeMembershipDiscountDivisor) *
             (transactionFee / 100)
-        ) || 0,
+        ).toFixed(2) || 0,
       adultPaidMembershipDiscountedPrice:
-        Math.round(
+        Number(
           (calcPrice(
             obj.adult,
             loyaltyPointAllocation,
@@ -118,9 +118,9 @@ async function calc(obj) {
           ) /
             paidMembershipDiscountDivisor) *
             (transactionFee / 100)
-        ) || 0,
+        ).toFixed(2) || 0,
       childrenPaidMembershipDiscountedPrice:
-        Math.round(
+        Number(
           (calcPrice(
             obj.children,
             loyaltyPointAllocation,
@@ -129,7 +129,7 @@ async function calc(obj) {
           ) /
             paidMembershipDiscountDivisor) *
             (transactionFee / 100)
-        ) || 0,
+        ).toFixed(2) || 0,
       adultOneOffMembershipFee:
         (oneOffMembershipPercent / 100) * obj.adult || 0,
       childrenOneOffMembershipFee:
@@ -157,7 +157,7 @@ async function fetchWithStats(model, doc, hours) {
     if (hours) {
       purchases = sales.filter(purchase => {
         return (
-          Math.round(
+          Number(
             moment.duration(moment().diff(moment(purchase.paidAt))).asHours()
           ) <= Number(hours)
         );
@@ -168,7 +168,7 @@ async function fetchWithStats(model, doc, hours) {
             moment
               .duration(moment().diff(moment(recommendation.date)))
               .asHours()
-          ) <= Number(hours)
+          ) <= Math.round(hours)
         );
       });
     } else {

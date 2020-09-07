@@ -2,21 +2,31 @@ const { Variable } = require('../models');
 const { success, error } = require('../middlewares/response');
 
 module.exports = {
+  async createVariables(req, res) {
+    try {
+      const variable = await Variable.create({ ...req.body });
+      return success(res, 200, {
+        message: 'Variables created',
+        variable,
+      });
+    } catch (err) {
+      return error(res, 500, err.message);
+    }
+  },
   async updateVariables(req, res) {
     try {
-      let variable = await Variable.findOneAndUpdate(
-        { type: 'default' },
-        { ...req.body }
-      );
-      if (variable) {
-        await variable.save();
-      } else {
-        variable = await Variable.create({ ...req.body, type: 'default' });
+      const variable = await Variable.findOne({
+        type: req.params.variableType,
+      });
+      if (!variable) {
+        return error(res, 404, 'Invalid variable type selected');
       }
-      const newVariables = await Variable.findOne({ type: 'default' });
+      variable.set({ values: req.body });
+      await variable.save();
+
       return success(res, 200, {
         message: 'Variables updated',
-        variable: newVariables,
+        variable,
       });
     } catch (err) {
       return error(res, 500, err.message);

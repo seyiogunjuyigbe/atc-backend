@@ -1,9 +1,9 @@
 # Variable Paths
   /variables:
     post:
-      summary: Update product variables
-      description: Update product variables
-      operationId: updateVariables
+      summary: Create Site variables
+      description: Create Site variables
+      operationId: createVariables
       tags:
       - Variables
       parameters:
@@ -22,6 +22,32 @@
           schema:
             example:
              $ref: "#/definitions/Variable"
+    put:
+      summary: Update Site variables
+      description: Update Site variables
+      operationId: updateVariables
+      tags:
+      - Variables
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: variableType
+          description: Variable type
+          required: true          
+        - in: body
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/Variable'          
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+             $ref: "#/definitions/Variable"             
     get:
       summary: Fetch product variables
       description: Fetch product variables
