@@ -10,6 +10,11 @@ router.put(
   checkIfAdmin,
   variableCtrl.updateVariables
 );
-router.get('/', authenticate, variableCtrl.fetchVariables);
+router.get('/', authenticate, variableCtrl.fetchAllVariables);
+router.get(
+  '/:variableType',
+  authenticate,
+  variableCtrl.fetchSingleVariableType
+);
 
 module.exports = router;

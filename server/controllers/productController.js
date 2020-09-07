@@ -46,7 +46,7 @@ function calcRandomPrice(price, values, points, multiplier) {
 }
 async function calc(obj) {
   try {
-    const variables = await Variable.findOne({ type: 'default' });
+    const variables = await Variable.findOne({ type: 'product-variables' });
     const {
       oneOffMembershipPercent,
       loyaltyPointAllocation,
@@ -58,7 +58,7 @@ async function calc(obj) {
       freeMembershipDiscountDivisor,
       paidMembershipDiscountDivisor,
       annualMembershipFee,
-    } = variables;
+    } = variables.values;
     return {
       vendorPrice: obj.adult,
       childrenPrice: obj.children,

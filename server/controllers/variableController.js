@@ -32,46 +32,26 @@ module.exports = {
       return error(res, 500, err.message);
     }
   },
-  async fetchVariables(req, res) {
+  async fetchAllVariables(req, res) {
     try {
-      const variable = await Variable.findOne({ type: 'default' });
+      const variables = await Variable.find({});
       return success(res, 200, {
-        variable,
+        variables,
       });
     } catch (err) {
       return error(res, 500, err.message);
     }
   },
-  fetchVariablesAsObj() {
-    Variable.findOne({ type: 'default' })
-      .then(variables => {
-        const {
-          oneOffMembershipPercent,
-          loyaltyPointAllocation,
-          productTradingValue,
-          productTradingRangeValue,
-          productPriceMultiplier,
-          productTradingPriceMultiplier,
-          transactionFee,
-          freeMembershipDiscountDivisor,
-          paidMembershipDiscountDivisor,
-          annualMembershipFee,
-        } = variables;
-        return {
-          oneOffMembershipPercent,
-          loyaltyPointAllocation,
-          productTradingValue,
-          productTradingRangeValue,
-          productPriceMultiplier,
-          productTradingPriceMultiplier,
-          transactionFee,
-          freeMembershipDiscountDivisor,
-          paidMembershipDiscountDivisor,
-          annualMembershipFee,
-        };
-      })
-      .catch(err => {
-        return err.message;
+  async fetchSingleVariableType(req, res) {
+    try {
+      const variables = await Variable.findOne({
+        type: req.params.variableType,
       });
+      return success(res, 200, {
+        variables,
+      });
+    } catch (err) {
+      return error(res, 500, err.message);
+    }
   },
 };

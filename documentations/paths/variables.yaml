@@ -21,36 +21,10 @@
           description: Success
           schema:
             example:
-             $ref: "#/definitions/Variable"
-    put:
-      summary: Update Site variables
-      description: Update Site variables
-      operationId: updateVariables
-      tags:
-      - Variables
-      parameters:
-        - in: header
-          name: Authorization
-          description: Authentication token
-          required: true
-        - in: path
-          name: variableType
-          description: Variable type
-          required: true          
-        - in: body
-          name: payload
-          required: true
-          schema:
-            $ref: '#/definitions/Variable'          
-      responses:
-        200:
-          description: Success
-          schema:
-            example:
-             $ref: "#/definitions/Variable"             
+             $ref: "#/definitions/Variable"            
     get:
-      summary: Fetch product variables
-      description: Fetch product variables
+      summary: Fetch all site variables
+      description: Fetch all site variables
       operationId: fetchVariables
       tags:
       - Variables
@@ -76,3 +50,62 @@
           schema:
             example:
               message: An unexpected error occured
+  /variables/{variableType}:   
+    put:
+      summary: Update Site variables
+      description: Update Site variables
+      operationId: updateVariables
+      tags:
+      - Variables
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: variableType
+          description: Variable type
+          required: true          
+        - in: body
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/Variable'          
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+             $ref: "#/definitions/Variable"      
+    get:
+      summary: Fetch variable type
+      description: Fetch variable type
+      operationId: fetchVariables
+      tags:
+      - Variables
+      parameters:
+        - in: header
+          name: Authorization
+          description: Authentication token
+          required: true
+        - in: path
+          name: variableType
+          description: Variable type
+          required: true            
+      responses:
+        200:
+          description: Success
+          schema:
+            example:
+             $ref: "#/definitions/Variable"
+        403:
+          description: Not authorized
+          schema:
+            example:
+              message: You are not authorized to access this resource
+        500:
+          description: Unexpected server error
+          schema:
+            example:
+              message: An unexpected error occured
+                       
