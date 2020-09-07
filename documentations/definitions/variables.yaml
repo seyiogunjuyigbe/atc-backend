@@ -1,0 +1,8 @@
+# Variable Definitions
+  Variable:
+    type: object
+    properties:     
+      type:
+        type: string 
+      values:
+        type: object    

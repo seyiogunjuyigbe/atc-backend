@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const { Membership, User, Transaction } = require('../models/index');
+const { Membership, User, Transaction } = require('../models');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response');
 const { createReference } = require('../services/paymentService');
@@ -61,30 +61,19 @@ module.exports = {
   },
   viewMembership: async (req, res) => {
     try {
-      const membership = await Membership.findById(req.params.membershipId);
-      if (!membership) {
-        return res
-          .status(400)
-          .send(responses.error(400, 'Membership not found'));
-      }
-      return res
-        .status(200)
-        .send(
-          responses.success(
-            200,
-            'Record was retreived successfully',
-            membership
-          )
-        );
+      const membership = await Queryservice.findOne(Membership, req);
+      return success(res, 200, membership);
     } catch (err) {
-      return res
-        .status(500)
-        .send(responses.error(500, `Error viewing a user ${err.message}`));
+      return error(res, 500, err.message);
     }
   },
-  listMembership: async (res, req) => {
-    const memberships = await Queryservice.find(Membership, req);
-    return responses.success(res, 200, memberships);
+  listMembership: async (req, res) => {
+    try {
+      const memberships = await Queryservice.find(Membership, req);
+      return success(res, 200, memberships);
+    } catch (err) {
+      return error(res, 500, err.message);
+    }
   },
   updateMembership: async (req, res) => {
     try {

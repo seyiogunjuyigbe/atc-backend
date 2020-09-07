@@ -14,6 +14,7 @@ const {
   Membership,
   User,
   WatchNotification,
+  Variable,
 } = require('../models');
 const responses = require('../helper/responses');
 const { success, error } = require('../middlewares/response');
@@ -28,22 +29,117 @@ const {
 const { defaultMembership } = require('../middlewares/membership');
 const credential = require('../config/local');
 
-function calcPrice(adult) {
-  if (adult === undefined || Number.isNaN(Number(adult) === true)) return 0;
-
-  return Math.round((adult + 0.06 * adult + 0.04 * adult) * 4);
+function calcPrice(price, point, value, multiplier) {
+  if (price === undefined || Number.isNaN(Number(price) === true)) return 0;
+  return Number(
+    (price + (point / 100) * price + (value / 100) * price) * multiplier
+  ).toFixed(2);
 }
-function calc(obj) {
-  return {
-    vendorPrice: obj.adult,
-    childrenPrice: obj.children,
-    productAdultPrice: calcPrice(obj.adult),
-    freeMembershipDiscountedPrice:
-      Math.round(calcPrice(obj.adult) / 2 + calcPrice(obj.adult) * 0.05) || 0,
-    paidMembershipDiscountedPrice:
-      Math.round(calcPrice(obj.adult) / 3 + calcPrice(obj.adult) * 0.05) || 0,
-    oneOffMembershipFee: 0.21 * obj.adult || 0,
-  };
+function calcRandomPrice(price, values, points, multiplier) {
+  if (price === undefined || Number.isNaN(Number(price) === true)) return 0;
+  return Number(
+    (price +
+      (points / 100) * price +
+      (values[Math.floor(Math.random() * values.length)] / 100) * price) *
+      multiplier
+  ).toFixed(2);
+}
+async function calc(obj) {
+  try {
+    const variables = await Variable.findOne({ type: 'product-variables' });
+    const {
+      oneOffMembershipPercent,
+      loyaltyPointAllocation,
+      productTradingValue,
+      productTradingRangeValue,
+      productPriceMultiplier,
+      productTradingPriceMultiplier,
+      transactionFee,
+      freeMembershipDiscountDivisor,
+      paidMembershipDiscountDivisor,
+      annualMembershipFee,
+    } = variables.values;
+    return {
+      vendorPrice: obj.adult,
+      childrenPrice: obj.children,
+      productAdultPrice: calcPrice(
+        obj.adult,
+        loyaltyPointAllocation,
+        productTradingValue,
+        productPriceMultiplier
+      ),
+      productChildrenPrice: calcPrice(
+        obj.children,
+        loyaltyPointAllocation,
+        productTradingValue,
+        productPriceMultiplier
+      ),
+      productAdultTradingPrice: calcRandomPrice(
+        obj.adult,
+        productTradingRangeValue,
+        loyaltyPointAllocation,
+        productTradingPriceMultiplier
+      ),
+      productChildrenTradingPrice: calcRandomPrice(
+        obj.children,
+        productTradingRangeValue,
+        loyaltyPointAllocation,
+        productTradingPriceMultiplier
+      ),
+      adultFreeMembershipDiscountedPrice:
+        Number(
+          (calcPrice(
+            obj.adult,
+            loyaltyPointAllocation,
+            productTradingValue,
+            productPriceMultiplier
+          ) /
+            freeMembershipDiscountDivisor) *
+            (transactionFee / 100)
+        ).toFixed(2) || 0,
+      childrenFreeMembershipDiscountedPrice:
+        Number(
+          (calcPrice(
+            obj.children,
+            loyaltyPointAllocation,
+            productTradingValue,
+            productPriceMultiplier
+          ) /
+            freeMembershipDiscountDivisor) *
+            (transactionFee / 100)
+        ).toFixed(2) || 0,
+      adultPaidMembershipDiscountedPrice:
+        Number(
+          (calcPrice(
+            obj.adult,
+            loyaltyPointAllocation,
+            productTradingValue,
+            productPriceMultiplier
+          ) /
+            paidMembershipDiscountDivisor) *
+            (transactionFee / 100)
+        ).toFixed(2) || 0,
+      childrenPaidMembershipDiscountedPrice:
+        Number(
+          (calcPrice(
+            obj.children,
+            loyaltyPointAllocation,
+            productTradingValue,
+            productPriceMultiplier
+          ) /
+            paidMembershipDiscountDivisor) *
+            (transactionFee / 100)
+        ).toFixed(2) || 0,
+      adultOneOffMembershipFee:
+        (oneOffMembershipPercent / 100) * obj.adult || 0,
+      childrenOneOffMembershipFee:
+        (oneOffMembershipPercent / 100) * obj.children || 0,
+      annualMembershipFee,
+    };
+  } catch (err) {
+    console.log({ err });
+    return null;
+  }
 }
 async function fetchWithStats(model, doc, hours) {
   let purchases;
@@ -61,7 +157,7 @@ async function fetchWithStats(model, doc, hours) {
     if (hours) {
       purchases = sales.filter(purchase => {
         return (
-          Math.round(
+          Number(
             moment.duration(moment().diff(moment(purchase.paidAt))).asHours()
           ) <= Number(hours)
         );
@@ -72,7 +168,7 @@ async function fetchWithStats(model, doc, hours) {
             moment
               .duration(moment().diff(moment(recommendation.date)))
               .asHours()
-          ) <= Number(hours)
+          ) <= Math.round(hours)
         );
       });
     } else {
@@ -113,21 +209,25 @@ module.exports = {
         name: req.body.packageName,
         length: req.body.length,
       });
-      const productList = req.body.products.map(data => ({
-        ...data,
-        package: createdPackage._id,
-        owner: req.user._id,
-        price: calc(data.price),
-        sellingCycle: data.sellingCycle,
-        waitingCycle: data.waitingCycle,
-        customPrices: data.customPrices.map(price => ({
-          range: price.range,
-          prices: calc(price.prices),
-        })),
-      }));
-      const mainProductObject = productList.filter(
+      const productList = await Promise.all(
+        req.body.products.map(async data => ({
+          ...data,
+          package: createdPackage._id,
+          owner: req.user._id,
+          price: await calc(data.price),
+          sellingCycle: data.sellingCycle,
+          waitingCycle: data.waitingCycle,
+          customPrices: await Promise.all(
+            data.customPrices.map(async price => ({
+              range: price.range,
+              prices: await calc(price.prices),
+            }))
+          ),
+        }))
+      );
+      const mainProductObject = productList.find(
         ({ isMainProduct }) => isMainProduct
-      )[0];
+      );
       if (!mainProductObject)
         return res
           .status(500)
@@ -141,9 +241,7 @@ module.exports = {
         req.body.sellingCycle,
         'days'
       );
-      await Product.create(
-        productList.filter(({ isMainProduct }) => !isMainProduct)
-      );
+      await Product.create(...productList);
       const mainProductInfo = await Product.create({
         ...mainProductObject,
         sellingCycle,
