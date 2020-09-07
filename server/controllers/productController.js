@@ -27,28 +27,84 @@ const {
 } = require('../services/walletService');
 const { defaultMembership } = require('../middlewares/membership');
 const credential = require('../config/local');
+const { fetchVariablesAsObj } = require('./variableController');
 
-function calcPrice(adult) {
-  if (adult === undefined || Number.isNaN(Number(adult) === true)) return 0;
-
-  return Math.round((adult + 0.06 * adult + 0.04 * adult) * 4);
+const variables = async () => {
+  try {
+    const vars = await fetchVariablesAsObj();
+    return vars;
+  } catch (err) {
+    return null;
+  }
+};
+const {
+  oneOffMembershipPercent,
+  loyaltyPointAllocation,
+  productTradingValue,
+  productTradingRangeValue,
+  productPriceMultiplier,
+  productTradingPriceMultiplier,
+  transactionFee,
+  freeMembershipDiscountDivisor,
+  paidMembershipDiscountDivisor,
+  annualMembershipFee,
+} = variables;
+function calcPrice(price) {
+  if (price === undefined || Number.isNaN(Number(price) === true)) return 0;
+  return Math.round(
+    (price +
+      (loyaltyPointAllocation / 100) * price +
+      (productTradingValue / 100) * price) *
+      productPriceMultiplier
+  );
+}
+function calcRandomPrice(price, values) {
+  if (price === undefined || Number.isNaN(Number(price) === true)) return 0;
+  return Math.round(
+    (price +
+      (loyaltyPointAllocation / 100) * price +
+      (values[Math.floor(Math.random() * values.length)] / 100) * price) *
+      productTradingPriceMultiplier
+  );
 }
 function calc(obj) {
   return {
     vendorPrice: obj.adult,
     childrenPrice: obj.children,
     productAdultPrice: calcPrice(obj.adult),
-    productChildrenPrice: calcPrice(obj.adult),
+    productChildrenPrice: calcPrice(obj.children),
+    productAdultTradingPrice: calcRandomPrice(
+      obj.adult,
+      productTradingRangeValue
+    ),
+    productChildrenTradingPrice: calcRandomPrice(
+      obj.children,
+      productTradingRangeValue
+    ),
     adultFreeMembershipDiscountedPrice:
-      Math.round(calcPrice(obj.adult) / 2 + calcPrice(obj.adult) * 0.05) || 0,
+      Math.round(
+        (calcPrice(obj.adult) / freeMembershipDiscountDivisor) *
+          (transactionFee / 100)
+      ) || 0,
     childrenFreeMembershipDiscountedPrice:
-      Math.round(calcPrice(obj.adult) / 2 + calcPrice(obj.adult) * 0.05) || 0,
+      Math.round(
+        (calcPrice(obj.children) / freeMembershipDiscountDivisor) *
+          (transactionFee / 100)
+      ) || 0,
     adultPaidMembershipDiscountedPrice:
-      Math.round(calcPrice(obj.adult) / 3 + calcPrice(obj.adult) * 0.05) || 0,
+      Math.round(
+        (calcPrice(obj.adult) / paidMembershipDiscountDivisor) *
+          (transactionFee / 100)
+      ) || 0,
     childrenPaidMembershipDiscountedPrice:
-      Math.round(calcPrice(obj.adult) / 3 + calcPrice(obj.adult) * 0.05) || 0,
-    adultOneOffMembershipFee: 0.21 * obj.adult || 0,
-    childrenOneOffMembershipFee: 0.21 * obj.adult || 0,
+      Math.round(
+        (calcPrice(obj.children) / paidMembershipDiscountDivisor) *
+          (transactionFee / 100)
+      ) || 0,
+    adultOneOffMembershipFee: (oneOffMembershipPercent / 100) * obj.adult || 0,
+    childrenOneOffMembershipFee:
+      (oneOffMembershipPercent / 100) * obj.children || 0,
+    annualMembershipFee,
   };
 }
 async function fetchWithStats(model, doc, hours) {

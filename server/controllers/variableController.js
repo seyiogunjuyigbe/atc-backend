@@ -4,21 +4,39 @@ const { success, error } = require('../middlewares/response');
 module.exports = {
   async updateVariables(req, res) {
     try {
-      let existingVariable = await Variable.findOneAndUpdate(
+      let variable = await Variable.findOneAndUpdate(
         { type: 'default' },
         req.body
       );
-      if (existingVariable) {
-        await existingVariable.save();
+      if (variable) {
+        await variable.save();
       } else {
-        existingVariable = await Variable.create({ ...req.body });
+        variable = await Variable.create({ ...req.body });
       }
       return success(res, 200, {
         message: 'Variables updated',
-        existingVariable,
+        variable,
       });
     } catch (err) {
       return error(res, 500, err.message);
+    }
+  },
+  async fetchVariables(req, res) {
+    try {
+      const variable = await Variable.findOne({ type: 'default' });
+      return success(res, 200, {
+        variable,
+      });
+    } catch (err) {
+      return error(res, 500, err.message);
+    }
+  },
+  async fetchVariablesAsObj() {
+    try {
+      const variable = await Variable.findOne({ type: 'default' });
+      return variable;
+    } catch (err) {
+      return err.message;
     }
   },
 };

@@ -11,7 +11,8 @@ const variableSchema = new Schema(
     productTradingPriceMultiplier: Number,
     transactionFee: Number,
     freeMembershipDiscountDivisor: Number,
-    membershipDiscountDivisor: Number,
+    paidMembershipDiscountDivisor: Number,
+    annualMembershipFee: Number,
     type: String,
   },
   { timestamps: true }

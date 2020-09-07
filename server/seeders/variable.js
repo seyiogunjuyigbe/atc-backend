@@ -16,7 +16,8 @@ module.exports = {
           productTradingPriceMultiplier: 4,
           transactionFee: 5,
           freeMembershipDiscountDivisor: 2,
-          membershipDiscountDivisor: 3,
+          paidMembershipDiscountDivisor: 3,
+          annualMembershipFee: 200,
         });
         console.log('Default variables seeded');
       }
